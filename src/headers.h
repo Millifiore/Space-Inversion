@@ -10,4 +10,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
+//Game Includes
+#include "clock.h"
+
 using namespace std; 

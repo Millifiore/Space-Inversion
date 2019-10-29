@@ -26,6 +26,9 @@ int SpaceInversion::Start(int argc, char** argv){
     // Create event handler
     event = SDL_Event();
 
+    // Start clock
+    clock = Clock();
+
     //Start running the app
     running = true;
 
@@ -47,6 +50,9 @@ void SpaceInversion::Loop(){
 }
 
 void SpaceInversion::Process(){
+    //Clock tick
+    clock.Tick();
+    
     //Event Loop
     while (SDL_PollEvent(&event)){
         if (event.type == SDL_QUIT){

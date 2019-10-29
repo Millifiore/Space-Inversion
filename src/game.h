@@ -15,6 +15,9 @@ private:
     Uint32 WINDOW_FLAGS = SDL_WINDOW_SHOWN;
     Uint32 RENDERER_FLAGS = 0;
 
+    //Private objects
+    Clock clock;
+
     // Private functions
     void Process();
     void Render();
