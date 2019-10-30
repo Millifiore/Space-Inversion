@@ -1,6 +1,7 @@
 #pragma once
 #include "headers.h"
 #include "functions.h"
+#include "player.h"
 
 class SpaceInversion{
 private:
@@ -16,7 +17,10 @@ private:
     Uint32 RENDERER_FLAGS = 0;
 
     //Private objects
+    const Uint8 * keyboard;
     Clock clock;
+    SpriteCache * cache;
+    Player * p1;
 
     // Private functions
     void Process();

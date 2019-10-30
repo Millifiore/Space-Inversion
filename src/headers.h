@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <memory>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>

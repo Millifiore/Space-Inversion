@@ -29,6 +29,10 @@ int SpaceInversion::Start(int argc, char** argv){
     // Start clock
     clock = Clock();
 
+    // Initialize objects
+    cache = new SpriteCache(renderer);
+    p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
+
     //Start running the app
     running = true;
 
@@ -44,15 +48,20 @@ void SpaceInversion::Loop(){
         Process();
         Render();
 
+        SDL_Delay(1);
+
     #ifndef __EMSCRIPTEN__
     }
     #endif
 }
 
 void SpaceInversion::Process(){
+    // Keyboard
+    keyboard = SDL_GetKeyboardState(NULL);
+
     //Clock tick
     clock.Tick();
-    
+
     //Event Loop
     while (SDL_PollEvent(&event)){
         if (event.type == SDL_QUIT){
@@ -61,20 +70,40 @@ void SpaceInversion::Process(){
         }
     }
 
-    // General Game loop stuff goes here [...]
+    // General Game loop stuff goes here 
 
+    if (keyboard[SDL_SCANCODE_LEFT]){
+        p1->Move("left");
+    }
+    else if (keyboard[SDL_SCANCODE_RIGHT]) {
+        p1->Move("right");
+    }
+    else{
+        p1->Move("none");
+    }
+
+    if (keyboard[SDL_SCANCODE_SPACE]) {
+        p1->Attack();
+    }
+    //cout << clock.delta_time_s << endl;
+    p1->Process(clock);
 }
 
 void SpaceInversion::Render(){
     //Rendering
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
     SDL_RenderClear(renderer);
-    // General rendering goes here [...]
+
+    // General rendering goes here 
+    p1->Render();
+
     SDL_RenderPresent(renderer);
 
 }
 
 SpaceInversion::~SpaceInversion(){
+    delete p1;
+    delete cache;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
