@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>uMario</title>
+  </head>
+  <body background="/static/background.jpeg" style="text-align: center">
+    <h1> <font color='white'>Space Inversion!</font></h1>
+    <div style="display: inline-block">
+      <p id='loading'><font color='white'>Loading...</font></p>
+      <canvas id= "canvas" style='border:1px solid; background-color:black' width="800" height="448"></canvas>
+      <script type="application/javascript" src="/static/SpaceInversion.js"></script>
+      <script type="application/javascript">
+
+        var M = Module({
+            canvas: (() => document.getElementById('canvas'))(),
+        });
+
+        M.setStatus = (text) => {
+          if (!M.setStatus.last) M.setStatus.last = { time: Date.now(), text: '' };
+          if (text === M.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          if (m){
+            var percentage = parseInt((parseInt(m[2]) / parseInt(m[4])) * 100);
+            document.getElementById('loading').style = 'color: white'
+            document.getElementById('loading').innerHTML = 'Loading: ' + percentage + '%'; 
+          }
+        };
+
+        M.setStatus('Downloading...');
+
+        M.then(() => {
+            document.getElementById('loading').innerHTML = '';
+            console.log('Loaded!')
+        });
+      </script>
+      <p><font color='white'>Press "W" and "D" to move left and right.</font></p>
+      <p><font color='white'>Press Spacebar to shoot</font></p>
+
+    </div>
+  </body>
+</html>

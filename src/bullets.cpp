@@ -19,4 +19,11 @@ void Bullet::Render(){
     SDL_RenderFillRect(renderer, &bullet);
 }
 
+bool Bullet::IsTouchingRect(SDL_Rect* rect){
+    if (SDL_HasIntersection(&bullet, rect)){
+        return true;
+    }
+    return false;
+}
+
 Bullet::~Bullet(){}

@@ -1,7 +1,9 @@
-#include "player.h"
+#include "enemy.h"
 
-Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip){
+Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t){
     renderer = cache->renderer;
+    type = t;
+
     x_pos = x;
     y_pos = y;
     width = w;
@@ -12,13 +14,33 @@ Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_
     d_rect.w = w;
     d_rect.h = h;
 
-    moving = false;
+    SDL_Rect s_rect;
+    if (type == "villain1"){
+        s_rect = {30, 24, 40, 40};
+    }
+    else if (type == "villain2"){
+        s_rect = {20, 20, 50, 50};
+    }
+    sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, src);
+    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 50, 50}, d_rect, "resources/explosion.bmp", 50, 4, .03);
     state = "DEFAULT";
-    sprites[state] = new Sprite(cache, {30, 24, 37, 37}, d_rect, src);
+    speed = 8;
+    bullet_speed = 4;
+
 }
 
-void Player::Process(Clock * clock){
-    // if the player is moving, move either left or right.
+void Enemy::Process(Clock * clock){
+    // Animate the current sprite if it has an animation 
+    sprites[state]->Animate(clock);
+
+    // If dying animation finished, the sprite is dead.
+    if (state == "DYING"){
+        if (sprites[state]->finished){
+            dead = true;
+        }
+        moving = false;
+    }
+
     if (moving){
         if (direction == "left"){
             x_pos -= ((speed * 10) * clock->delta_time_s);
@@ -26,13 +48,19 @@ void Player::Process(Clock * clock){
         if (direction == "right"){
             x_pos += ((speed * 10) * clock->delta_time_s);
         }
+        if (direction == "up"){
+            y_pos -= ((speed * 10) * clock->delta_time_s);
+        }
+        if (direction == "down"){
+            y_pos += ((speed * 10) * clock->delta_time_s);
+        }
     }
 
     // move bullets in the list/vector up screen.
     int i = 0;
     for (auto bullet: bullets){
         
-        bullet->y_pos -= ((bullet_speed * 100) * clock->delta_time_s);
+        bullet->y_pos += ((bullet_speed * 100) * clock->delta_time_s);
         if (bullet->y_pos <= 0){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
@@ -48,7 +76,7 @@ void Player::Process(Clock * clock){
     }
 
     // if there is a cooldown, count down the cooldown until it reaches the limit, then disable the cooldown.
-    // this is done so that a player can only add a bullet in certain intervals.
+    // this is done so that an enemy can only add a bullet in certain intervals.
     if (attack_cooldown){
         cooldown_timer += clock->delta_time_s;
         if (cooldown_timer >= .3){
@@ -57,17 +85,12 @@ void Player::Process(Clock * clock){
         }
     }
 
-    // Animate the current sprite if it has an animation 
-    sprites[state]->Animate(clock);
-
-    
     erased.clear();
 }
 
-void Player::Move(string d){
-    if (d == "none"){
-        this->moving = false;
-    }   
+void Enemy::Move(string d){
+    if (d == "none")
+        moving = false;
     else{
         moving = true;
         direction = d;
@@ -75,20 +98,19 @@ void Player::Move(string d){
     
 }
 
-void Player::Attack(){
-    // we check the size of the bullet array to make sure that only 3 bullets are on screen at once.
+void Enemy::Attack(){
     if (state == "DEFAULT"){
-        if ((bullets.size() < 3) && !attack_cooldown){
+        if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
                 new Bullet(renderer, x_pos + (int(width/2) - 10),
-                                    y_pos - 10, 10, 10, SDL_Color({0, 255, 0, 255}))
+                                    (y_pos + height) + 10, 10, 10, SDL_Color({255, 0, 0, 255}))
             );
             attack_cooldown = true;
         }
-    }   
+    } 
 }
 
-bool Player::TouchingBullet(SDL_Rect * rect){
+bool Enemy::TouchingBullet(SDL_Rect * rect){
     for (auto bullet: bullets){
         if (SDL_HasIntersection(&bullet->bullet, rect)){
             return true;
@@ -97,7 +119,7 @@ bool Player::TouchingBullet(SDL_Rect * rect){
     return false;
 }
 
-void Player::Render(){
+void Enemy::Render(){
     d_rect.x = x_pos;
     d_rect.y = y_pos;
     sprites[state]->SetDestinationR(&d_rect);
@@ -107,12 +129,12 @@ void Player::Render(){
         bullet->Render();
     }
 
-    // Render the player ship.
+    // Render the enemy ship.
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
    sprites[state]->Render();
 }
 
-Player::~Player(){
+Enemy::~Enemy(){
     for (auto const sprite: sprites){
         delete sprite.second;
     }
@@ -121,5 +143,4 @@ Player::~Player(){
         delete bullets[i];
         bullets.erase(bullets.begin() + i);
     }
-
 }

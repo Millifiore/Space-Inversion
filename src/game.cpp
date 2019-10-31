@@ -23,6 +23,9 @@ int SpaceInversion::Start(int argc, char** argv){
         return 0;
     }
 
+    // Initialize random seed
+    srand(time(NULL));
+
     // Create event handler
     event = SDL_Event();
 
@@ -32,6 +35,8 @@ int SpaceInversion::Start(int argc, char** argv){
     // Initialize objects
     cache = new SpriteCache(renderer);
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
+
+    scene = CreateScene(cache, p1, "resources/levels/level.mx");
 
     //Start running the app
     running = true;
@@ -71,22 +76,8 @@ void SpaceInversion::Process(){
     }
 
     // General Game loop stuff goes here 
+    scene->Process(&clock, keyboard, WIDTH, HEIGHT);
 
-    if (keyboard[SDL_SCANCODE_LEFT]){
-        p1->Move("left");
-    }
-    else if (keyboard[SDL_SCANCODE_RIGHT]) {
-        p1->Move("right");
-    }
-    else{
-        p1->Move("none");
-    }
-
-    if (keyboard[SDL_SCANCODE_SPACE]) {
-        p1->Attack();
-    }
-    //cout << clock.delta_time_s << endl;
-    p1->Process(clock);
 }
 
 void SpaceInversion::Render(){
@@ -95,13 +86,14 @@ void SpaceInversion::Render(){
     SDL_RenderClear(renderer);
 
     // General rendering goes here 
-    p1->Render();
+    scene->RenderScene();
 
     SDL_RenderPresent(renderer);
 
 }
 
 SpaceInversion::~SpaceInversion(){
+    delete scene;
     delete p1;
     delete cache;
     SDL_DestroyRenderer(renderer);
