@@ -39,7 +39,7 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
     if (running){
         
         // Managing movement - new
-        if (keyboard[SDL_SCANCODE_W]){
+        if (keyboard[SDL_SCANCODE_A]){
             player->Move("left");
         }
         else if (keyboard[SDL_SCANCODE_D]) {
