@@ -21,14 +21,14 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
 
         // below we are creating random stars to populate the level, using different layering.
         for (int i=0; i < 9; i++){
-            int random_x = rand() % width + 10;
-            int random_y = rand() % height + 10;
+            int random_x = rand() % (width-5) + 10;
+            int random_y = rand() % (height-5) + 10;
             stars_l1.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
         }
 
         for (int i=0; i < 5; i++){
-            int random_x = rand() % 10 + width;
-            int random_y = rand() % 10 + height;
+            int random_x = rand() % (width-5) + 10;
+            int random_y = rand() % (height-5) + 10;
             stars_l2.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
         }
     
@@ -53,6 +53,16 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
             player->Attack();
         }
 
+        // make sure the player can't move outta bounds.
+        if (player->d_rect.x < 0){
+            player->Move("none");
+            player->x_pos += 1;
+        }
+        else if (player->d_rect.x > width - player->d_rect.w){
+            player->Move("none");
+            player->x_pos -= 1;
+        }
+
         // Process Player and enemies.
         player->Process(clock);
         ManageEnemies(clock, width, height);
@@ -70,6 +80,8 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
                 star->y_pos = star->y_pos - height;
             }
         }
+
+        
 
     }
 }
@@ -92,14 +104,14 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
         if (enemies[i]->state != "DYING"){
             if (enemy_state == "PHASE_LEFT"){
                     enemies[i]->Move("left");
-                    if (enemies[i]->x_pos <= 0){
+                    if (enemies[i]->d_rect.x <= 0){
                         last_state = enemy_state;
                         enemy_state = "PHASE_DOWN";
                     } 
             }
             else if (enemy_state == "PHASE_RIGHT"){
                 enemies[i]->Move("right");
-                if (enemies[i]->x_pos >= width - enemies[i]->d_rect.w){
+                if (enemies[i]->d_rect.x >= width - enemies[i]->d_rect.w){
                     last_state = enemy_state;
                     enemy_state = "PHASE_DOWN";
                 }
@@ -152,7 +164,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
             }
         }
 
-        enemies[i]->Process(clock);
+        enemies[i]->Process(clock, height);
     }
 
     if (shoot_timer >= 3){shoot_timer = 0.0;}

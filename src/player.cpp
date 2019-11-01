@@ -80,8 +80,8 @@ void Player::Attack(){
     if (state == "DEFAULT"){
         if ((bullets.size() < 3) && !attack_cooldown){
             bullets.push_back(
-                new Bullet(renderer, x_pos + (int(width/2) - 10),
-                                    y_pos - 10, 10, 10, SDL_Color({0, 255, 0, 255}))
+                new Bullet(renderer, x_pos,
+                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10, SDL_Color({0, 255, 0, 255}))
             );
             attack_cooldown = true;
         }
@@ -98,10 +98,14 @@ bool Player::TouchingBullet(SDL_Rect * rect){
 }
 
 void Player::Render(){
-    d_rect.x = x_pos;
-    d_rect.y = y_pos;
-    sprites[state]->SetDestinationR(&d_rect);
+    d_rect.x = (x_pos - int(d_rect.w / 2));
+    d_rect.y = (y_pos - int(d_rect.h / 2));
+    d_rect.w = sprites[state]->d_rect.w;
+    d_rect.h = sprites[state]->d_rect.h;
 
+    // Set the position of the rendered sprite to be the same position as the player
+    sprites[state]->SetPos(x_pos, y_pos);
+    
     // Render any bullets if they exist.
     for (auto bullet: bullets){
         bullet->Render();

@@ -27,7 +27,7 @@ public:
 
     Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t);
 
-    void Process(Clock * clock);
+    void Process(Clock * clock, int height);
     void Move(string d);
     void SetPos(int x, int y);
     void Attack();

@@ -22,14 +22,14 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
         s_rect = {20, 20, 50, 50};
     }
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, src);
-    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 50, 50}, d_rect, "resources/explosion.bmp", 50, 4, .03);
+    sprites["DYING"] = new AnimatedSprite(cache, {2, -2, 50, 50}, {d_rect.x, d_rect.y, d_rect.w + 30, d_rect.h + 30}, "resources/explosion.bmp", 50, 4, .09);
     state = "DEFAULT";
     speed = 8;
     bullet_speed = 4;
 
 }
 
-void Enemy::Process(Clock * clock){
+void Enemy::Process(Clock * clock, int height){
     // Animate the current sprite if it has an animation 
     sprites[state]->Animate(clock);
 
@@ -56,12 +56,12 @@ void Enemy::Process(Clock * clock){
         }
     }
 
-    // move bullets in the list/vector up screen.
+    // move bullets in the list/vector down screen.
     int i = 0;
     for (auto bullet: bullets){
         
         bullet->y_pos += ((bullet_speed * 100) * clock->delta_time_s);
-        if (bullet->y_pos <= 0){
+        if (bullet->y_pos >= height){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
             }
@@ -102,8 +102,8 @@ void Enemy::Attack(){
     if (state == "DEFAULT"){
         if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
-                new Bullet(renderer, x_pos + (int(width/2) - 10),
-                                    (y_pos + height) + 10, 10, 10, SDL_Color({255, 0, 0, 255}))
+                new Bullet(renderer, x_pos,
+                                    (d_rect.y + (d_rect.w/2)) + 10, 10, 10, SDL_Color({255, 0, 0, 255}))
             );
             attack_cooldown = true;
         }
@@ -120,9 +120,13 @@ bool Enemy::TouchingBullet(SDL_Rect * rect){
 }
 
 void Enemy::Render(){
-    d_rect.x = x_pos;
-    d_rect.y = y_pos;
-    sprites[state]->SetDestinationR(&d_rect);
+    d_rect.x = (x_pos - int(d_rect.w / 2));
+    d_rect.y = (y_pos - int(d_rect.h / 2));
+    d_rect.w = sprites[state]->d_rect.w;
+    d_rect.h = sprites[state]->d_rect.h;
+
+    // Set the position of the rendered sprite to be the same position as the enemy
+    sprites[state]->SetPos(x_pos, y_pos);
 
     // Render any bullets if they exist.
     for (auto bullet: bullets){

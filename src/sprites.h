@@ -22,9 +22,12 @@ public:
     SDL_Rect s_rect;
     SDL_Renderer * renderer;
     SDL_RendererFlip flip;
+    int x; 
+    int y;
 
     bool finished = false;
     Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f = SDL_FLIP_NONE);
+    void SetPos(int xpos, int ypos);
     void SetDestinationR(SDL_Rect * r);
     virtual void Animate(Clock * clock);
     void Render();

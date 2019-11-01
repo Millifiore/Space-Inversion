@@ -32,9 +32,16 @@ Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL
     d_rect = d;
     renderer = cache->renderer;
     flip = f;
+    x = d_rect.x;
+    y = d_rect.y;
 }
 
 void Sprite::Animate(Clock * clock){finished = true;}
+
+void Sprite::SetPos(int xpos, int ypos){
+    x = xpos;
+    y = ypos;
+}
 
 void Sprite::SetDestinationR(SDL_Rect * r){
     d_rect.x = r->x;
@@ -44,6 +51,8 @@ void Sprite::SetDestinationR(SDL_Rect * r){
 }
 
 void Sprite::Render(){
+    d_rect.x = (x - (d_rect.w / 2));
+    d_rect.y = (y - (d_rect.h / 2));
     //SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     //SDL_RenderFillRect(renderer, &d_rect);
     SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, NULL, nullptr, flip);
