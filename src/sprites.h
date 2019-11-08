@@ -24,12 +24,15 @@ public:
     SDL_RendererFlip flip;
     int x; 
     int y;
+    int starting_s_x;
+    int starting_s_y;
 
     bool finished = false;
     Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f = SDL_FLIP_NONE);
     void SetPos(int xpos, int ypos);
     void SetDestinationR(SDL_Rect * r);
     virtual void Animate(Clock * clock);
+    virtual void Reset();
     void Render();
     ~Sprite();
 };
@@ -47,5 +50,6 @@ public:
    
     AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, int f_o, int n_o_f, double ut, SDL_RendererFlip f = SDL_FLIP_NONE);
     void Animate(Clock * clock);
+    void Reset();
     ~AnimatedSprite();
 };

@@ -38,7 +38,7 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
 
     if (running){
         
-        // Managing movement - new
+        // Managing movement for player
         if (keyboard[SDL_SCANCODE_A]){
             player->Move("left");
         }
@@ -53,17 +53,23 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
             player->Attack();
         }
 
+        if (keyboard[SDL_SCANCODE_R]) {
+            for (auto enemy: enemies){
+                enemy->Reset();
+            }
+        }
+
         // make sure the player can't move outta bounds.
-        if (player->d_rect.x < 0){
+        if (player->d_rect.x < -1){
             player->Move("none");
             player->x_pos += 1;
         }
-        else if (player->d_rect.x > width - player->d_rect.w){
+        else if (player->d_rect.x > width - (player->d_rect.w - 1)){
             player->Move("none");
             player->x_pos -= 1;
         }
 
-        // Process Player and enemies.
+        // Process player and enemies.
         player->Process(clock);
         ManageEnemies(clock, width, height);
 
@@ -81,11 +87,12 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
             }
         }
 
-        
-
     }
 }
 
+
+// This method handles all of the specific interactions between enemies (of different types), and the player, as well
+// as that's important for interactions.
 void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     if (enemy_state == "PHASE_DOWN"){
         countdown += clock->delta_time_s;
@@ -99,15 +106,15 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     }
 
     for (int i = 0; i < enemies.size(); i++){
-        // Process the enemey as soon as it comes up.
-        
-        if (enemies[i]->state != "DYING"){
+
+        // Process the enemy as soon as it comes up.   
+        if (!enemies[i]->dead){
             if (enemy_state == "PHASE_LEFT"){
-                    enemies[i]->Move("left");
-                    if (enemies[i]->d_rect.x <= 0){
-                        last_state = enemy_state;
-                        enemy_state = "PHASE_DOWN";
-                    } 
+                enemies[i]->Move("left");
+                if (enemies[i]->d_rect.x <= 0){
+                    last_state = enemy_state;
+                    enemy_state = "PHASE_DOWN";
+                } 
             }
             else if (enemy_state == "PHASE_RIGHT"){
                 enemies[i]->Move("right");
@@ -128,28 +135,30 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                         countdown = 0.0;
                     }
                 }
-            } 
-        }
+            }     
+        }  
 
         // select a random ship to shoot at the player.
-        if (shoot_timer >= 3){
-            if (i == random_index){
-                if (enemies[i]->state != "DYING"){
-                    enemies[i]->Attack();
-                }        
+        if (!enemies[i]->dead){
+            if (shoot_timer >= 2){
+                if (i == random_index){
+                    enemies[i]->Attack();         
+                }
             }
         }
 
         // check if the enemy collided with any of the players bullets.
         if (player->TouchingBullet(&enemies[i]->d_rect)){
-            enemies[i]->state = "DYING";
             int index = 0;
             for (auto bullet: player->bullets){
-                if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
-                    player->erased.push_back(index);
-                }
+                if (enemies[i]->state != "DYING"){
+                    if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
+                        player->erased.push_back(index);
+                    }
+                }   
                 index++;
             }
+            enemies[i]->state = "DYING";    
         }
 
         // check if the player collided with any of the enemy bullets.
@@ -163,22 +172,21 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                 index++;
             }
         }
-
         enemies[i]->Process(clock, height);
     }
 
-    if (shoot_timer >= 3){shoot_timer = 0.0;}
+    if (shoot_timer >= 2){shoot_timer = 0.0;}
 
     // finally, destroy the enemy ship if it is dead.
-    for ( auto enemy = enemies.begin(); enemy != enemies.end(); ) {
-        if( (*enemy)->dead ) {
-            delete * enemy;  
-            enemy = enemies.erase(enemy);
-        }
-        else {
-            ++enemy;
-        }
-    }
+    // for ( auto enemy = enemies.begin(); enemy != enemies.end(); ) {
+    //     if( (*enemy)->dead ) {
+    //         delete * enemy;  
+    //         enemy = enemies.erase(enemy);
+    //     }
+    //     else {
+    //         ++enemy;
+    //     }
+    // }
 
 }
 
@@ -188,7 +196,7 @@ void LevelScene::RenderScene(){
         star->Render();
     }
     for (auto enemy: enemies){
-        enemy->Render();
+        enemy->Render(); 
     }
 
     player->Render();

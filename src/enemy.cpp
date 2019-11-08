@@ -6,6 +6,8 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
 
     x_pos = x;
     y_pos = y;
+    starting_xpos = x_pos;
+    starting_ypos = y_pos;
     width = w;
     height = h;
 
@@ -22,7 +24,7 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
         s_rect = {20, 20, 50, 50};
     }
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, src);
-    sprites["DYING"] = new AnimatedSprite(cache, {2, -2, 50, 50}, {d_rect.x, d_rect.y, d_rect.w + 30, d_rect.h + 30}, "resources/explosion.bmp", 50, 4, .09);
+    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     state = "DEFAULT";
     speed = 8;
     bullet_speed = 4;
@@ -41,18 +43,25 @@ void Enemy::Process(Clock * clock, int height){
         moving = false;
     }
 
-    if (moving){
-        if (direction == "left"){
-            x_pos -= ((speed * 10) * clock->delta_time_s);
-        }
-        if (direction == "right"){
-            x_pos += ((speed * 10) * clock->delta_time_s);
-        }
-        if (direction == "up"){
-            y_pos -= ((speed * 10) * clock->delta_time_s);
-        }
-        if (direction == "down"){
-            y_pos += ((speed * 10) * clock->delta_time_s);
+    if (dead){
+        x_pos = 0;
+        y_pos = 0;
+    }
+
+    else {
+        if (moving){
+            if (direction == "left"){
+                x_pos -= ((speed * 10) * clock->delta_time_s);
+            }
+            if (direction == "right"){
+                x_pos += ((speed * 10) * clock->delta_time_s);
+            }
+            if (direction == "up"){
+                y_pos -= ((speed * 10) * clock->delta_time_s);
+            }
+            if (direction == "down"){
+                y_pos += ((speed * 10) * clock->delta_time_s);
+            }
         }
     }
 
@@ -94,8 +103,27 @@ void Enemy::Move(string d){
     else{
         moving = true;
         direction = d;
+    } 
+}
+
+void Enemy::SetPos(int x, int y){
+    x_pos = x;
+    y_pos = y;
+}
+
+void Enemy::Reset(){
+    for (auto sprite : sprites){
+        sprite.second->Reset();
     }
-    
+    dead = false;
+    state = "DEFAULT";
+    SetPos(starting_xpos, starting_ypos);
+    for (int i = 0; i < bullets.size(); i++){
+        if (find(erased.begin(), erased.end(), i) == erased.end()){
+            delete bullets[i];
+            bullets.erase(bullets.begin() + i);
+        }  
+    }
 }
 
 void Enemy::Attack(){
@@ -120,6 +148,7 @@ bool Enemy::TouchingBullet(SDL_Rect * rect){
 }
 
 void Enemy::Render(){
+    
     d_rect.x = (x_pos - int(d_rect.w / 2));
     d_rect.y = (y_pos - int(d_rect.h / 2));
     d_rect.w = sprites[state]->d_rect.w;
@@ -133,9 +162,14 @@ void Enemy::Render(){
         bullet->Render();
     }
 
-    // Render the enemy ship.
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-   sprites[state]->Render();
+    //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+    //SDL_RenderFillRect(renderer, &d_rect);
+
+    if (!dead){
+        // Render the enemy ship if the enemy isn't dead.
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        sprites[state]->Render();
+    }  
 }
 
 Enemy::~Enemy(){

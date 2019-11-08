@@ -41,7 +41,8 @@ LevelScene * CreateScene(SpriteCache * cache, Player * player, string filepath){
                 for (auto obj_info: obj_info_list){
                     vector<string> obj_xywh = split(obj_info, '-');
                     if (obj_xywh.size() < 4){}
-                    else{
+
+                    else {
                         int x = stoi(obj_xywh[0]);
                         int y = stoi(obj_xywh[1]);
                         int w = stoi(obj_xywh[2]);

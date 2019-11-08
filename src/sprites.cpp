@@ -30,6 +30,8 @@ Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL
     texture = cache->LoadTexture(filepath);
     s_rect = s;
     d_rect = d;
+    starting_s_x = s_rect.x;
+    starting_s_y = s_rect.y;
     renderer = cache->renderer;
     flip = f;
     x = d_rect.x;
@@ -58,6 +60,8 @@ void Sprite::Render(){
     SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, NULL, nullptr, flip);
 }
 
+void Sprite::Reset(){}
+
 Sprite::~Sprite(){}
 
 
@@ -72,7 +76,10 @@ AnimatedSprite::AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, stri
 }
 
 void AnimatedSprite::Animate(Clock * clock){
+    // time passed counts the amount of time that has passed in seconds
     time_passed += clock->delta_time_s;
+
+    // if the time that has passed is the same or greater than the update time, then the animation should change frames.
     if (time_passed >= update_time){
         current_frame += 1;
         s_rect.x += frame_offset;
@@ -85,8 +92,18 @@ void AnimatedSprite::Animate(Clock * clock){
             current_frame = 1;
             time_passed = 0;
         }
+
+        // time passed needs to be reset to zero so that the animation can happen within the frame time.
         time_passed = 0.0;
     }
+}
+
+void AnimatedSprite::Reset(){
+    time_passed = 0.0;
+    s_rect.x = starting_s_x;
+    s_rect.y = starting_s_y;
+    finished = false;
+    current_frame = 1;
 }
 
 AnimatedSprite::~AnimatedSprite(){}

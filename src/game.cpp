@@ -38,7 +38,7 @@ int SpaceInversion::Start(int argc, char** argv){
 
     scene = CreateScene(cache, p1, "resources/levels/level.mx");
 
-    //Start running the app
+    // Start running the app
     running = true;
 
     return 1;
@@ -53,7 +53,7 @@ void SpaceInversion::Loop(){
         Process();
         Render();
 
-        SDL_Delay(1);
+        SDL_Delay(5);
 
     #ifndef __EMSCRIPTEN__
     }
@@ -61,11 +61,18 @@ void SpaceInversion::Loop(){
 }
 
 void SpaceInversion::Process(){
+    // Clock tick
+    clock.Tick();
+
+    // render scale
+    SDL_RenderSetLogicalSize(renderer, GAME_WIDTH, GAME_HEIGHT);
+
     // Keyboard
     keyboard = SDL_GetKeyboardState(NULL);
 
-    //Clock tick
-    clock.Tick();
+    if (keyboard[SDL_SCANCODE_ESCAPE]){
+        running = false;
+    } 
 
     //Event Loop
     while (SDL_PollEvent(&event)){

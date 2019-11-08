@@ -13,10 +13,11 @@ private:
 
     // Private general variables
     int WIDTH = 800, HEIGHT = 600;
+    int GAME_WIDTH = 800, GAME_HEIGHT = 600;
     Uint32 WINDOW_FLAGS = SDL_WINDOW_SHOWN;
-    Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC;
+    Uint32 RENDERER_FLAGS = 0;
 
-    //Private objects
+    // Private objects
     const Uint8 * keyboard;
     Clock clock;
     SpriteCache * cache;

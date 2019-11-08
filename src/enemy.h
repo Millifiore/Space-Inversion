@@ -9,6 +9,7 @@ private:
     int width, height;
     bool moving;
     string direction;
+    int starting_xpos, starting_ypos;
     SDL_Renderer * renderer;
 
 public:
@@ -30,6 +31,7 @@ public:
     void Process(Clock * clock, int height);
     void Move(string d);
     void SetPos(int x, int y);
+    void Reset();
     void Attack();
     bool TouchingBullet(SDL_Rect * rect);
 
