@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <memory>
+#include <map>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
@@ -18,5 +19,8 @@
 
 //Game Includes
 #include "clock.h"
+#include "keyboard.h"
+#include "mouse.h"
+
 
 using namespace std; 

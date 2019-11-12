@@ -15,7 +15,7 @@ void LevelScene::AddPlayer(Player * p){
     player = p;
 }
 
-void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int height){
+void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, int height){
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
 
@@ -39,21 +39,21 @@ void LevelScene::Process(Clock * clock, const Uint8 * keyboard, int width, int h
     if (running){
         
         // Managing movement for player
-        if (keyboard[SDL_SCANCODE_A]){
+        if (keyboard->KeyIsPressed(SDL_SCANCODE_A)){
             player->Move("left");
         }
-        else if (keyboard[SDL_SCANCODE_D]) {
+        else if (keyboard->KeyIsPressed(SDL_SCANCODE_D)) {
             player->Move("right");
         }
         else{
             player->Move("none");
         }
 
-        if (keyboard[SDL_SCANCODE_SPACE]) {
+        if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE)) {
             player->Attack();
         }
 
-        if (keyboard[SDL_SCANCODE_R]) {
+        if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
             for (auto enemy: enemies){
                 enemy->Reset();
             }

@@ -24,7 +24,7 @@ public:
     
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);
-    void Process(Clock * clock, const Uint8 * keyboard, int width, int height);
+    void Process(Clock * clock, KeyboardManager * keyboard, int width, int height);
     void ManageEnemies(Clock * clock, int width, int height);
     void RenderScene();
 

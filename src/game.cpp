@@ -7,6 +7,7 @@ int SpaceInversion::Start(int argc, char** argv){
         // ...
     // Initialize SDL2
     SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER);
+    atexit(SDL_Quit);
 
     // Create window
     window = SDL_CreateWindow("Space Inversion - by Sardonicals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -33,11 +34,14 @@ int SpaceInversion::Start(int argc, char** argv){
     clock = Clock();
 
     // Initialize objects
+    mouse = MouseManager();
+    keyboard = KeyboardManager();
+    framebuffer = new Framebuffer(window, renderer);
     cache = new SpriteCache(renderer);
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
 
     scene = CreateScene(cache, p1, "resources/levels/level.mx");
-
+    framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
     // Start running the app
     running = true;
 
@@ -65,17 +69,18 @@ void SpaceInversion::Process(){
     clock.Tick();
 
     // render scale
-    SDL_RenderSetLogicalSize(renderer, GAME_WIDTH, GAME_HEIGHT);
+    SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
 
-    // Keyboard
-    keyboard = SDL_GetKeyboardState(NULL);
+    // Keyboard and Mouse
+    keyboard.Process();
+    mouse.Process();
 
-    if (keyboard[SDL_SCANCODE_ESCAPE]){
+    if (keyboard.KeyIsPressed(SDL_SCANCODE_ESCAPE)){
         running = false;
     } 
 
     //Event Loop
-    while (SDL_PollEvent(&event)){
+    while (SDL_PollEvent(&event)){ 
         if (event.type == SDL_QUIT){
             running = false;
             break;
@@ -83,18 +88,33 @@ void SpaceInversion::Process(){
     }
 
     // General Game loop stuff goes here 
-    scene->Process(&clock, keyboard, WIDTH, HEIGHT);
+    
+    if (keyboard.KeyWasPressed(SDL_SCANCODE_F)){
+        if (flip == SDL_FLIP_NONE){
+            flip = SDL_FLIP_VERTICAL;
+        }
+        else{
+            flip = SDL_FLIP_NONE;
+        }
+    }
+
+    scene->Process(&clock, &keyboard, GAME_WIDTH, GAME_HEIGHT);
 
 }
 
 void SpaceInversion::Render(){
     //Rendering
+    framebuffer->SetActiveBuffer("GAME");
     SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
     SDL_RenderClear(renderer);
 
     // General rendering goes here 
     scene->RenderScene();
 
+    framebuffer->UnsetBuffers();
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
     SDL_RenderPresent(renderer);
 
 }
@@ -103,7 +123,7 @@ SpaceInversion::~SpaceInversion(){
     delete scene;
     delete p1;
     delete cache;
+    delete framebuffer;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();
 }

@@ -1,7 +1,9 @@
 #pragma once
 #include "headers.h"
 #include "functions.h"
+#include "framebuffer.h"
 #include "scene.h"
+
 
 class SpaceInversion{
 private:
@@ -12,17 +14,20 @@ private:
     SDL_Event event;
 
     // Private general variables
-    int WIDTH = 800, HEIGHT = 600;
+    int WIDTH = 1280, HEIGHT = 720;
     int GAME_WIDTH = 800, GAME_HEIGHT = 600;
     Uint32 WINDOW_FLAGS = SDL_WINDOW_SHOWN;
-    Uint32 RENDERER_FLAGS = 0;
+    Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC;
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
 
     // Private objects
-    const Uint8 * keyboard;
+    KeyboardManager keyboard;
     Clock clock;
     SpriteCache * cache;
     LevelScene * scene;
     Player * p1;
+    MouseManager mouse;
+    Framebuffer * framebuffer;
 
     // Private functions
     void Process();
