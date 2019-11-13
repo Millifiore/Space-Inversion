@@ -15,6 +15,7 @@
                 "-o",
                 "${workspaceFolder}/bin/SpaceInversionDEBUG.x86_64",
                 "-lSDL2_mixer",
+                "-lSDL2_ttf",
                 "-lSDL2",
             ],
             "group": "build",

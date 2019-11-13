@@ -1,6 +1,7 @@
 #pragma once
 //SDL2 Includes
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 //Standard Includes
 #include <fstream>
 #include <iostream>

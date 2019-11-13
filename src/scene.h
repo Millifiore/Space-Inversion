@@ -2,6 +2,7 @@
 #include "headers.h"
 #include "enemy.h"
 #include "player.h"
+#include "text.h"
 
 class LevelScene {
 private:

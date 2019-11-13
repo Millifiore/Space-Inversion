@@ -7,6 +7,8 @@ int SpaceInversion::Start(int argc, char** argv){
         // ...
     // Initialize SDL2
     SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER);
+    TTF_Init();
+    atexit(TTF_Quit);
     atexit(SDL_Quit);
 
     // Create window
@@ -37,9 +39,11 @@ int SpaceInversion::Start(int argc, char** argv){
     mouse = MouseManager();
     keyboard = KeyboardManager();
     framebuffer = new Framebuffer(window, renderer);
+    text = new TextCache(renderer);
     cache = new SpriteCache(renderer);
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
 
+    text->SetFont("joystix.ttf");
     scene = CreateScene(cache, p1, "resources/levels/level.mx");
     framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
     // Start running the app
@@ -115,6 +119,8 @@ void SpaceInversion::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
+    text->RenderText("Hello World!", 19, 20, 40, {0, 128, 128, 255});
+    text->RenderText("Hello World!", 19, 700, 40, {255, 255, 255, 255});
     SDL_RenderPresent(renderer);
 
 }
@@ -123,6 +129,7 @@ SpaceInversion::~SpaceInversion(){
     delete scene;
     delete p1;
     delete cache;
+    delete text;
     delete framebuffer;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
