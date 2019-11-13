@@ -97,6 +97,14 @@ bool Player::TouchingBullet(SDL_Rect * rect){
     return false;
 }
 
+bool Player::TouchingEnemy(SDL_Rect * rect){
+    if(SDL_HasIntersection(&d_rect,rect)){
+        return true;
+    }
+
+    return false;
+}
+
 void Player::Render(){
     d_rect.x = (x_pos - int(d_rect.w / 2));
     d_rect.y = (y_pos - int(d_rect.h / 2));

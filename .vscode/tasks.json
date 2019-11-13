@@ -10,6 +10,7 @@
             "args": [
                 "-g",
                 "-Wall",
+                "-std=c++11",
                 "src/*.cpp",
                 "-o",
                 "${workspaceFolder}/bin/SpaceInversionDEBUG.x86_64",

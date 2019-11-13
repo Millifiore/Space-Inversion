@@ -158,7 +158,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                 }   
                 index++;
             }
-            enemies[i]->state = "DYING";    
+            enemies[i]->state = "DYING";  
         }
 
         // check if the player collided with any of the enemy bullets.
@@ -171,6 +171,12 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                 }
                 index++;
             }
+        }
+
+        //check if the player collided with any of the enemies
+        if (player->TouchingEnemy(&enemies[i]->d_rect)){
+            player->lives -= 1;
+            enemies[i]->state = "DYING";
         }
         enemies[i]->Process(clock, height);
     }

@@ -23,13 +23,14 @@ public:
     int speed = 18;
     bool attack_cooldown;
     double cooldown_timer;
-    vector<Bullet *> bullets;
+    vector<Bullet *> bullets = {};
     Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
     void Process(Clock * clock);
     void Move(string d);
     void Attack();
     bool TouchingBullet(SDL_Rect * rect);
+    bool TouchingEnemy(SDL_Rect * rect);
 
     void Render();
     ~Player();

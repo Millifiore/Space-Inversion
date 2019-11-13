@@ -23,7 +23,7 @@ public:
     int max_bullets;
     bool attack_cooldown;
     double cooldown_timer;
-    vector<Bullet *> bullets;
+    vector<Bullet *> bullets = {};
     bool dead = false;
 
     Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t);
