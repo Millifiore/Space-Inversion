@@ -44,8 +44,9 @@ int SpaceInversion::Start(int argc, char** argv){
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
 
     text->SetFont("joystix.ttf");
-    scene = CreateScene(cache, p1, "resources/levels/level.mx");
+    scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level.mx");
     framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
+    framebuffer->CreateBuffer("HUD",GAME_WIDTH,HEIGHT);
     // Start running the app
     running = true;
 
@@ -107,22 +108,16 @@ void SpaceInversion::Process(){
 }
 
 void SpaceInversion::Render(){
-    //Rendering
-    framebuffer->SetActiveBuffer("GAME");
-    SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
-    SDL_RenderClear(renderer);
 
-    // General rendering goes here 
     scene->RenderScene();
-
-    framebuffer->UnsetBuffers();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
-    text->RenderText("Hello World!", 19, 20, 40, {0, 128, 128, 255});
-    text->RenderText("Hello World!", 19, 700, 40, {255, 255, 255, 255});
-    SDL_RenderPresent(renderer);
 
+
+    framebuffer->RenderBuffer("HUD",WIDTH/2, HEIGHT/2, GAME_WIDTH, HEIGHT);
+    framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
+
+    SDL_RenderPresent(renderer);
 }
 
 SpaceInversion::~SpaceInversion(){

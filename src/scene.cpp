@@ -1,6 +1,8 @@
 #include "scene.h"
 
-LevelScene::LevelScene(SDL_Renderer * r){
+LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache){
+    this->framebuffer = framebuffer;
+    this->hud = new Hud(sprite_cache,framebuffer,player,text_cache);
     starting = true;
     running = false;
     finished = false;
@@ -211,6 +213,12 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
 
 
 void LevelScene::RenderScene(){
+
+    //Rendering
+    framebuffer->SetActiveBuffer("GAME");
+    SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
+    SDL_RenderClear(renderer);
+
     for (auto star: stars_l1){
         star->Render();
     }
@@ -223,6 +231,10 @@ void LevelScene::RenderScene(){
     for (auto star: stars_l2){
         star->Render();
     }
+
+    framebuffer->UnsetBuffers();
+
+    hud->Render();
 }
 
 LevelScene::~LevelScene(){

@@ -3,7 +3,8 @@
 #include "enemy.h"
 #include "player.h"
 #include "text.h"
-
+#include "framebuffer.h"
+#include "hud.h"
 class LevelScene {
 private:
     vector<Bullet *> stars_l1;
@@ -18,11 +19,13 @@ private:
     string last_state;
     int enemies_dead = 0;
     SDL_Renderer * renderer;
+    Framebuffer * framebuffer;
+    Hud * hud;
 public:
     bool starting;
     bool running;
     bool finished;
-    LevelScene(SDL_Renderer * renderer);
+    LevelScene(SDL_Renderer * renderer,Framebuffer * Framebuffer,SpriteCache * ,TextCache *);
     
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);
