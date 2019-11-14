@@ -181,10 +181,18 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
 
         // check if the player collided with any of the enemy bullets.
         if (enemies[i]->TouchingBullet(&player->d_rect)){
-            player->lives -= 1;
             int index = 0;
             for (auto bullet: enemies[i]->bullets){
                 if (bullet->IsTouchingRect(&player->d_rect)){
+                    /*
+                        TODO: only use this logic for basic pawn bullets. 
+                        differentiate when "projectile" class is created and used
+                        instead.
+                    */
+                    if (!bullet->hit){
+                        player->lives -= 1;
+                    }
+                    bullet->hit = true;
                     enemies[i]->erased.push_back(index);
                 }
                 index++;

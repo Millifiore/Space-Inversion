@@ -9,6 +9,7 @@ SDL_Renderer * renderer;
 public:
     float x_pos, y_pos;
     SDL_Rect bullet;
+    bool hit = false;
     Bullet(SDL_Renderer * r, int x, int y, int w, int h, SDL_Color c);
     void Render();
     bool IsTouchingRect(SDL_Rect *);
