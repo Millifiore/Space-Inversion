@@ -26,7 +26,8 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, src);
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     state = "DEFAULT";
-    speed = 8;
+    default_speed = 8;
+    speed = default_speed;
     bullet_speed = 4;
 
 }

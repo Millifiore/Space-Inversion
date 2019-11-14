@@ -19,6 +19,7 @@ public:
     SDL_Rect d_rect = {};
     double x_pos, y_pos;
     int bullet_speed;
+    int default_speed;
     int speed;
     int max_bullets;
     bool attack_cooldown;

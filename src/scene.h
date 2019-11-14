@@ -16,6 +16,7 @@ private:
     string direction = "left";
     string enemy_state = "PHASE_LEFT";
     string last_state;
+    int enemies_dead = 0;
     SDL_Renderer * renderer;
 public:
     bool starting;

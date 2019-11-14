@@ -104,10 +104,23 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     if (enemies.size()){
         random_index = rand() % enemies.size();
     }
+    enemies_dead = 0;
+
+    for (int i = 0; i <enemies.size();i++){
+        if (enemies[i]->dead){
+            enemies_dead++;
+        }
+
+    }
 
     for (int i = 0; i < enemies.size(); i++){
+        // Process the enemy as soon as it comes up.
 
-        // Process the enemy as soon as it comes up.   
+        if(!enemies[i]->dead){
+            double speed_multiplier = double(enemies_dead)/double((enemies.size()-1))*12;
+            enemies[i]->speed = int(speed_multiplier) + enemies[i]->default_speed;
+        }
+
         if (!enemies[i]->dead){
             if (enemy_state == "PHASE_LEFT"){
                 enemies[i]->Move("left");
@@ -136,7 +149,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                     }
                 }
             }     
-        }  
+        }
 
         // select a random ship to shoot at the player.
         if (!enemies[i]->dead){
