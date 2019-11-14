@@ -30,6 +30,9 @@ Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL
     texture = cache->LoadTexture(filepath);
     s_rect = s;
     d_rect = d;
+    if(!s.x && !s.y && !s.w && !s.h){
+        source_rectange = false;
+    } 
     starting_s_x = s_rect.x;
     starting_s_y = s_rect.y;
     renderer = cache->renderer;
@@ -55,9 +58,13 @@ void Sprite::SetDestinationR(SDL_Rect * r){
 void Sprite::Render(){
     d_rect.x = (x - (d_rect.w / 2));
     d_rect.y = (y - (d_rect.h / 2));
-    //SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    //SDL_RenderFillRect(renderer, &d_rect);
-    SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, NULL, nullptr, flip);
+
+    if (source_rectange){
+        SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, NULL, nullptr, flip);
+    }else{
+        SDL_RenderCopyEx(renderer, texture, NULL, &d_rect, NULL, nullptr, flip);
+    }
+    
 }
 
 void Sprite::Reset(){}

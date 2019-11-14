@@ -24,6 +24,7 @@ public:
     SDL_RendererFlip flip;
     int x; 
     int y;
+    bool source_rectange = true;
     int starting_s_x;
     int starting_s_y;
 

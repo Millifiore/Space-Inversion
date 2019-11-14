@@ -15,6 +15,7 @@ void LevelScene::AddEnemy(Enemy * enemy){
 
 void LevelScene::AddPlayer(Player * p){
     player = p;
+    hud->player = p;
 }
 
 void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, int height){
@@ -114,6 +115,8 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
         }
 
     }
+
+    hud->score = enemies_dead * 200;
 
     for (int i = 0; i < enemies.size(); i++){
         // Process the enemy as soon as it comes up.

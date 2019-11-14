@@ -24,8 +24,7 @@ int TextCache::RenderText(string text, int x, int y, int size, SDL_Color color, 
     if (current_font == ""){return -1;}
     int d_x = (x - (size/2));
     int d_y = (y - (size/2));
-    SDL_SetRenderDrawColor(renderer, 0, 222, 0, 225);
-    SDL_RenderFillRect(renderer, &d_rect);
+
     d_rect = {d_x, d_y, size, size};
     for (auto c: text){
         if (c == '\n'){
