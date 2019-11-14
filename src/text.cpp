@@ -13,6 +13,7 @@ void TextCache::SetFont(string font, string location){
             string character = string(1, c);
             SDL_Surface * surface = TTF_RenderText_Solid(loaded_font, character.c_str(), {255, 255, 255});
             characters[font][c] = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_SetTextureBlendMode(characters[font][c], SDL_BLENDMODE_ADD);
             SDL_FreeSurface(surface);
         }
         TTF_CloseFont(loaded_font);

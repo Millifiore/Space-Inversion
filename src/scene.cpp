@@ -193,7 +193,10 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
 
         //check if the player collided with any of the enemies
         if (player->TouchingEnemy(&enemies[i]->d_rect)){
-            player->lives -= 1;
+            if (enemies[i]->state != "DYING"){
+                //TODO: Raplace this with player->Hurt() in the future.
+                player->lives -= 1;
+            }
             enemies[i]->state = "DYING";
         }
         enemies[i]->Process(clock, height);

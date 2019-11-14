@@ -126,8 +126,8 @@ Module.expectedDataFileDownloads++;
       if (!check) throw msg + new Error().stack;
     }
 Module['FS_createPath']('/', 'resources', true, true);
-Module['FS_createPath']('/resources', 'levels', true, true);
 Module['FS_createPath']('/resources', 'font', true, true);
+Module['FS_createPath']('/resources', 'levels', true, true);
 
     function DataRequest(start, end, audio) {
       this.start = start;
@@ -200,7 +200,7 @@ Module['FS_createPath']('/resources', 'font', true, true);
   }
 
  }
- loadPackage({"files": [{"start": 0, "audio": 0, "end": 40138, "filename": "/resources/villain1.bmp"}, {"start": 40138, "audio": 0, "end": 56660, "filename": "/resources/title.bmp"}, {"start": 56660, "audio": 0, "end": 73182, "filename": "/resources/Paused.bmp"}, {"start": 73182, "audio": 0, "end": 89704, "filename": "/resources/life.bmp"}, {"start": 89704, "audio": 0, "end": 90866, "filename": "/resources/Star2.bmp"}, {"start": 90866, "audio": 0, "end": 107388, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 107388, "audio": 0, "end": 156678, "filename": "/resources/explosion.bmp"}, {"start": 156678, "audio": 0, "end": 271504, "filename": "/resources/Start Button.bmp"}, {"start": 271504, "audio": 0, "end": 271928, "filename": "/resources/villian2.png"}, {"start": 271928, "audio": 0, "end": 288450, "filename": "/resources/Shield Buff.bmp"}, {"start": 288450, "audio": 0, "end": 289612, "filename": "/resources/Star1.bmp"}, {"start": 289612, "audio": 0, "end": 329750, "filename": "/resources/player.bmp"}, {"start": 329750, "audio": 0, "end": 330912, "filename": "/resources/Star0.bmp"}, {"start": 330912, "audio": 0, "end": 331253, "filename": "/resources/levels/level.mx"}, {"start": 331253, "audio": 0, "end": 378857, "filename": "/resources/font/joystix.ttf"}], "remote_package_size": 378857, "package_uuid": "186fb6ad-ec4c-4e01-904e-4969f576ca3a"});
+ loadPackage({"files": [{"start": 0, "audio": 0, "end": 16522, "filename": "/resources/Shield Buff.bmp"}, {"start": 16522, "audio": 0, "end": 56660, "filename": "/resources/player.bmp"}, {"start": 56660, "audio": 0, "end": 57822, "filename": "/resources/Star2.bmp"}, {"start": 57822, "audio": 0, "end": 58984, "filename": "/resources/Star1.bmp"}, {"start": 58984, "audio": 0, "end": 60146, "filename": "/resources/Star0.bmp"}, {"start": 60146, "audio": 0, "end": 76668, "filename": "/resources/Paused.bmp"}, {"start": 76668, "audio": 0, "end": 191494, "filename": "/resources/Start Button.bmp"}, {"start": 191494, "audio": 0, "end": 231632, "filename": "/resources/villain1.bmp"}, {"start": 231632, "audio": 0, "end": 280922, "filename": "/resources/explosion.bmp"}, {"start": 280922, "audio": 0, "end": 281346, "filename": "/resources/villian2.png"}, {"start": 281346, "audio": 0, "end": 297868, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 297868, "audio": 0, "end": 314390, "filename": "/resources/life.bmp"}, {"start": 314390, "audio": 0, "end": 330912, "filename": "/resources/title.bmp"}, {"start": 330912, "audio": 0, "end": 378516, "filename": "/resources/font/joystix.ttf"}, {"start": 378516, "audio": 0, "end": 378857, "filename": "/resources/levels/level.mx"}], "remote_package_size": 378857, "package_uuid": "cda45d98-917e-4d96-b418-7b4c20fa6f6f"});
 
 })();
 
@@ -243,6 +243,13 @@ ENVIRONMENT_IS_WORKER = typeof importScripts === 'function';
 ENVIRONMENT_HAS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';
 ENVIRONMENT_IS_NODE = ENVIRONMENT_HAS_NODE && !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_WORKER;
 ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+
+
+
+// Three configurations we can be running in:
+// 1) We could be the application main() thread running in the main JS UI thread. (ENVIRONMENT_IS_WORKER == false and ENVIRONMENT_IS_PTHREAD == false)
+// 2) We could be the application main() thread proxied to worker. (with Emscripten -s PROXY_TO_WORKER=1) (ENVIRONMENT_IS_WORKER == true, ENVIRONMENT_IS_PTHREAD == false)
+// 3) We could be an application pthread running in a worker. (ENVIRONMENT_IS_WORKER == true and ENVIRONMENT_IS_PTHREAD == true)
 
 
 
@@ -503,6 +510,8 @@ var asm2wasmImports = { // special asm2wasm imports
 
 
 
+var jsCallStartIndex = 1;
+var functionPointers = new Array(0);
 
 // Wraps a JS function as a wasm function with a given signature.
 // In the future, we may get a WebAssembly.Function constructor. Until then,
@@ -609,11 +618,21 @@ function removeFunctionWasm(index) {
 // already a WebAssembly function.
 function addFunction(func, sig) {
 
-  return addFunctionWasm(func, sig);
+
+  var base = 0;
+  for (var i = base; i < base + 0; i++) {
+    if (!functionPointers[i]) {
+      functionPointers[i] = func;
+      return jsCallStartIndex + i;
+    }
+  }
+  throw 'Finished up all reserved function pointers. Use a higher value for RESERVED_FUNCTION_POINTERS.';
+
 }
 
 function removeFunction(index) {
-  removeFunctionWasm(index);
+
+  functionPointers[index-jsCallStartIndex] = null;
 }
 
 var funcWrappers = {};
@@ -749,8 +768,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 1408,
-  'maximum': 1408 + 0,
+  'initial': 2056,
+  'maximum': 2056,
   'element': 'anyfunc'
 });
 
@@ -1348,12 +1367,13 @@ function updateGlobalBufferAndViews(buf) {
   Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
 }
 
+
 var STATIC_BASE = 1024,
-    STACK_BASE = 5416720,
+    STACK_BASE = 178624,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 173840,
-    DYNAMIC_BASE = 5416720,
-    DYNAMICTOP_PTR = 173680;
+    STACK_MAX = 5421504,
+    DYNAMIC_BASE = 5421504,
+    DYNAMICTOP_PTR = 178416;
 
 
 
@@ -1600,12 +1620,7 @@ function abort(what) {
   ABORT = true;
   EXITSTATUS = 1;
 
-  what = 'abort(' + what + '). Build with -s ASSERTIONS=1 for more info.';
-
-  // Throw a wasm runtime error, because a JS error might be seen as a foreign
-  // exception, which means we'd run destructors on it. We need the error to
-  // simply make the program stop.
-  throw new WebAssembly.RuntimeError(what);
+  throw 'abort(' + what + '). Build with -s ASSERTIONS=1 for more info.';
 }
 
 
@@ -1685,6 +1700,13 @@ function createWasm() {
   var info = {
     'env': asmLibraryArg,
     'wasi_unstable': asmLibraryArg
+    ,
+    'global': {
+      'NaN': NaN,
+      'Infinity': Infinity
+    },
+    'global.Math': Math,
+    'asm2wasm': asm2wasmImports
   };
   // Load the wasm module and create an instance of using native support in the JS engine.
   // handle a generated wasm instance, receiving its exports and
@@ -1753,6 +1775,7 @@ function createWasm() {
   return {}; // no exports yet; we'll fill them in later
 }
 
+Module['asm'] = createWasm;
 
 // Globals used by JS i64 conversions
 var tempDouble;
@@ -1760,60 +1783,83 @@ var tempI64;
 
 // === Body ===
 
-var ASM_CONSTS = [function($0) {var str = UTF8ToString($0) + '\n\n' + 'Abort/Retry/Ignore/AlwaysIgnore? [ariA] :'; var reply = window.prompt(str, "i"); if (reply === null) { reply = "i"; } return allocate(intArrayFromString(reply), 'i8', ALLOC_NORMAL);},
- function($0, $1) {alert(UTF8ToString($0) + "\n\n" + UTF8ToString($1));},
- function($0, $1, $2) {var w = $0; var h = $1; var pixels = $2; if (!Module['SDL2']) Module['SDL2'] = {}; var SDL2 = Module['SDL2']; if (SDL2.ctxCanvas !== Module['canvas']) { SDL2.ctx = Module['createContext'](Module['canvas'], false, true); SDL2.ctxCanvas = Module['canvas']; } if (SDL2.w !== w || SDL2.h !== h || SDL2.imageCtx !== SDL2.ctx) { SDL2.image = SDL2.ctx.createImageData(w, h); SDL2.w = w; SDL2.h = h; SDL2.imageCtx = SDL2.ctx; } var data = SDL2.image.data; var src = pixels >> 2; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = 0xff; src++; dst += 4; } } else { if (SDL2.data32Data !== data) { SDL2.data32 = new Int32Array(data.buffer); SDL2.data8 = new Uint8Array(data.buffer); } var data32 = SDL2.data32; num = data32.length; data32.set(HEAP32.subarray(src, src + num)); var data8 = SDL2.data8; var i = 3; var j = i + 4*num; if (num % 8 == 0) { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; } } else { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; } } } SDL2.ctx.putImageData(SDL2.image, 0, 0); return 0;},
- function($0) {if (Module['canvas']) { Module['canvas'].style['cursor'] = UTF8ToString($0); } return 0;},
- function() {if (Module['canvas']) { Module['canvas'].style['cursor'] = 'none'; }},
- function($0, $1, $2, $3, $4) {var w = $0; var h = $1; var hot_x = $2; var hot_y = $3; var pixels = $4; var canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h; var ctx = canvas.getContext("2d"); var image = ctx.createImageData(w, h); var data = image.data; var src = pixels >> 2; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = (val >> 24) & 0xff; src++; dst += 4; } } else { var data32 = new Int32Array(data.buffer); num = data32.length; data32.set(HEAP32.subarray(src, src + num)); } ctx.putImageData(image, 0, 0); var url = hot_x === 0 && hot_y === 0 ? "url(" + canvas.toDataURL() + "), auto" : "url(" + canvas.toDataURL() + ") " + hot_x + " " + hot_y + ", auto"; var urlBuf = _malloc(url.length + 1); stringToUTF8(url, urlBuf, url.length + 1); return urlBuf;},
- function() {return screen.width;},
- function() {return screen.height;},
- function($0) {if (typeof Module['setWindowTitle'] !== 'undefined') { Module['setWindowTitle'](UTF8ToString($0)); } return 0;},
- function() {if (typeof(AudioContext) !== 'undefined') { return 1; } else if (typeof(webkitAudioContext) !== 'undefined') { return 1; } return 0;},
- function() {if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) { return 1; } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') { return 1; } return 0;},
- function($0) {var SDL2 = Module['SDL2']; if ($0) { if (SDL2.capture.silenceTimer !== undefined) { clearTimeout(SDL2.capture.silenceTimer); } if (SDL2.capture.stream !== undefined) { var tracks = SDL2.capture.stream.getAudioTracks(); for (var i = 0; i < tracks.length; i++) { SDL2.capture.stream.removeTrack(tracks[i]); } SDL2.capture.stream = undefined; } if (SDL2.capture.scriptProcessorNode !== undefined) { SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) {}; SDL2.capture.scriptProcessorNode.disconnect(); SDL2.capture.scriptProcessorNode = undefined; } if (SDL2.capture.mediaStreamNode !== undefined) { SDL2.capture.mediaStreamNode.disconnect(); SDL2.capture.mediaStreamNode = undefined; } if (SDL2.capture.silenceBuffer !== undefined) { SDL2.capture.silenceBuffer = undefined } SDL2.capture = undefined; } else { if (SDL2.audio.scriptProcessorNode != undefined) { SDL2.audio.scriptProcessorNode.disconnect(); SDL2.audio.scriptProcessorNode = undefined; } SDL2.audio = undefined; } if ((SDL2.audioContext !== undefined) && (SDL2.audio === undefined) && (SDL2.capture === undefined)) { SDL2.audioContext.close(); SDL2.audioContext = undefined; }},
- function($0) {if(typeof(Module['SDL2']) === 'undefined') { Module['SDL2'] = {}; } var SDL2 = Module['SDL2']; if (!$0) { SDL2.audio = {}; } else { SDL2.capture = {}; } if (!SDL2.audioContext) { if (typeof(AudioContext) !== 'undefined') { SDL2.audioContext = new AudioContext(); } else if (typeof(webkitAudioContext) !== 'undefined') { SDL2.audioContext = new webkitAudioContext(); } } return SDL2.audioContext === undefined ? -1 : 0;},
- function() {var SDL2 = Module['SDL2']; return SDL2.audioContext.sampleRate;},
- function($0, $1, $2, $3) {var SDL2 = Module['SDL2']; var have_microphone = function(stream) { if (SDL2.capture.silenceTimer !== undefined) { clearTimeout(SDL2.capture.silenceTimer); SDL2.capture.silenceTimer = undefined; } SDL2.capture.mediaStreamNode = SDL2.audioContext.createMediaStreamSource(stream); SDL2.capture.scriptProcessorNode = SDL2.audioContext.createScriptProcessor($1, $0, 1); SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) { if ((SDL2 === undefined) || (SDL2.capture === undefined)) { return; } audioProcessingEvent.outputBuffer.getChannelData(0).fill(0.0); SDL2.capture.currentCaptureBuffer = audioProcessingEvent.inputBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.mediaStreamNode.connect(SDL2.capture.scriptProcessorNode); SDL2.capture.scriptProcessorNode.connect(SDL2.audioContext.destination); SDL2.capture.stream = stream; }; var no_microphone = function(error) { }; SDL2.capture.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.capture.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { SDL2.capture.currentCaptureBuffer = SDL2.capture.silenceBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.silenceTimer = setTimeout(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); if ((navigator.mediaDevices !== undefined) && (navigator.mediaDevices.getUserMedia !== undefined)) { navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(have_microphone).catch(no_microphone); } else if (navigator.webkitGetUserMedia !== undefined) { navigator.webkitGetUserMedia({ audio: true, video: false }, have_microphone, no_microphone); }},
- function($0, $1, $2, $3) {var SDL2 = Module['SDL2']; SDL2.audio.scriptProcessorNode = SDL2.audioContext['createScriptProcessor']($1, 0, $0); SDL2.audio.scriptProcessorNode['onaudioprocess'] = function (e) { if ((SDL2 === undefined) || (SDL2.audio === undefined)) { return; } SDL2.audio.currentOutputBuffer = e['outputBuffer']; dynCall('vi', $2, [$3]); }; SDL2.audio.scriptProcessorNode['connect'](SDL2.audioContext['destination']);},
- function($0, $1) {var SDL2 = Module['SDL2']; var numChannels = SDL2.capture.currentCaptureBuffer.numberOfChannels; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.capture.currentCaptureBuffer.getChannelData(c); if (channelData.length != $1) { throw 'Web Audio capture buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } if (numChannels == 1) { for (var j = 0; j < $1; ++j) { setValue($0 + (j * 4), channelData[j], 'float'); } } else { for (var j = 0; j < $1; ++j) { setValue($0 + (((j * numChannels) + c) * 4), channelData[j], 'float'); } } }},
- function($0, $1) {var SDL2 = Module['SDL2']; var numChannels = SDL2.audio.currentOutputBuffer['numberOfChannels']; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.audio.currentOutputBuffer['getChannelData'](c); if (channelData.length != $1) { throw 'Web Audio output buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } for (var j = 0; j < $1; ++j) { channelData[j] = HEAPF32[$0 + ((j*numChannels + c) << 2) >> 2]; } }}];
+var ASM_CONSTS = [function() { return screen.width; },
+ function() { return screen.height; },
+ function($0) { if (typeof Module['setWindowTitle'] !== 'undefined') { Module['setWindowTitle'](UTF8ToString($0)); } return 0; },
+ function($0, $1, $2) { var w = $0; var h = $1; var pixels = $2; if (!Module['SDL2']) Module['SDL2'] = {}; var SDL2 = Module['SDL2']; if (SDL2.ctxCanvas !== Module['canvas']) { SDL2.ctx = Module['createContext'](Module['canvas'], false, true); SDL2.ctxCanvas = Module['canvas']; } if (SDL2.w !== w || SDL2.h !== h || SDL2.imageCtx !== SDL2.ctx) { SDL2.image = SDL2.ctx.createImageData(w, h); SDL2.w = w; SDL2.h = h; SDL2.imageCtx = SDL2.ctx; } var data = SDL2.image.data; var src = pixels >> 2; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = 0xff; src++; dst += 4; } } else { if (SDL2.data32Data !== data) { SDL2.data32 = new Int32Array(data.buffer); SDL2.data8 = new Uint8Array(data.buffer); } var data32 = SDL2.data32; num = data32.length; data32.set(HEAP32.subarray(src, src + num)); var data8 = SDL2.data8; var i = 3; var j = i + 4*num; if (num % 8 == 0) { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; } } else { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; } } } SDL2.ctx.putImageData(SDL2.image, 0, 0); return 0; },
+ function($0, $1, $2, $3, $4) { var w = $0; var h = $1; var hot_x = $2; var hot_y = $3; var pixels = $4; var canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h; var ctx = canvas.getContext("2d"); var image = ctx.createImageData(w, h); var data = image.data; var src = pixels >> 2; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = (val >> 24) & 0xff; src++; dst += 4; } } else { var data32 = new Int32Array(data.buffer); num = data32.length; data32.set(HEAP32.subarray(src, src + num)); } ctx.putImageData(image, 0, 0); var url = hot_x === 0 && hot_y === 0 ? "url(" + canvas.toDataURL() + "), auto" : "url(" + canvas.toDataURL() + ") " + hot_x + " " + hot_y + ", auto"; var urlBuf = _malloc(url.length + 1); stringToUTF8(url, urlBuf, url.length + 1); return urlBuf; },
+ function($0) { if (Module['canvas']) { Module['canvas'].style['cursor'] = UTF8ToString($0); } return 0; },
+ function() { if (Module['canvas']) { Module['canvas'].style['cursor'] = 'none'; } },
+ function() { if (typeof(AudioContext) !== 'undefined') { return 1; } else if (typeof(webkitAudioContext) !== 'undefined') { return 1; } return 0; },
+ function() { if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) { return 1; } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') { return 1; } return 0; },
+ function($0) { if(typeof(Module['SDL2']) === 'undefined') { Module['SDL2'] = {}; } var SDL2 = Module['SDL2']; if (!$0) { SDL2.audio = {}; } else { SDL2.capture = {}; } if (!SDL2.audioContext) { if (typeof(AudioContext) !== 'undefined') { SDL2.audioContext = new AudioContext(); } else if (typeof(webkitAudioContext) !== 'undefined') { SDL2.audioContext = new webkitAudioContext(); } } return SDL2.audioContext === undefined ? -1 : 0; },
+ function() { var SDL2 = Module['SDL2']; return SDL2.audioContext.sampleRate; },
+ function($0, $1, $2, $3) { var SDL2 = Module['SDL2']; var have_microphone = function(stream) { if (SDL2.capture.silenceTimer !== undefined) { clearTimeout(SDL2.capture.silenceTimer); SDL2.capture.silenceTimer = undefined; } SDL2.capture.mediaStreamNode = SDL2.audioContext.createMediaStreamSource(stream); SDL2.capture.scriptProcessorNode = SDL2.audioContext.createScriptProcessor($1, $0, 1); SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) { if ((SDL2 === undefined) || (SDL2.capture === undefined)) { return; } audioProcessingEvent.outputBuffer.getChannelData(0).fill(0.0); SDL2.capture.currentCaptureBuffer = audioProcessingEvent.inputBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.mediaStreamNode.connect(SDL2.capture.scriptProcessorNode); SDL2.capture.scriptProcessorNode.connect(SDL2.audioContext.destination); SDL2.capture.stream = stream; }; var no_microphone = function(error) { }; SDL2.capture.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.capture.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { SDL2.capture.currentCaptureBuffer = SDL2.capture.silenceBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.silenceTimer = setTimeout(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); if ((navigator.mediaDevices !== undefined) && (navigator.mediaDevices.getUserMedia !== undefined)) { navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(have_microphone).catch(no_microphone); } else if (navigator.webkitGetUserMedia !== undefined) { navigator.webkitGetUserMedia({ audio: true, video: false }, have_microphone, no_microphone); } },
+ function($0, $1, $2, $3) { var SDL2 = Module['SDL2']; SDL2.audio.scriptProcessorNode = SDL2.audioContext['createScriptProcessor']($1, 0, $0); SDL2.audio.scriptProcessorNode['onaudioprocess'] = function (e) { if ((SDL2 === undefined) || (SDL2.audio === undefined)) { return; } SDL2.audio.currentOutputBuffer = e['outputBuffer']; dynCall('vi', $2, [$3]); }; SDL2.audio.scriptProcessorNode['connect'](SDL2.audioContext['destination']); },
+ function($0) { var SDL2 = Module['SDL2']; if ($0) { if (SDL2.capture.silenceTimer !== undefined) { clearTimeout(SDL2.capture.silenceTimer); } if (SDL2.capture.stream !== undefined) { var tracks = SDL2.capture.stream.getAudioTracks(); for (var i = 0; i < tracks.length; i++) { SDL2.capture.stream.removeTrack(tracks[i]); } SDL2.capture.stream = undefined; } if (SDL2.capture.scriptProcessorNode !== undefined) { SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) {}; SDL2.capture.scriptProcessorNode.disconnect(); SDL2.capture.scriptProcessorNode = undefined; } if (SDL2.capture.mediaStreamNode !== undefined) { SDL2.capture.mediaStreamNode.disconnect(); SDL2.capture.mediaStreamNode = undefined; } if (SDL2.capture.silenceBuffer !== undefined) { SDL2.capture.silenceBuffer = undefined } SDL2.capture = undefined; } else { if (SDL2.audio.scriptProcessorNode != undefined) { SDL2.audio.scriptProcessorNode.disconnect(); SDL2.audio.scriptProcessorNode = undefined; } SDL2.audio = undefined; } if ((SDL2.audioContext !== undefined) && (SDL2.audio === undefined) && (SDL2.capture === undefined)) { SDL2.audioContext.close(); SDL2.audioContext = undefined; } },
+ function($0, $1) { var SDL2 = Module['SDL2']; var numChannels = SDL2.capture.currentCaptureBuffer.numberOfChannels; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.capture.currentCaptureBuffer.getChannelData(c); if (channelData.length != $1) { throw 'Web Audio capture buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } if (numChannels == 1) { for (var j = 0; j < $1; ++j) { setValue($0 + (j * 4), channelData[j], 'float'); } } else { for (var j = 0; j < $1; ++j) { setValue($0 + (((j * numChannels) + c) * 4), channelData[j], 'float'); } } } },
+ function($0, $1) { var SDL2 = Module['SDL2']; var numChannels = SDL2.audio.currentOutputBuffer['numberOfChannels']; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.audio.currentOutputBuffer['getChannelData'](c); if (channelData.length != $1) { throw 'Web Audio output buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } for (var j = 0; j < $1; ++j) { channelData[j] = HEAPF32[$0 + ((j*numChannels + c) << 2) >> 2]; } } },
+ function($0) { var str = UTF8ToString($0) + '\n\n' + 'Abort/Retry/Ignore/AlwaysIgnore? [ariA] :'; var reply = window.prompt(str, "i"); if (reply === null) { reply = "i"; } return allocate(intArrayFromString(reply), 'i8', ALLOC_NORMAL); },
+ function($0, $1) { alert(UTF8ToString($0) + "\n\n" + UTF8ToString($1)); }];
 
-// Avoid creating a new array
-var _readAsmConstArgsArray = [];
+function _emscripten_asm_const_i(code) {
+  return ASM_CONSTS[code]();
+}
 
-function readAsmConstArgs(sigPtr, buf) {
-  var args = _readAsmConstArgsArray;
-  args.length = 0;
-  while (1) {
-    var ch = HEAPU8[sigPtr++];
-    if (!ch) return args;
-    if (ch === 'd'.charCodeAt(0) || ch === 'f'.charCodeAt(0)) {
-      buf = alignMemory(buf, 8);
-      args.push(HEAPF64[(buf >> 3)]);
-      buf += 8;
-    } else if (ch === 'i'.charCodeAt(0)) {
-      buf = alignMemory(buf, 4);
-      args.push(HEAP32[(buf >> 2)]);
-      buf += 4;
-    }
-  }
+function _emscripten_asm_const_iii(code, a0, a1) {
+  return ASM_CONSTS[code](a0, a1);
+}
+
+function _emscripten_asm_const_ii(code, a0) {
+  return ASM_CONSTS[code](a0);
+}
+
+function _emscripten_asm_const_iiiii(code, a0, a1, a2, a3) {
+  return ASM_CONSTS[code](a0, a1, a2, a3);
+}
+
+function _emscripten_asm_const_iiiiii(code, a0, a1, a2, a3, a4) {
+  return ASM_CONSTS[code](a0, a1, a2, a3, a4);
+}
+
+function _emscripten_asm_const_iiii(code, a0, a1, a2) {
+  return ASM_CONSTS[code](a0, a1, a2);
 }
 
 
-function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
-  var args = readAsmConstArgs(sigPtr, argbuf);
-  return ASM_CONSTS[code].apply(null, args);
-}
+
+
+// STATICTOP = STATIC_BASE + 177600;
+/* global initializers */  __ATINIT__.push({ func: function() { ___emscripten_environ_constructor() } });
 
 
 
-// STATICTOP = STATIC_BASE + 172816;
-/* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
+
+
 
 
 
 /* no memory initializer */
+var tempDoublePtr = 178608
+
+function copyTempFloat(ptr) { // functions, because inlining this code increases code size too much
+  HEAP8[tempDoublePtr] = HEAP8[ptr];
+  HEAP8[tempDoublePtr+1] = HEAP8[ptr+1];
+  HEAP8[tempDoublePtr+2] = HEAP8[ptr+2];
+  HEAP8[tempDoublePtr+3] = HEAP8[ptr+3];
+}
+
+function copyTempDouble(ptr) {
+  HEAP8[tempDoublePtr] = HEAP8[ptr];
+  HEAP8[tempDoublePtr+1] = HEAP8[ptr+1];
+  HEAP8[tempDoublePtr+2] = HEAP8[ptr+2];
+  HEAP8[tempDoublePtr+3] = HEAP8[ptr+3];
+  HEAP8[tempDoublePtr+4] = HEAP8[ptr+4];
+  HEAP8[tempDoublePtr+5] = HEAP8[ptr+5];
+  HEAP8[tempDoublePtr+6] = HEAP8[ptr+6];
+  HEAP8[tempDoublePtr+7] = HEAP8[ptr+7];
+}
+
 // {{PRE_LIBRARY}}
 
 
@@ -1823,7 +1869,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
 
   function demangleAll(text) {
       var regex =
-        /\b_Z[\w\d_]+/g;
+        /\b__Z[\w\d_]+/g;
       return text.replace(regex,
         function(x) {
           var y = demangle(x);
@@ -1854,20 +1900,101 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return demangleAll(js);
     }
 
+  
+  var ENV={};function ___buildEnvironment(environ) {
+      // WARNING: Arbitrary limit!
+      var MAX_ENV_VALUES = 64;
+      var TOTAL_ENV_SIZE = 1024;
+  
+      // Statically allocate memory for the environment.
+      var poolPtr;
+      var envPtr;
+      if (!___buildEnvironment.called) {
+        ___buildEnvironment.called = true;
+        // Set default values. Use string keys for Closure Compiler compatibility.
+        ENV['USER'] = 'web_user';
+        ENV['LOGNAME'] = 'web_user';
+        ENV['PATH'] = '/';
+        ENV['PWD'] = '/';
+        ENV['HOME'] = '/home/web_user';
+        // Browser language detection #8751
+        ENV['LANG'] = ((typeof navigator === 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
+        ENV['_'] = thisProgram;
+        // Allocate memory.
+        poolPtr = getMemory(TOTAL_ENV_SIZE);
+        envPtr = getMemory(MAX_ENV_VALUES * 4);
+        HEAP32[((envPtr)>>2)]=poolPtr;
+        HEAP32[((environ)>>2)]=envPtr;
+      } else {
+        envPtr = HEAP32[((environ)>>2)];
+        poolPtr = HEAP32[((envPtr)>>2)];
+      }
+  
+      // Collect key=value lines.
+      var strings = [];
+      var totalSize = 0;
+      for (var key in ENV) {
+        if (typeof ENV[key] === 'string') {
+          var line = key + '=' + ENV[key];
+          strings.push(line);
+          totalSize += line.length;
+        }
+      }
+      if (totalSize > TOTAL_ENV_SIZE) {
+        throw new Error('Environment size exceeded TOTAL_ENV_SIZE!');
+      }
+  
+      // Make new.
+      var ptrSize = 4;
+      for (var i = 0; i < strings.length; i++) {
+        var line = strings[i];
+        writeAsciiToMemory(line, poolPtr);
+        HEAP32[(((envPtr)+(i * ptrSize))>>2)]=poolPtr;
+        poolPtr += line.length + 1;
+      }
+      HEAP32[(((envPtr)+(strings.length * ptrSize))>>2)]=0;
+    }
+
   function ___cxa_allocate_exception(size) {
       return _malloc(size);
     }
 
   
-  function _atexit(func, arg) {
-      __ATEXIT__.unshift({ func: func, arg: arg });
-    }function ___cxa_atexit(
-  ) {
-  return _atexit.apply(null, arguments)
-  }
-
-  
   var ___exception_infos={};
+  
+  var ___exception_caught= [];
+  
+  function ___exception_addRef(ptr) {
+      if (!ptr) return;
+      var info = ___exception_infos[ptr];
+      info.refcount++;
+    }
+  
+  function ___exception_deAdjust(adjusted) {
+      if (!adjusted || ___exception_infos[adjusted]) return adjusted;
+      for (var key in ___exception_infos) {
+        var ptr = +key; // the iteration key is a string, and if we throw this, it must be an integer as that is what we look for
+        var adj = ___exception_infos[ptr].adjusted;
+        var len = adj.length;
+        for (var i = 0; i < len; i++) {
+          if (adj[i] === adjusted) {
+            return ptr;
+          }
+        }
+      }
+      return adjusted;
+    }function ___cxa_begin_catch(ptr) {
+      var info = ___exception_infos[ptr];
+      if (info && !info.caught) {
+        info.caught = true;
+        __ZSt18uncaught_exceptionv.uncaught_exceptions--;
+      }
+      if (info) info.rethrown = false;
+      ___exception_caught.push(ptr);
+      ___exception_addRef(___exception_deAdjust(ptr));
+      return ptr;
+    }
+
   
   var ___exception_last=0;function ___cxa_throw(ptr, type, destructor) {
       ___exception_infos[ptr] = {
@@ -1886,6 +2013,9 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
         __ZSt18uncaught_exceptionv.uncaught_exceptions++;
       }
       throw ptr;
+    }
+
+  function ___gxx_personality_v0() {
     }
 
   function ___lock() {}
@@ -2104,7 +2234,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
               var bytesRead = 0;
   
               try {
-                bytesRead = nodeFS.readSync(process.stdin.fd, buf, 0, BUFSIZE, null);
+                bytesRead = fs.readSync(process.stdin.fd, buf, 0, BUFSIZE, null);
               } catch(e) {
                 // Cross-platform differences: on Windows, reading EOF throws an exception, but on other OSes,
                 // reading EOF returns 0. Uniformize behavior by treating the EOF exception to return 0.
@@ -2484,6 +2614,670 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
           var bytesWritten = MEMFS.stream_ops.write(stream, buffer, 0, length, offset, false);
           // should we check if bytesWritten and length are the same?
           return 0;
+        }}};
+  
+  var IDBFS={dbs:{},indexedDB:function() {
+        if (typeof indexedDB !== 'undefined') return indexedDB;
+        var ret = null;
+        if (typeof window === 'object') ret = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        assert(ret, 'IDBFS used, but indexedDB not supported');
+        return ret;
+      },DB_VERSION:21,DB_STORE_NAME:"FILE_DATA",mount:function(mount) {
+        // reuse all of the core MEMFS functionality
+        return MEMFS.mount.apply(null, arguments);
+      },syncfs:function(mount, populate, callback) {
+        IDBFS.getLocalSet(mount, function(err, local) {
+          if (err) return callback(err);
+  
+          IDBFS.getRemoteSet(mount, function(err, remote) {
+            if (err) return callback(err);
+  
+            var src = populate ? remote : local;
+            var dst = populate ? local : remote;
+  
+            IDBFS.reconcile(src, dst, callback);
+          });
+        });
+      },getDB:function(name, callback) {
+        // check the cache first
+        var db = IDBFS.dbs[name];
+        if (db) {
+          return callback(null, db);
+        }
+  
+        var req;
+        try {
+          req = IDBFS.indexedDB().open(name, IDBFS.DB_VERSION);
+        } catch (e) {
+          return callback(e);
+        }
+        if (!req) {
+          return callback("Unable to connect to IndexedDB");
+        }
+        req.onupgradeneeded = function(e) {
+          var db = e.target.result;
+          var transaction = e.target.transaction;
+  
+          var fileStore;
+  
+          if (db.objectStoreNames.contains(IDBFS.DB_STORE_NAME)) {
+            fileStore = transaction.objectStore(IDBFS.DB_STORE_NAME);
+          } else {
+            fileStore = db.createObjectStore(IDBFS.DB_STORE_NAME);
+          }
+  
+          if (!fileStore.indexNames.contains('timestamp')) {
+            fileStore.createIndex('timestamp', 'timestamp', { unique: false });
+          }
+        };
+        req.onsuccess = function() {
+          db = req.result;
+  
+          // add to the cache
+          IDBFS.dbs[name] = db;
+          callback(null, db);
+        };
+        req.onerror = function(e) {
+          callback(this.error);
+          e.preventDefault();
+        };
+      },getLocalSet:function(mount, callback) {
+        var entries = {};
+  
+        function isRealDir(p) {
+          return p !== '.' && p !== '..';
+        };
+        function toAbsolute(root) {
+          return function(p) {
+            return PATH.join2(root, p);
+          }
+        };
+  
+        var check = FS.readdir(mount.mountpoint).filter(isRealDir).map(toAbsolute(mount.mountpoint));
+  
+        while (check.length) {
+          var path = check.pop();
+          var stat;
+  
+          try {
+            stat = FS.stat(path);
+          } catch (e) {
+            return callback(e);
+          }
+  
+          if (FS.isDir(stat.mode)) {
+            check.push.apply(check, FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
+          }
+  
+          entries[path] = { timestamp: stat.mtime };
+        }
+  
+        return callback(null, { type: 'local', entries: entries });
+      },getRemoteSet:function(mount, callback) {
+        var entries = {};
+  
+        IDBFS.getDB(mount.mountpoint, function(err, db) {
+          if (err) return callback(err);
+  
+          try {
+            var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
+            transaction.onerror = function(e) {
+              callback(this.error);
+              e.preventDefault();
+            };
+  
+            var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+            var index = store.index('timestamp');
+  
+            index.openKeyCursor().onsuccess = function(event) {
+              var cursor = event.target.result;
+  
+              if (!cursor) {
+                return callback(null, { type: 'remote', db: db, entries: entries });
+              }
+  
+              entries[cursor.primaryKey] = { timestamp: cursor.key };
+  
+              cursor.continue();
+            };
+          } catch (e) {
+            return callback(e);
+          }
+        });
+      },loadLocalEntry:function(path, callback) {
+        var stat, node;
+  
+        try {
+          var lookup = FS.lookupPath(path);
+          node = lookup.node;
+          stat = FS.stat(path);
+        } catch (e) {
+          return callback(e);
+        }
+  
+        if (FS.isDir(stat.mode)) {
+          return callback(null, { timestamp: stat.mtime, mode: stat.mode });
+        } else if (FS.isFile(stat.mode)) {
+          // Performance consideration: storing a normal JavaScript array to a IndexedDB is much slower than storing a typed array.
+          // Therefore always convert the file contents to a typed array first before writing the data to IndexedDB.
+          node.contents = MEMFS.getFileDataAsTypedArray(node);
+          return callback(null, { timestamp: stat.mtime, mode: stat.mode, contents: node.contents });
+        } else {
+          return callback(new Error('node type not supported'));
+        }
+      },storeLocalEntry:function(path, entry, callback) {
+        try {
+          if (FS.isDir(entry.mode)) {
+            FS.mkdir(path, entry.mode);
+          } else if (FS.isFile(entry.mode)) {
+            FS.writeFile(path, entry.contents, { canOwn: true });
+          } else {
+            return callback(new Error('node type not supported'));
+          }
+  
+          FS.chmod(path, entry.mode);
+          FS.utime(path, entry.timestamp, entry.timestamp);
+        } catch (e) {
+          return callback(e);
+        }
+  
+        callback(null);
+      },removeLocalEntry:function(path, callback) {
+        try {
+          var lookup = FS.lookupPath(path);
+          var stat = FS.stat(path);
+  
+          if (FS.isDir(stat.mode)) {
+            FS.rmdir(path);
+          } else if (FS.isFile(stat.mode)) {
+            FS.unlink(path);
+          }
+        } catch (e) {
+          return callback(e);
+        }
+  
+        callback(null);
+      },loadRemoteEntry:function(store, path, callback) {
+        var req = store.get(path);
+        req.onsuccess = function(event) { callback(null, event.target.result); };
+        req.onerror = function(e) {
+          callback(this.error);
+          e.preventDefault();
+        };
+      },storeRemoteEntry:function(store, path, entry, callback) {
+        var req = store.put(entry, path);
+        req.onsuccess = function() { callback(null); };
+        req.onerror = function(e) {
+          callback(this.error);
+          e.preventDefault();
+        };
+      },removeRemoteEntry:function(store, path, callback) {
+        var req = store.delete(path);
+        req.onsuccess = function() { callback(null); };
+        req.onerror = function(e) {
+          callback(this.error);
+          e.preventDefault();
+        };
+      },reconcile:function(src, dst, callback) {
+        var total = 0;
+  
+        var create = [];
+        Object.keys(src.entries).forEach(function (key) {
+          var e = src.entries[key];
+          var e2 = dst.entries[key];
+          if (!e2 || e.timestamp > e2.timestamp) {
+            create.push(key);
+            total++;
+          }
+        });
+  
+        var remove = [];
+        Object.keys(dst.entries).forEach(function (key) {
+          var e = dst.entries[key];
+          var e2 = src.entries[key];
+          if (!e2) {
+            remove.push(key);
+            total++;
+          }
+        });
+  
+        if (!total) {
+          return callback(null);
+        }
+  
+        var errored = false;
+        var db = src.type === 'remote' ? src.db : dst.db;
+        var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readwrite');
+        var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+  
+        function done(err) {
+          if (err && !errored) {
+            errored = true;
+            return callback(err);
+          }
+        };
+  
+        transaction.onerror = function(e) {
+          done(this.error);
+          e.preventDefault();
+        };
+  
+        transaction.oncomplete = function(e) {
+          if (!errored) {
+            callback(null);
+          }
+        };
+  
+        // sort paths in ascending order so directory entries are created
+        // before the files inside them
+        create.sort().forEach(function (path) {
+          if (dst.type === 'local') {
+            IDBFS.loadRemoteEntry(store, path, function (err, entry) {
+              if (err) return done(err);
+              IDBFS.storeLocalEntry(path, entry, done);
+            });
+          } else {
+            IDBFS.loadLocalEntry(path, function (err, entry) {
+              if (err) return done(err);
+              IDBFS.storeRemoteEntry(store, path, entry, done);
+            });
+          }
+        });
+  
+        // sort paths in descending order so files are deleted before their
+        // parent directories
+        remove.sort().reverse().forEach(function(path) {
+          if (dst.type === 'local') {
+            IDBFS.removeLocalEntry(path, done);
+          } else {
+            IDBFS.removeRemoteEntry(store, path, done);
+          }
+        });
+      }};
+  
+  
+  var ERRNO_CODES={EPERM:63,ENOENT:44,ESRCH:71,EINTR:27,EIO:29,ENXIO:60,E2BIG:1,ENOEXEC:45,EBADF:8,ECHILD:12,EAGAIN:6,EWOULDBLOCK:6,ENOMEM:48,EACCES:2,EFAULT:21,ENOTBLK:105,EBUSY:10,EEXIST:20,EXDEV:75,ENODEV:43,ENOTDIR:54,EISDIR:31,EINVAL:28,ENFILE:41,EMFILE:33,ENOTTY:59,ETXTBSY:74,EFBIG:22,ENOSPC:51,ESPIPE:70,EROFS:69,EMLINK:34,EPIPE:64,EDOM:18,ERANGE:68,ENOMSG:49,EIDRM:24,ECHRNG:106,EL2NSYNC:156,EL3HLT:107,EL3RST:108,ELNRNG:109,EUNATCH:110,ENOCSI:111,EL2HLT:112,EDEADLK:16,ENOLCK:46,EBADE:113,EBADR:114,EXFULL:115,ENOANO:104,EBADRQC:103,EBADSLT:102,EDEADLOCK:16,EBFONT:101,ENOSTR:100,ENODATA:116,ETIME:117,ENOSR:118,ENONET:119,ENOPKG:120,EREMOTE:121,ENOLINK:47,EADV:122,ESRMNT:123,ECOMM:124,EPROTO:65,EMULTIHOP:36,EDOTDOT:125,EBADMSG:9,ENOTUNIQ:126,EBADFD:127,EREMCHG:128,ELIBACC:129,ELIBBAD:130,ELIBSCN:131,ELIBMAX:132,ELIBEXEC:133,ENOSYS:52,ENOTEMPTY:55,ENAMETOOLONG:37,ELOOP:32,EOPNOTSUPP:138,EPFNOSUPPORT:139,ECONNRESET:15,ENOBUFS:42,EAFNOSUPPORT:5,EPROTOTYPE:67,ENOTSOCK:57,ENOPROTOOPT:50,ESHUTDOWN:140,ECONNREFUSED:14,EADDRINUSE:3,ECONNABORTED:13,ENETUNREACH:40,ENETDOWN:38,ETIMEDOUT:73,EHOSTDOWN:142,EHOSTUNREACH:23,EINPROGRESS:26,EALREADY:7,EDESTADDRREQ:17,EMSGSIZE:35,EPROTONOSUPPORT:66,ESOCKTNOSUPPORT:137,EADDRNOTAVAIL:4,ENETRESET:39,EISCONN:30,ENOTCONN:53,ETOOMANYREFS:141,EUSERS:136,EDQUOT:19,ESTALE:72,ENOTSUP:138,ENOMEDIUM:148,EILSEQ:25,EOVERFLOW:61,ECANCELED:11,ENOTRECOVERABLE:56,EOWNERDEAD:62,ESTRPIPE:135};var NODEFS={isWindows:false,staticInit:function() {
+        NODEFS.isWindows = !!process.platform.match(/^win/);
+        var flags = process["binding"]("constants");
+        // Node.js 4 compatibility: it has no namespaces for constants
+        if (flags["fs"]) {
+          flags = flags["fs"];
+        }
+        NODEFS.flagsForNodeMap = {
+          "1024": flags["O_APPEND"],
+          "64": flags["O_CREAT"],
+          "128": flags["O_EXCL"],
+          "0": flags["O_RDONLY"],
+          "2": flags["O_RDWR"],
+          "4096": flags["O_SYNC"],
+          "512": flags["O_TRUNC"],
+          "1": flags["O_WRONLY"]
+        };
+      },bufferFrom:function (arrayBuffer) {
+        // Node.js < 4.5 compatibility: Buffer.from does not support ArrayBuffer
+        // Buffer.from before 4.5 was just a method inherited from Uint8Array
+        // Buffer.alloc has been added with Buffer.from together, so check it instead
+        return Buffer["alloc"] ? Buffer.from(arrayBuffer) : new Buffer(arrayBuffer);
+      },convertNodeCode:function(e) {
+        var code = e.code;
+        assert(code in ERRNO_CODES);
+        return ERRNO_CODES[code];
+      },mount:function (mount) {
+        assert(ENVIRONMENT_HAS_NODE);
+        return NODEFS.createNode(null, '/', NODEFS.getMode(mount.opts.root), 0);
+      },createNode:function (parent, name, mode, dev) {
+        if (!FS.isDir(mode) && !FS.isFile(mode) && !FS.isLink(mode)) {
+          throw new FS.ErrnoError(28);
+        }
+        var node = FS.createNode(parent, name, mode);
+        node.node_ops = NODEFS.node_ops;
+        node.stream_ops = NODEFS.stream_ops;
+        return node;
+      },getMode:function (path) {
+        var stat;
+        try {
+          stat = fs.lstatSync(path);
+          if (NODEFS.isWindows) {
+            // Node.js on Windows never represents permission bit 'x', so
+            // propagate read bits to execute bits
+            stat.mode = stat.mode | ((stat.mode & 292) >> 2);
+          }
+        } catch (e) {
+          if (!e.code) throw e;
+          throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+        }
+        return stat.mode;
+      },realPath:function (node) {
+        var parts = [];
+        while (node.parent !== node) {
+          parts.push(node.name);
+          node = node.parent;
+        }
+        parts.push(node.mount.opts.root);
+        parts.reverse();
+        return PATH.join.apply(null, parts);
+      },flagsForNode:function(flags) {
+        flags &= ~0x200000 /*O_PATH*/; // Ignore this flag from musl, otherwise node.js fails to open the file.
+        flags &= ~0x800 /*O_NONBLOCK*/; // Ignore this flag from musl, otherwise node.js fails to open the file.
+        flags &= ~0x8000 /*O_LARGEFILE*/; // Ignore this flag from musl, otherwise node.js fails to open the file.
+        flags &= ~0x80000 /*O_CLOEXEC*/; // Some applications may pass it; it makes no sense for a single process.
+        var newFlags = 0;
+        for (var k in NODEFS.flagsForNodeMap) {
+          if (flags & k) {
+            newFlags |= NODEFS.flagsForNodeMap[k];
+            flags ^= k;
+          }
+        }
+  
+        if (!flags) {
+          return newFlags;
+        } else {
+          throw new FS.ErrnoError(28);
+        }
+      },node_ops:{getattr:function(node) {
+          var path = NODEFS.realPath(node);
+          var stat;
+          try {
+            stat = fs.lstatSync(path);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+          // node.js v0.10.20 doesn't report blksize and blocks on Windows. Fake them with default blksize of 4096.
+          // See http://support.microsoft.com/kb/140365
+          if (NODEFS.isWindows && !stat.blksize) {
+            stat.blksize = 4096;
+          }
+          if (NODEFS.isWindows && !stat.blocks) {
+            stat.blocks = (stat.size+stat.blksize-1)/stat.blksize|0;
+          }
+          return {
+            dev: stat.dev,
+            ino: stat.ino,
+            mode: stat.mode,
+            nlink: stat.nlink,
+            uid: stat.uid,
+            gid: stat.gid,
+            rdev: stat.rdev,
+            size: stat.size,
+            atime: stat.atime,
+            mtime: stat.mtime,
+            ctime: stat.ctime,
+            blksize: stat.blksize,
+            blocks: stat.blocks
+          };
+        },setattr:function(node, attr) {
+          var path = NODEFS.realPath(node);
+          try {
+            if (attr.mode !== undefined) {
+              fs.chmodSync(path, attr.mode);
+              // update the common node structure mode as well
+              node.mode = attr.mode;
+            }
+            if (attr.timestamp !== undefined) {
+              var date = new Date(attr.timestamp);
+              fs.utimesSync(path, date, date);
+            }
+            if (attr.size !== undefined) {
+              fs.truncateSync(path, attr.size);
+            }
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },lookup:function (parent, name) {
+          var path = PATH.join2(NODEFS.realPath(parent), name);
+          var mode = NODEFS.getMode(path);
+          return NODEFS.createNode(parent, name, mode);
+        },mknod:function (parent, name, mode, dev) {
+          var node = NODEFS.createNode(parent, name, mode, dev);
+          // create the backing node for this in the fs root as well
+          var path = NODEFS.realPath(node);
+          try {
+            if (FS.isDir(node.mode)) {
+              fs.mkdirSync(path, node.mode);
+            } else {
+              fs.writeFileSync(path, '', { mode: node.mode });
+            }
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+          return node;
+        },rename:function (oldNode, newDir, newName) {
+          var oldPath = NODEFS.realPath(oldNode);
+          var newPath = PATH.join2(NODEFS.realPath(newDir), newName);
+          try {
+            fs.renameSync(oldPath, newPath);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },unlink:function(parent, name) {
+          var path = PATH.join2(NODEFS.realPath(parent), name);
+          try {
+            fs.unlinkSync(path);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },rmdir:function(parent, name) {
+          var path = PATH.join2(NODEFS.realPath(parent), name);
+          try {
+            fs.rmdirSync(path);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },readdir:function(node) {
+          var path = NODEFS.realPath(node);
+          try {
+            return fs.readdirSync(path);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },symlink:function(parent, newName, oldPath) {
+          var newPath = PATH.join2(NODEFS.realPath(parent), newName);
+          try {
+            fs.symlinkSync(oldPath, newPath);
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },readlink:function(node) {
+          var path = NODEFS.realPath(node);
+          try {
+            path = fs.readlinkSync(path);
+            path = NODEJS_PATH.relative(NODEJS_PATH.resolve(node.mount.opts.root), path);
+            return path;
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        }},stream_ops:{open:function (stream) {
+          var path = NODEFS.realPath(stream.node);
+          try {
+            if (FS.isFile(stream.node.mode)) {
+              stream.nfd = fs.openSync(path, NODEFS.flagsForNode(stream.flags));
+            }
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },close:function (stream) {
+          try {
+            if (FS.isFile(stream.node.mode) && stream.nfd) {
+              fs.closeSync(stream.nfd);
+            }
+          } catch (e) {
+            if (!e.code) throw e;
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },read:function (stream, buffer, offset, length, position) {
+          // Node.js < 6 compatibility: node errors on 0 length reads
+          if (length === 0) return 0;
+          try {
+            return fs.readSync(stream.nfd, NODEFS.bufferFrom(buffer.buffer), offset, length, position);
+          } catch (e) {
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },write:function (stream, buffer, offset, length, position) {
+          try {
+            return fs.writeSync(stream.nfd, NODEFS.bufferFrom(buffer.buffer), offset, length, position);
+          } catch (e) {
+            throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+          }
+        },llseek:function (stream, offset, whence) {
+          var position = offset;
+          if (whence === 1) {
+            position += stream.position;
+          } else if (whence === 2) {
+            if (FS.isFile(stream.node.mode)) {
+              try {
+                var stat = fs.fstatSync(stream.nfd);
+                position += stat.size;
+              } catch (e) {
+                throw new FS.ErrnoError(NODEFS.convertNodeCode(e));
+              }
+            }
+          }
+  
+          if (position < 0) {
+            throw new FS.ErrnoError(28);
+          }
+  
+          return position;
+        }}};
+  
+  var WORKERFS={DIR_MODE:16895,FILE_MODE:33279,reader:null,mount:function (mount) {
+        assert(ENVIRONMENT_IS_WORKER);
+        if (!WORKERFS.reader) WORKERFS.reader = new FileReaderSync();
+        var root = WORKERFS.createNode(null, '/', WORKERFS.DIR_MODE, 0);
+        var createdParents = {};
+        function ensureParent(path) {
+          // return the parent node, creating subdirs as necessary
+          var parts = path.split('/');
+          var parent = root;
+          for (var i = 0; i < parts.length-1; i++) {
+            var curr = parts.slice(0, i+1).join('/');
+            // Issue 4254: Using curr as a node name will prevent the node
+            // from being found in FS.nameTable when FS.open is called on
+            // a path which holds a child of this node,
+            // given that all FS functions assume node names
+            // are just their corresponding parts within their given path,
+            // rather than incremental aggregates which include their parent's
+            // directories.
+            if (!createdParents[curr]) {
+              createdParents[curr] = WORKERFS.createNode(parent, parts[i], WORKERFS.DIR_MODE, 0);
+            }
+            parent = createdParents[curr];
+          }
+          return parent;
+        }
+        function base(path) {
+          var parts = path.split('/');
+          return parts[parts.length-1];
+        }
+        // We also accept FileList here, by using Array.prototype
+        Array.prototype.forEach.call(mount.opts["files"] || [], function(file) {
+          WORKERFS.createNode(ensureParent(file.name), base(file.name), WORKERFS.FILE_MODE, 0, file, file.lastModifiedDate);
+        });
+        (mount.opts["blobs"] || []).forEach(function(obj) {
+          WORKERFS.createNode(ensureParent(obj["name"]), base(obj["name"]), WORKERFS.FILE_MODE, 0, obj["data"]);
+        });
+        (mount.opts["packages"] || []).forEach(function(pack) {
+          pack['metadata'].files.forEach(function(file) {
+            var name = file.filename.substr(1); // remove initial slash
+            WORKERFS.createNode(ensureParent(name), base(name), WORKERFS.FILE_MODE, 0, pack['blob'].slice(file.start, file.end));
+          });
+        });
+        return root;
+      },createNode:function (parent, name, mode, dev, contents, mtime) {
+        var node = FS.createNode(parent, name, mode);
+        node.mode = mode;
+        node.node_ops = WORKERFS.node_ops;
+        node.stream_ops = WORKERFS.stream_ops;
+        node.timestamp = (mtime || new Date).getTime();
+        assert(WORKERFS.FILE_MODE !== WORKERFS.DIR_MODE);
+        if (mode === WORKERFS.FILE_MODE) {
+          node.size = contents.size;
+          node.contents = contents;
+        } else {
+          node.size = 4096;
+          node.contents = {};
+        }
+        if (parent) {
+          parent.contents[name] = node;
+        }
+        return node;
+      },node_ops:{getattr:function(node) {
+          return {
+            dev: 1,
+            ino: undefined,
+            mode: node.mode,
+            nlink: 1,
+            uid: 0,
+            gid: 0,
+            rdev: undefined,
+            size: node.size,
+            atime: new Date(node.timestamp),
+            mtime: new Date(node.timestamp),
+            ctime: new Date(node.timestamp),
+            blksize: 4096,
+            blocks: Math.ceil(node.size / 4096),
+          };
+        },setattr:function(node, attr) {
+          if (attr.mode !== undefined) {
+            node.mode = attr.mode;
+          }
+          if (attr.timestamp !== undefined) {
+            node.timestamp = attr.timestamp;
+          }
+        },lookup:function(parent, name) {
+          throw new FS.ErrnoError(44);
+        },mknod:function (parent, name, mode, dev) {
+          throw new FS.ErrnoError(63);
+        },rename:function (oldNode, newDir, newName) {
+          throw new FS.ErrnoError(63);
+        },unlink:function(parent, name) {
+          throw new FS.ErrnoError(63);
+        },rmdir:function(parent, name) {
+          throw new FS.ErrnoError(63);
+        },readdir:function(node) {
+          var entries = ['.', '..'];
+          for (var key in node.contents) {
+            if (!node.contents.hasOwnProperty(key)) {
+              continue;
+            }
+            entries.push(key);
+          }
+          return entries;
+        },symlink:function(parent, newName, oldPath) {
+          throw new FS.ErrnoError(63);
+        },readlink:function(node) {
+          throw new FS.ErrnoError(63);
+        }},stream_ops:{read:function (stream, buffer, offset, length, position) {
+          if (position >= stream.node.size) return 0;
+          var chunk = stream.node.contents.slice(position, position + length);
+          var ab = WORKERFS.reader.readAsArrayBuffer(chunk);
+          buffer.set(new Uint8Array(ab), offset);
+          return chunk.size;
+        },write:function (stream, buffer, offset, length, position) {
+          throw new FS.ErrnoError(29);
+        },llseek:function (stream, offset, whence) {
+          var position = offset;
+          if (whence === 1) {
+            position += stream.position;
+          } else if (whence === 2) {
+            if (FS.isFile(stream.node.mode)) {
+              position += stream.node.size;
+            }
+          }
+          if (position < 0) {
+            throw new FS.ErrnoError(28);
+          }
+          return position;
         }}};var FS={root:null,mounts:[],devices:{},streams:[],nextInode:1,nameTable:null,currentPath:"/",initialized:false,ignorePermissions:true,trackingDelegate:{},tracking:{openFlags:{READ:1,WRITE:2}},ErrnoError:null,genericErrors:{},filesystems:null,syncFSRequests:0,handleFSError:function(e) {
         if (!(e instanceof FS.ErrnoError)) throw e + ' : ' + stackTrace();
         return ___setErrNo(e.errno);
@@ -3701,6 +4495,9 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
   
         FS.filesystems = {
           'MEMFS': MEMFS,
+          'IDBFS': IDBFS,
+          'NODEFS': NODEFS,
+          'WORKERFS': WORKERFS,
         };
       },init:function(input, output, error) {
         FS.init.initialized = true;
@@ -4451,10 +5248,87 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
 
   function ___unlock() {}
 
+  
+  function _fd_close(fd) {try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      FS.close(stream);
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return e.errno;
+  }
+  }function ___wasi_fd_close(
+  ) {
+  return _fd_close.apply(null, arguments)
+  }
+
+  
+  function _fd_read(fd, iov, iovcnt, pnum) {try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var num = SYSCALLS.doReadv(stream, iov, iovcnt);
+      HEAP32[((pnum)>>2)]=num
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return e.errno;
+  }
+  }function ___wasi_fd_read(
+  ) {
+  return _fd_read.apply(null, arguments)
+  }
+
+  
+  function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var HIGH_OFFSET = 0x100000000; // 2^32
+      // use an unsigned operator on low and shift high by 32-bits
+      var offset = offset_high * HIGH_OFFSET + (offset_low >>> 0);
+  
+      var DOUBLE_LIMIT = 0x20000000000000; // 2^53
+      // we also check for equality since DOUBLE_LIMIT + 1 == DOUBLE_LIMIT
+      if (offset <= -DOUBLE_LIMIT || offset >= DOUBLE_LIMIT) {
+        return -61;
+      }
+  
+      FS.llseek(stream, offset, whence);
+      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math_abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math_min((+(Math_floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math_ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((newOffset)>>2)]=tempI64[0],HEAP32[(((newOffset)+(4))>>2)]=tempI64[1]);
+      if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return e.errno;
+  }
+  }function ___wasi_fd_seek(
+  ) {
+  return _fd_seek.apply(null, arguments)
+  }
+
+  
+  function _fd_write(fd, iov, iovcnt, pnum) {try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var num = SYSCALLS.doWritev(stream, iov, iovcnt);
+      HEAP32[((pnum)>>2)]=num
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return e.errno;
+  }
+  }function ___wasi_fd_write(
+  ) {
+  return _fd_write.apply(null, arguments)
+  }
+
   function _abort() {
       abort();
     }
 
+  function _atexit(func, arg) {
+      __ATEXIT__.unshift({ func: func, arg: arg });
+    }
 
   
   function _emscripten_get_now() { abort() }
@@ -5909,6 +6783,8 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return 1;
     }
 
+  var _emscripten_asm_const_int=true;
+
   
   var JSEvents={keyEvent:0,mouseEvent:0,wheelEvent:0,uiEvent:0,focusEvent:0,deviceOrientationEvent:0,deviceMotionEvent:0,fullscreenChangeEvent:0,pointerlockChangeEvent:0,visibilityChangeEvent:0,touchEvent:0,previousFullscreenElement:null,previousScreenX:null,previousScreenY:null,removeEventListenersRegistered:false,removeAllEventListeners:function() {
         for(var i = JSEvents.eventHandlers.length-1; i >= 0; --i) {
@@ -6392,9 +7268,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return JSEvents.lastGamepadState.length;
     }
 
-  function _emscripten_get_sbrk_ptr() {
-      return 173680;
-    }
+   
 
   function _emscripten_glActiveTexture(x0) { GLctx['activeTexture'](x0) }
 
@@ -7693,60 +8567,15 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
 
   
   
+   
   
-  var setjmpId=0;function _saveSetjmp(env, label, table, size) {
-      // Not particularly fast: slow table lookup of setjmpId to label. But setjmp
-      // prevents relooping anyhow, so slowness is to be expected. And typical case
-      // is 1 setjmp per invocation, or less.
-      env = env|0;
-      label = label|0;
-      table = table|0;
-      size = size|0;
-      var i = 0;
-      setjmpId = (setjmpId+1)|0;
-      HEAP32[((env)>>2)]=setjmpId;
-      while ((i|0) < (size|0)) {
-        if (((HEAP32[(((table)+((i<<3)))>>2)])|0) == 0) {
-          HEAP32[(((table)+((i<<3)))>>2)]=setjmpId;
-          HEAP32[(((table)+((i<<3)+4))>>2)]=label;
-          // prepare next slot
-          HEAP32[(((table)+((i<<3)+8))>>2)]=0;
-          setTempRet0((size) | 0);
-          return table | 0;
-        }
-        i = i+1|0;
-      }
-      // grow the table
-      size = (size*2)|0;
-      table = _realloc(table|0, 8*(size+1|0)|0) | 0;
-      table = _saveSetjmp(env|0, label|0, table|0, size|0) | 0;
-      setTempRet0((size) | 0);
-      return table | 0;
-    }
+   
   
-  function _testSetjmp(id, table, size) {
-      id = id|0;
-      table = table|0;
-      size = size|0;
-      var i = 0, curr = 0;
-      while ((i|0) < (size|0)) {
-        curr = ((HEAP32[(((table)+((i<<3)))>>2)])|0);
-        if ((curr|0) == 0) break;
-        if ((curr|0) == (id|0)) {
-          return ((HEAP32[(((table)+((i<<3)+4))>>2)])|0);
-        }
-        i = i+1|0;
-      }
-      return 0;
-    }function _longjmp(env, value) {
+   function _longjmp(env, value) {
       _setThrew(env, value || 1);
       throw 'longjmp';
     }function _emscripten_longjmp(env, value) {
       _longjmp(env, value);
-    }
-
-  function _emscripten_memcpy_big(dest, src, num) {
-      HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
     }
 
   
@@ -8421,115 +9250,16 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       }
     }
 
+  function _getenv(name) {
+      // char *getenv(const char *name);
+      // http://pubs.opengroup.org/onlinepubs/009695399/functions/getenv.html
+      if (name === 0) return 0;
+      name = UTF8ToString(name);
+      if (!ENV.hasOwnProperty(name)) return 0;
   
-  
-  var ENV={};function _emscripten_get_environ() {
-      if (!_emscripten_get_environ.strings) {
-        // Default values.
-        var env = {
-          'USER': 'web_user',
-          'LOGNAME': 'web_user',
-          'PATH': '/',
-          'PWD': '/',
-          'HOME': '/home/web_user',
-          // Browser language detection #8751
-          'LANG': ((typeof navigator === 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8',
-          '_': thisProgram
-        };
-        // Apply the user-provided values, if any.
-        for (var x in ENV) {
-          env[x] = ENV[x];
-        }
-        var strings = [];
-        for (var x in env) {
-          strings.push(x + '=' + env[x]);
-        }
-        _emscripten_get_environ.strings = strings;
-      }
-      return _emscripten_get_environ.strings;
-    }function _environ_get(__environ, environ_buf) {
-      var strings = _emscripten_get_environ();
-      var bufSize = 0;
-      strings.forEach(function(string, i) {
-        var ptr = environ_buf + bufSize;
-        HEAP32[(((__environ)+(i * 4))>>2)]=ptr;
-        writeAsciiToMemory(string, ptr);
-        bufSize += string.length + 1;
-      });
-      return 0;
-    }
-
-  function _environ_sizes_get(penviron_count, penviron_buf_size) {
-      var strings = _emscripten_get_environ();
-      HEAP32[((penviron_count)>>2)]=strings.length;
-      var bufSize = 0;
-      strings.forEach(function(string) {
-        bufSize += string.length + 1;
-      });
-      HEAP32[((penviron_buf_size)>>2)]=bufSize;
-      return 0;
-    }
-
-  function _fd_close(fd) {try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      FS.close(stream);
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return e.errno;
-  }
-  }
-
-  function _fd_read(fd, iov, iovcnt, pnum) {try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      var num = SYSCALLS.doReadv(stream, iov, iovcnt);
-      HEAP32[((pnum)>>2)]=num
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return e.errno;
-  }
-  }
-
-  function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      var HIGH_OFFSET = 0x100000000; // 2^32
-      // use an unsigned operator on low and shift high by 32-bits
-      var offset = offset_high * HIGH_OFFSET + (offset_low >>> 0);
-  
-      var DOUBLE_LIMIT = 0x20000000000000; // 2^53
-      // we also check for equality since DOUBLE_LIMIT + 1 == DOUBLE_LIMIT
-      if (offset <= -DOUBLE_LIMIT || offset >= DOUBLE_LIMIT) {
-        return -61;
-      }
-  
-      FS.llseek(stream, offset, whence);
-      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math_abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math_min((+(Math_floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math_ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((newOffset)>>2)]=tempI64[0],HEAP32[(((newOffset)+(4))>>2)]=tempI64[1]);
-      if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return e.errno;
-  }
-  }
-
-  function _fd_write(fd, iov, iovcnt, pnum) {try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      var num = SYSCALLS.doWritev(stream, iov, iovcnt);
-      HEAP32[((pnum)>>2)]=num
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return e.errno;
-  }
-  }
-
-  function _getTempRet0() {
-      return (getTempRet0() | 0);
+      if (_getenv.ret) _free(_getenv.ret);
+      _getenv.ret = allocateUTF8(ENV[name]);
+      return _getenv.ret;
     }
 
   function _gettimeofday(ptr) {
@@ -8539,127 +9269,41 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return 0;
     }
 
-  
-  function _memcpy(dest, src, num) {
-      dest = dest|0; src = src|0; num = num|0;
-      var ret = 0;
-      var aligned_dest_end = 0;
-      var block_aligned_dest_end = 0;
-      var dest_end = 0;
-      // Test against a benchmarked cutoff limit for when HEAPU8.set() becomes faster to use.
-      if ((num|0) >= 8192) {
-        _emscripten_memcpy_big(dest|0, src|0, num|0)|0;
-        return dest|0;
-      }
-  
-      ret = dest|0;
-      dest_end = (dest + num)|0;
-      if ((dest&3) == (src&3)) {
-        // The initial unaligned < 4-byte front.
-        while (dest & 3) {
-          if ((num|0) == 0) return ret|0;
-          HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-          dest = (dest+1)|0;
-          src = (src+1)|0;
-          num = (num-1)|0;
-        }
-        aligned_dest_end = (dest_end & -4)|0;
-        block_aligned_dest_end = (aligned_dest_end - 64)|0;
-        while ((dest|0) <= (block_aligned_dest_end|0) ) {
-          HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
-          HEAP32[(((dest)+(4))>>2)]=((HEAP32[(((src)+(4))>>2)])|0);
-          HEAP32[(((dest)+(8))>>2)]=((HEAP32[(((src)+(8))>>2)])|0);
-          HEAP32[(((dest)+(12))>>2)]=((HEAP32[(((src)+(12))>>2)])|0);
-          HEAP32[(((dest)+(16))>>2)]=((HEAP32[(((src)+(16))>>2)])|0);
-          HEAP32[(((dest)+(20))>>2)]=((HEAP32[(((src)+(20))>>2)])|0);
-          HEAP32[(((dest)+(24))>>2)]=((HEAP32[(((src)+(24))>>2)])|0);
-          HEAP32[(((dest)+(28))>>2)]=((HEAP32[(((src)+(28))>>2)])|0);
-          HEAP32[(((dest)+(32))>>2)]=((HEAP32[(((src)+(32))>>2)])|0);
-          HEAP32[(((dest)+(36))>>2)]=((HEAP32[(((src)+(36))>>2)])|0);
-          HEAP32[(((dest)+(40))>>2)]=((HEAP32[(((src)+(40))>>2)])|0);
-          HEAP32[(((dest)+(44))>>2)]=((HEAP32[(((src)+(44))>>2)])|0);
-          HEAP32[(((dest)+(48))>>2)]=((HEAP32[(((src)+(48))>>2)])|0);
-          HEAP32[(((dest)+(52))>>2)]=((HEAP32[(((src)+(52))>>2)])|0);
-          HEAP32[(((dest)+(56))>>2)]=((HEAP32[(((src)+(56))>>2)])|0);
-          HEAP32[(((dest)+(60))>>2)]=((HEAP32[(((src)+(60))>>2)])|0);
-          dest = (dest+64)|0;
-          src = (src+64)|0;
-        }
-        while ((dest|0) < (aligned_dest_end|0) ) {
-          HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
-          dest = (dest+4)|0;
-          src = (src+4)|0;
-        }
-      } else {
-        // In the unaligned copy case, unroll a bit as well.
-        aligned_dest_end = (dest_end - 4)|0;
-        while ((dest|0) < (aligned_dest_end|0) ) {
-          HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-          HEAP8[(((dest)+(1))>>0)]=((HEAP8[(((src)+(1))>>0)])|0);
-          HEAP8[(((dest)+(2))>>0)]=((HEAP8[(((src)+(2))>>0)])|0);
-          HEAP8[(((dest)+(3))>>0)]=((HEAP8[(((src)+(3))>>0)])|0);
-          dest = (dest+4)|0;
-          src = (src+4)|0;
-        }
-      }
-      // The remaining unaligned < 4 byte tail.
-      while ((dest|0) < (dest_end|0)) {
-        HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-        dest = (dest+1)|0;
-        src = (src+1)|0;
-      }
-      return ret|0;
+   
+
+   
+
+  function _llvm_stackrestore(p) {
+      var self = _llvm_stacksave;
+      var ret = self.LLVM_SAVEDSTACKS[p];
+      self.LLVM_SAVEDSTACKS.splice(p, 1);
+      stackRestore(ret);
     }
 
-  function _memset(ptr, value, num) {
-      ptr = ptr|0; value = value|0; num = num|0;
-      var end = 0, aligned_end = 0, block_aligned_end = 0, value4 = 0;
-      end = (ptr + num)|0;
-  
-      value = value & 0xff;
-      if ((num|0) >= 67 /* 64 bytes for an unrolled loop + 3 bytes for unaligned head*/) {
-        while ((ptr&3) != 0) {
-          HEAP8[((ptr)>>0)]=value;
-          ptr = (ptr+1)|0;
-        }
-  
-        aligned_end = (end & -4)|0;
-        value4 = value | (value << 8) | (value << 16) | (value << 24);
-  
-        block_aligned_end = (aligned_end - 64)|0;
-  
-        while((ptr|0) <= (block_aligned_end|0)) {
-          HEAP32[((ptr)>>2)]=value4;
-          HEAP32[(((ptr)+(4))>>2)]=value4;
-          HEAP32[(((ptr)+(8))>>2)]=value4;
-          HEAP32[(((ptr)+(12))>>2)]=value4;
-          HEAP32[(((ptr)+(16))>>2)]=value4;
-          HEAP32[(((ptr)+(20))>>2)]=value4;
-          HEAP32[(((ptr)+(24))>>2)]=value4;
-          HEAP32[(((ptr)+(28))>>2)]=value4;
-          HEAP32[(((ptr)+(32))>>2)]=value4;
-          HEAP32[(((ptr)+(36))>>2)]=value4;
-          HEAP32[(((ptr)+(40))>>2)]=value4;
-          HEAP32[(((ptr)+(44))>>2)]=value4;
-          HEAP32[(((ptr)+(48))>>2)]=value4;
-          HEAP32[(((ptr)+(52))>>2)]=value4;
-          HEAP32[(((ptr)+(56))>>2)]=value4;
-          HEAP32[(((ptr)+(60))>>2)]=value4;
-          ptr = (ptr + 64)|0;
-        }
-  
-        while ((ptr|0) < (aligned_end|0) ) {
-          HEAP32[((ptr)>>2)]=value4;
-          ptr = (ptr+4)|0;
-        }
+  function _llvm_stacksave() {
+      var self = _llvm_stacksave;
+      if (!self.LLVM_SAVEDSTACKS) {
+        self.LLVM_SAVEDSTACKS = [];
       }
-      // The remaining bytes.
-      while ((ptr|0) < (end|0)) {
-        HEAP8[((ptr)>>0)]=value;
-        ptr = (ptr+1)|0;
-      }
-      return (end-num)|0;
+      self.LLVM_SAVEDSTACKS.push(stackSave());
+      return self.LLVM_SAVEDSTACKS.length-1;
     }
+
+  function _llvm_trap() {
+      abort('trap!');
+    }
+
+
+  
+  function _emscripten_memcpy_big(dest, src, num) {
+      HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
+    }
+  
+   
+
+   
+
+   
 
   
   function _usleep(useconds) {
@@ -8698,10 +9342,6 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return _usleep((seconds * 1e6) + (nanoseconds / 1000));
     }
 
-
-  function _setTempRet0($i) {
-      setTempRet0(($i) | 0);
-    }
 
   function _sigaction(signum, act, oldact) {
       //int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
@@ -9087,6 +9727,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
     }
 
 FS.staticInit();Module["FS_createFolder"] = FS.createFolder;Module["FS_createPath"] = FS.createPath;Module["FS_createDataFile"] = FS.createDataFile;Module["FS_createPreloadedFile"] = FS.createPreloadedFile;Module["FS_createLazyFile"] = FS.createLazyFile;Module["FS_createLink"] = FS.createLink;Module["FS_createDevice"] = FS.createDevice;Module["FS_unlink"] = FS.unlink;;
+if (ENVIRONMENT_HAS_NODE) { var fs = require("fs"); var NODEJS_PATH = require("path"); NODEFS.staticInit(); };
 if (ENVIRONMENT_IS_NODE) {
     _emscripten_get_now = function _emscripten_get_now_actual() {
       var t = process['hrtime']();
@@ -9143,249 +9784,11 @@ function intArrayToString(array) {
 
 // ASM_LIBRARY EXTERN PRIMITIVES: Int8Array,Int32Array
 
-var asmGlobalArg = {};
-var asmLibraryArg = { "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__lock": ___lock, "__map_file": ___map_file, "__syscall221": ___syscall221, "__syscall5": ___syscall5, "__syscall54": ___syscall54, "__syscall91": ___syscall91, "__unlock": ___unlock, "abort": _abort, "atexit": _atexit, "clock_gettime": _clock_gettime, "dlclose": _dlclose, "dlerror": _dlerror, "dlsym": _dlsym, "eglBindAPI": _eglBindAPI, "eglChooseConfig": _eglChooseConfig, "eglCreateContext": _eglCreateContext, "eglCreateWindowSurface": _eglCreateWindowSurface, "eglDestroyContext": _eglDestroyContext, "eglDestroySurface": _eglDestroySurface, "eglGetConfigAttrib": _eglGetConfigAttrib, "eglGetDisplay": _eglGetDisplay, "eglGetError": _eglGetError, "eglGetProcAddress": _eglGetProcAddress, "eglInitialize": _eglInitialize, "eglMakeCurrent": _eglMakeCurrent, "eglQueryString": _eglQueryString, "eglSwapBuffers": _eglSwapBuffers, "eglSwapInterval": _eglSwapInterval, "eglTerminate": _eglTerminate, "eglWaitGL": _eglWaitGL, "eglWaitNative": _eglWaitNative, "emscripten_asm_const_iii": _emscripten_asm_const_iii, "emscripten_exit_fullscreen": _emscripten_exit_fullscreen, "emscripten_exit_pointerlock": _emscripten_exit_pointerlock, "emscripten_get_device_pixel_ratio": _emscripten_get_device_pixel_ratio, "emscripten_get_element_css_size": _emscripten_get_element_css_size, "emscripten_get_gamepad_status": _emscripten_get_gamepad_status, "emscripten_get_num_gamepads": _emscripten_get_num_gamepads, "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_glActiveTexture": _emscripten_glActiveTexture, "emscripten_glAttachShader": _emscripten_glAttachShader, "emscripten_glBeginQueryEXT": _emscripten_glBeginQueryEXT, "emscripten_glBindAttribLocation": _emscripten_glBindAttribLocation, "emscripten_glBindBuffer": _emscripten_glBindBuffer, "emscripten_glBindFramebuffer": _emscripten_glBindFramebuffer, "emscripten_glBindRenderbuffer": _emscripten_glBindRenderbuffer, "emscripten_glBindTexture": _emscripten_glBindTexture, "emscripten_glBindVertexArrayOES": _emscripten_glBindVertexArrayOES, "emscripten_glBlendColor": _emscripten_glBlendColor, "emscripten_glBlendEquation": _emscripten_glBlendEquation, "emscripten_glBlendEquationSeparate": _emscripten_glBlendEquationSeparate, "emscripten_glBlendFunc": _emscripten_glBlendFunc, "emscripten_glBlendFuncSeparate": _emscripten_glBlendFuncSeparate, "emscripten_glBufferData": _emscripten_glBufferData, "emscripten_glBufferSubData": _emscripten_glBufferSubData, "emscripten_glCheckFramebufferStatus": _emscripten_glCheckFramebufferStatus, "emscripten_glClear": _emscripten_glClear, "emscripten_glClearColor": _emscripten_glClearColor, "emscripten_glClearDepthf": _emscripten_glClearDepthf, "emscripten_glClearStencil": _emscripten_glClearStencil, "emscripten_glColorMask": _emscripten_glColorMask, "emscripten_glCompileShader": _emscripten_glCompileShader, "emscripten_glCompressedTexImage2D": _emscripten_glCompressedTexImage2D, "emscripten_glCompressedTexSubImage2D": _emscripten_glCompressedTexSubImage2D, "emscripten_glCopyTexImage2D": _emscripten_glCopyTexImage2D, "emscripten_glCopyTexSubImage2D": _emscripten_glCopyTexSubImage2D, "emscripten_glCreateProgram": _emscripten_glCreateProgram, "emscripten_glCreateShader": _emscripten_glCreateShader, "emscripten_glCullFace": _emscripten_glCullFace, "emscripten_glDeleteBuffers": _emscripten_glDeleteBuffers, "emscripten_glDeleteFramebuffers": _emscripten_glDeleteFramebuffers, "emscripten_glDeleteProgram": _emscripten_glDeleteProgram, "emscripten_glDeleteQueriesEXT": _emscripten_glDeleteQueriesEXT, "emscripten_glDeleteRenderbuffers": _emscripten_glDeleteRenderbuffers, "emscripten_glDeleteShader": _emscripten_glDeleteShader, "emscripten_glDeleteTextures": _emscripten_glDeleteTextures, "emscripten_glDeleteVertexArraysOES": _emscripten_glDeleteVertexArraysOES, "emscripten_glDepthFunc": _emscripten_glDepthFunc, "emscripten_glDepthMask": _emscripten_glDepthMask, "emscripten_glDepthRangef": _emscripten_glDepthRangef, "emscripten_glDetachShader": _emscripten_glDetachShader, "emscripten_glDisable": _emscripten_glDisable, "emscripten_glDisableVertexAttribArray": _emscripten_glDisableVertexAttribArray, "emscripten_glDrawArrays": _emscripten_glDrawArrays, "emscripten_glDrawArraysInstancedANGLE": _emscripten_glDrawArraysInstancedANGLE, "emscripten_glDrawBuffersWEBGL": _emscripten_glDrawBuffersWEBGL, "emscripten_glDrawElements": _emscripten_glDrawElements, "emscripten_glDrawElementsInstancedANGLE": _emscripten_glDrawElementsInstancedANGLE, "emscripten_glEnable": _emscripten_glEnable, "emscripten_glEnableVertexAttribArray": _emscripten_glEnableVertexAttribArray, "emscripten_glEndQueryEXT": _emscripten_glEndQueryEXT, "emscripten_glFinish": _emscripten_glFinish, "emscripten_glFlush": _emscripten_glFlush, "emscripten_glFramebufferRenderbuffer": _emscripten_glFramebufferRenderbuffer, "emscripten_glFramebufferTexture2D": _emscripten_glFramebufferTexture2D, "emscripten_glFrontFace": _emscripten_glFrontFace, "emscripten_glGenBuffers": _emscripten_glGenBuffers, "emscripten_glGenFramebuffers": _emscripten_glGenFramebuffers, "emscripten_glGenQueriesEXT": _emscripten_glGenQueriesEXT, "emscripten_glGenRenderbuffers": _emscripten_glGenRenderbuffers, "emscripten_glGenTextures": _emscripten_glGenTextures, "emscripten_glGenVertexArraysOES": _emscripten_glGenVertexArraysOES, "emscripten_glGenerateMipmap": _emscripten_glGenerateMipmap, "emscripten_glGetActiveAttrib": _emscripten_glGetActiveAttrib, "emscripten_glGetActiveUniform": _emscripten_glGetActiveUniform, "emscripten_glGetAttachedShaders": _emscripten_glGetAttachedShaders, "emscripten_glGetAttribLocation": _emscripten_glGetAttribLocation, "emscripten_glGetBooleanv": _emscripten_glGetBooleanv, "emscripten_glGetBufferParameteriv": _emscripten_glGetBufferParameteriv, "emscripten_glGetError": _emscripten_glGetError, "emscripten_glGetFloatv": _emscripten_glGetFloatv, "emscripten_glGetFramebufferAttachmentParameteriv": _emscripten_glGetFramebufferAttachmentParameteriv, "emscripten_glGetIntegerv": _emscripten_glGetIntegerv, "emscripten_glGetProgramInfoLog": _emscripten_glGetProgramInfoLog, "emscripten_glGetProgramiv": _emscripten_glGetProgramiv, "emscripten_glGetQueryObjecti64vEXT": _emscripten_glGetQueryObjecti64vEXT, "emscripten_glGetQueryObjectivEXT": _emscripten_glGetQueryObjectivEXT, "emscripten_glGetQueryObjectui64vEXT": _emscripten_glGetQueryObjectui64vEXT, "emscripten_glGetQueryObjectuivEXT": _emscripten_glGetQueryObjectuivEXT, "emscripten_glGetQueryivEXT": _emscripten_glGetQueryivEXT, "emscripten_glGetRenderbufferParameteriv": _emscripten_glGetRenderbufferParameteriv, "emscripten_glGetShaderInfoLog": _emscripten_glGetShaderInfoLog, "emscripten_glGetShaderPrecisionFormat": _emscripten_glGetShaderPrecisionFormat, "emscripten_glGetShaderSource": _emscripten_glGetShaderSource, "emscripten_glGetShaderiv": _emscripten_glGetShaderiv, "emscripten_glGetString": _emscripten_glGetString, "emscripten_glGetTexParameterfv": _emscripten_glGetTexParameterfv, "emscripten_glGetTexParameteriv": _emscripten_glGetTexParameteriv, "emscripten_glGetUniformLocation": _emscripten_glGetUniformLocation, "emscripten_glGetUniformfv": _emscripten_glGetUniformfv, "emscripten_glGetUniformiv": _emscripten_glGetUniformiv, "emscripten_glGetVertexAttribPointerv": _emscripten_glGetVertexAttribPointerv, "emscripten_glGetVertexAttribfv": _emscripten_glGetVertexAttribfv, "emscripten_glGetVertexAttribiv": _emscripten_glGetVertexAttribiv, "emscripten_glHint": _emscripten_glHint, "emscripten_glIsBuffer": _emscripten_glIsBuffer, "emscripten_glIsEnabled": _emscripten_glIsEnabled, "emscripten_glIsFramebuffer": _emscripten_glIsFramebuffer, "emscripten_glIsProgram": _emscripten_glIsProgram, "emscripten_glIsQueryEXT": _emscripten_glIsQueryEXT, "emscripten_glIsRenderbuffer": _emscripten_glIsRenderbuffer, "emscripten_glIsShader": _emscripten_glIsShader, "emscripten_glIsTexture": _emscripten_glIsTexture, "emscripten_glIsVertexArrayOES": _emscripten_glIsVertexArrayOES, "emscripten_glLineWidth": _emscripten_glLineWidth, "emscripten_glLinkProgram": _emscripten_glLinkProgram, "emscripten_glPixelStorei": _emscripten_glPixelStorei, "emscripten_glPolygonOffset": _emscripten_glPolygonOffset, "emscripten_glQueryCounterEXT": _emscripten_glQueryCounterEXT, "emscripten_glReadPixels": _emscripten_glReadPixels, "emscripten_glReleaseShaderCompiler": _emscripten_glReleaseShaderCompiler, "emscripten_glRenderbufferStorage": _emscripten_glRenderbufferStorage, "emscripten_glSampleCoverage": _emscripten_glSampleCoverage, "emscripten_glScissor": _emscripten_glScissor, "emscripten_glShaderBinary": _emscripten_glShaderBinary, "emscripten_glShaderSource": _emscripten_glShaderSource, "emscripten_glStencilFunc": _emscripten_glStencilFunc, "emscripten_glStencilFuncSeparate": _emscripten_glStencilFuncSeparate, "emscripten_glStencilMask": _emscripten_glStencilMask, "emscripten_glStencilMaskSeparate": _emscripten_glStencilMaskSeparate, "emscripten_glStencilOp": _emscripten_glStencilOp, "emscripten_glStencilOpSeparate": _emscripten_glStencilOpSeparate, "emscripten_glTexImage2D": _emscripten_glTexImage2D, "emscripten_glTexParameterf": _emscripten_glTexParameterf, "emscripten_glTexParameterfv": _emscripten_glTexParameterfv, "emscripten_glTexParameteri": _emscripten_glTexParameteri, "emscripten_glTexParameteriv": _emscripten_glTexParameteriv, "emscripten_glTexSubImage2D": _emscripten_glTexSubImage2D, "emscripten_glUniform1f": _emscripten_glUniform1f, "emscripten_glUniform1fv": _emscripten_glUniform1fv, "emscripten_glUniform1i": _emscripten_glUniform1i, "emscripten_glUniform1iv": _emscripten_glUniform1iv, "emscripten_glUniform2f": _emscripten_glUniform2f, "emscripten_glUniform2fv": _emscripten_glUniform2fv, "emscripten_glUniform2i": _emscripten_glUniform2i, "emscripten_glUniform2iv": _emscripten_glUniform2iv, "emscripten_glUniform3f": _emscripten_glUniform3f, "emscripten_glUniform3fv": _emscripten_glUniform3fv, "emscripten_glUniform3i": _emscripten_glUniform3i, "emscripten_glUniform3iv": _emscripten_glUniform3iv, "emscripten_glUniform4f": _emscripten_glUniform4f, "emscripten_glUniform4fv": _emscripten_glUniform4fv, "emscripten_glUniform4i": _emscripten_glUniform4i, "emscripten_glUniform4iv": _emscripten_glUniform4iv, "emscripten_glUniformMatrix2fv": _emscripten_glUniformMatrix2fv, "emscripten_glUniformMatrix3fv": _emscripten_glUniformMatrix3fv, "emscripten_glUniformMatrix4fv": _emscripten_glUniformMatrix4fv, "emscripten_glUseProgram": _emscripten_glUseProgram, "emscripten_glValidateProgram": _emscripten_glValidateProgram, "emscripten_glVertexAttrib1f": _emscripten_glVertexAttrib1f, "emscripten_glVertexAttrib1fv": _emscripten_glVertexAttrib1fv, "emscripten_glVertexAttrib2f": _emscripten_glVertexAttrib2f, "emscripten_glVertexAttrib2fv": _emscripten_glVertexAttrib2fv, "emscripten_glVertexAttrib3f": _emscripten_glVertexAttrib3f, "emscripten_glVertexAttrib3fv": _emscripten_glVertexAttrib3fv, "emscripten_glVertexAttrib4f": _emscripten_glVertexAttrib4f, "emscripten_glVertexAttrib4fv": _emscripten_glVertexAttrib4fv, "emscripten_glVertexAttribDivisorANGLE": _emscripten_glVertexAttribDivisorANGLE, "emscripten_glVertexAttribPointer": _emscripten_glVertexAttribPointer, "emscripten_glViewport": _emscripten_glViewport, "emscripten_longjmp": _emscripten_longjmp, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_request_fullscreen_strategy": _emscripten_request_fullscreen_strategy, "emscripten_request_pointerlock": _emscripten_request_pointerlock, "emscripten_resize_heap": _emscripten_resize_heap, "emscripten_sample_gamepad_data": _emscripten_sample_gamepad_data, "emscripten_set_blur_callback_on_thread": _emscripten_set_blur_callback_on_thread, "emscripten_set_canvas_element_size": _emscripten_set_canvas_element_size, "emscripten_set_element_css_size": _emscripten_set_element_css_size, "emscripten_set_focus_callback_on_thread": _emscripten_set_focus_callback_on_thread, "emscripten_set_fullscreenchange_callback_on_thread": _emscripten_set_fullscreenchange_callback_on_thread, "emscripten_set_gamepadconnected_callback_on_thread": _emscripten_set_gamepadconnected_callback_on_thread, "emscripten_set_gamepaddisconnected_callback_on_thread": _emscripten_set_gamepaddisconnected_callback_on_thread, "emscripten_set_keydown_callback_on_thread": _emscripten_set_keydown_callback_on_thread, "emscripten_set_keypress_callback_on_thread": _emscripten_set_keypress_callback_on_thread, "emscripten_set_keyup_callback_on_thread": _emscripten_set_keyup_callback_on_thread, "emscripten_set_main_loop_arg": _emscripten_set_main_loop_arg, "emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread, "emscripten_set_mouseenter_callback_on_thread": _emscripten_set_mouseenter_callback_on_thread, "emscripten_set_mouseleave_callback_on_thread": _emscripten_set_mouseleave_callback_on_thread, "emscripten_set_mousemove_callback_on_thread": _emscripten_set_mousemove_callback_on_thread, "emscripten_set_mouseup_callback_on_thread": _emscripten_set_mouseup_callback_on_thread, "emscripten_set_pointerlockchange_callback_on_thread": _emscripten_set_pointerlockchange_callback_on_thread, "emscripten_set_resize_callback_on_thread": _emscripten_set_resize_callback_on_thread, "emscripten_set_touchcancel_callback_on_thread": _emscripten_set_touchcancel_callback_on_thread, "emscripten_set_touchend_callback_on_thread": _emscripten_set_touchend_callback_on_thread, "emscripten_set_touchmove_callback_on_thread": _emscripten_set_touchmove_callback_on_thread, "emscripten_set_touchstart_callback_on_thread": _emscripten_set_touchstart_callback_on_thread, "emscripten_set_visibilitychange_callback_on_thread": _emscripten_set_visibilitychange_callback_on_thread, "emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread, "environ_get": _environ_get, "environ_sizes_get": _environ_sizes_get, "fd_close": _fd_close, "fd_read": _fd_read, "fd_seek": _fd_seek, "fd_write": _fd_write, "getTempRet0": _getTempRet0, "gettimeofday": _gettimeofday, "invoke_iii": invoke_iii, "invoke_iiii": invoke_iiii, "invoke_iiiii": invoke_iiiii, "invoke_vi": invoke_vi, "invoke_viiii": invoke_viiii, "memory": wasmMemory, "nanosleep": _nanosleep, "saveSetjmp": _saveSetjmp, "setTempRet0": _setTempRet0, "sigaction": _sigaction, "signal": _signal, "strftime_l": _strftime_l, "table": wasmTable, "testSetjmp": _testSetjmp, "time": _time };
-var asm = createWasm();
-Module["asm"] = asm;
-var ___wasm_call_ctors = Module["___wasm_call_ctors"] = function() {
-  return Module["asm"]["__wasm_call_ctors"].apply(null, arguments)
-};
-
-var _main = Module["_main"] = function() {
-  return Module["asm"]["main"].apply(null, arguments)
-};
-
-var _malloc = Module["_malloc"] = function() {
-  return Module["asm"]["malloc"].apply(null, arguments)
-};
-
-var _free = Module["_free"] = function() {
-  return Module["asm"]["free"].apply(null, arguments)
-};
-
-var _realloc = Module["_realloc"] = function() {
-  return Module["asm"]["realloc"].apply(null, arguments)
-};
-
-var _strstr = Module["_strstr"] = function() {
-  return Module["asm"]["strstr"].apply(null, arguments)
-};
-
-var ___errno_location = Module["___errno_location"] = function() {
-  return Module["asm"]["__errno_location"].apply(null, arguments)
-};
-
-var _setThrew = Module["_setThrew"] = function() {
-  return Module["asm"]["setThrew"].apply(null, arguments)
-};
-
-var __ZSt18uncaught_exceptionv = Module["__ZSt18uncaught_exceptionv"] = function() {
-  return Module["asm"]["_ZSt18uncaught_exceptionv"].apply(null, arguments)
-};
-
-var _emscripten_GetProcAddress = Module["_emscripten_GetProcAddress"] = function() {
-  return Module["asm"]["emscripten_GetProcAddress"].apply(null, arguments)
-};
-
-var dynCall_iii = Module["dynCall_iii"] = function() {
-  return Module["asm"]["dynCall_iii"].apply(null, arguments)
-};
-
-var dynCall_iiii = Module["dynCall_iiii"] = function() {
-  return Module["asm"]["dynCall_iiii"].apply(null, arguments)
-};
-
-var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
-  return Module["asm"]["dynCall_iiiii"].apply(null, arguments)
-};
-
-var dynCall_vi = Module["dynCall_vi"] = function() {
-  return Module["asm"]["dynCall_vi"].apply(null, arguments)
-};
-
-var dynCall_viiii = Module["dynCall_viiii"] = function() {
-  return Module["asm"]["dynCall_viiii"].apply(null, arguments)
-};
-
-var stackSave = Module["stackSave"] = function() {
-  return Module["asm"]["stackSave"].apply(null, arguments)
-};
-
-var stackAlloc = Module["stackAlloc"] = function() {
-  return Module["asm"]["stackAlloc"].apply(null, arguments)
-};
-
-var stackRestore = Module["stackRestore"] = function() {
-  return Module["asm"]["stackRestore"].apply(null, arguments)
-};
-
-var __growWasmMemory = Module["__growWasmMemory"] = function() {
-  return Module["asm"]["__growWasmMemory"].apply(null, arguments)
-};
-
-var dynCall_ii = Module["dynCall_ii"] = function() {
-  return Module["asm"]["dynCall_ii"].apply(null, arguments)
-};
-
-var dynCall_vii = Module["dynCall_vii"] = function() {
-  return Module["asm"]["dynCall_vii"].apply(null, arguments)
-};
-
-var dynCall_viijii = Module["dynCall_viijii"] = function() {
-  return Module["asm"]["dynCall_viijii"].apply(null, arguments)
-};
-
-var dynCall_v = Module["dynCall_v"] = function() {
-  return Module["asm"]["dynCall_v"].apply(null, arguments)
-};
-
-var dynCall_viii = Module["dynCall_viii"] = function() {
-  return Module["asm"]["dynCall_viii"].apply(null, arguments)
-};
-
-var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
-  return Module["asm"]["dynCall_iiiiii"].apply(null, arguments)
-};
-
-var dynCall_viiiii = Module["dynCall_viiiii"] = function() {
-  return Module["asm"]["dynCall_viiiii"].apply(null, arguments)
-};
-
-var dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = function() {
-  return Module["asm"]["dynCall_iiiiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_iiiiiii = Module["dynCall_iiiiiii"] = function() {
-  return Module["asm"]["dynCall_iiiiiii"].apply(null, arguments)
-};
-
-var dynCall_viiiiii = Module["dynCall_viiiiii"] = function() {
-  return Module["asm"]["dynCall_viiiiii"].apply(null, arguments)
-};
-
-var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = function() {
-  return Module["asm"]["dynCall_iiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_jiji = Module["dynCall_jiji"] = function() {
-  return Module["asm"]["dynCall_jiji"].apply(null, arguments)
-};
-
-var dynCall_ji = Module["dynCall_ji"] = function() {
-  return Module["asm"]["dynCall_ji"].apply(null, arguments)
-};
-
-var dynCall_iiiiidii = Module["dynCall_iiiiidii"] = function() {
-  return Module["asm"]["dynCall_iiiiidii"].apply(null, arguments)
-};
-
-var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = function() {
-  return Module["asm"]["dynCall_iiiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = function() {
-  return Module["asm"]["dynCall_viiiiiii"].apply(null, arguments)
-};
-
-var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = function() {
-  return Module["asm"]["dynCall_viiiiiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_i = Module["dynCall_i"] = function() {
-  return Module["asm"]["dynCall_i"].apply(null, arguments)
-};
-
-var dynCall_iidiiii = Module["dynCall_iidiiii"] = function() {
-  return Module["asm"]["dynCall_iidiiii"].apply(null, arguments)
-};
-
-var dynCall_iiiiij = Module["dynCall_iiiiij"] = function() {
-  return Module["asm"]["dynCall_iiiiij"].apply(null, arguments)
-};
-
-var dynCall_iiiiid = Module["dynCall_iiiiid"] = function() {
-  return Module["asm"]["dynCall_iiiiid"].apply(null, arguments)
-};
-
-var dynCall_iiiiijj = Module["dynCall_iiiiijj"] = function() {
-  return Module["asm"]["dynCall_iiiiijj"].apply(null, arguments)
-};
-
-var dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = function() {
-  return Module["asm"]["dynCall_iiiiiijj"].apply(null, arguments)
-};
-
-var dynCall_vffff = Module["dynCall_vffff"] = function() {
-  return Module["asm"]["dynCall_vffff"].apply(null, arguments)
-};
-
-var dynCall_vf = Module["dynCall_vf"] = function() {
-  return Module["asm"]["dynCall_vf"].apply(null, arguments)
-};
-
-var dynCall_viiiiiiii = Module["dynCall_viiiiiiii"] = function() {
-  return Module["asm"]["dynCall_viiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = function() {
-  return Module["asm"]["dynCall_viiiiiiiii"].apply(null, arguments)
-};
-
-var dynCall_vff = Module["dynCall_vff"] = function() {
-  return Module["asm"]["dynCall_vff"].apply(null, arguments)
-};
-
-var dynCall_vfi = Module["dynCall_vfi"] = function() {
-  return Module["asm"]["dynCall_vfi"].apply(null, arguments)
-};
-
-var dynCall_viif = Module["dynCall_viif"] = function() {
-  return Module["asm"]["dynCall_viif"].apply(null, arguments)
-};
-
-var dynCall_vif = Module["dynCall_vif"] = function() {
-  return Module["asm"]["dynCall_vif"].apply(null, arguments)
-};
-
-var dynCall_viff = Module["dynCall_viff"] = function() {
-  return Module["asm"]["dynCall_viff"].apply(null, arguments)
-};
-
-var dynCall_vifff = Module["dynCall_vifff"] = function() {
-  return Module["asm"]["dynCall_vifff"].apply(null, arguments)
-};
-
-var dynCall_viffff = Module["dynCall_viffff"] = function() {
-  return Module["asm"]["dynCall_viffff"].apply(null, arguments)
-};
-
-
-function invoke_viiii(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    dynCall_viiii(index,a1,a2,a3,a4);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0 && e !== 'longjmp') throw e;
-    _setThrew(1, 0);
-  }
-}
 
 function invoke_iii(index,a1,a2) {
   var sp = stackSave();
   try {
     return dynCall_iii(index,a1,a2);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0 && e !== 'longjmp') throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiii(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    return dynCall_iiiii(index,a1,a2,a3,a4);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0 && e !== 'longjmp') throw e;
@@ -9404,16 +9807,303 @@ function invoke_iiii(index,a1,a2,a3) {
   }
 }
 
-function invoke_vi(index,a1) {
+function invoke_iiiii(index,a1,a2,a3,a4) {
   var sp = stackSave();
   try {
-    dynCall_vi(index,a1);
+    return dynCall_iiiii(index,a1,a2,a3,a4);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0 && e !== 'longjmp') throw e;
     _setThrew(1, 0);
   }
 }
+
+function invoke_vii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    dynCall_vii(index,a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0 && e !== 'longjmp') throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    dynCall_viiii(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0 && e !== 'longjmp') throw e;
+    _setThrew(1, 0);
+  }
+}
+
+var asmGlobalArg = {};
+
+var asmLibraryArg = { "_JSEvents_requestFullscreen": _JSEvents_requestFullscreen, "_JSEvents_resizeCanvasForFullscreen": _JSEvents_resizeCanvasForFullscreen, "___buildEnvironment": ___buildEnvironment, "___cxa_allocate_exception": ___cxa_allocate_exception, "___cxa_begin_catch": ___cxa_begin_catch, "___cxa_throw": ___cxa_throw, "___exception_addRef": ___exception_addRef, "___exception_deAdjust": ___exception_deAdjust, "___gxx_personality_v0": ___gxx_personality_v0, "___lock": ___lock, "___map_file": ___map_file, "___setErrNo": ___setErrNo, "___syscall221": ___syscall221, "___syscall5": ___syscall5, "___syscall54": ___syscall54, "___syscall91": ___syscall91, "___unlock": ___unlock, "___wasi_fd_close": ___wasi_fd_close, "___wasi_fd_read": ___wasi_fd_read, "___wasi_fd_seek": ___wasi_fd_seek, "___wasi_fd_write": ___wasi_fd_write, "__addDays": __addDays, "__arraySum": __arraySum, "__computeUnpackAlignedImageSize": __computeUnpackAlignedImageSize, "__emscripten_do_request_fullscreen": __emscripten_do_request_fullscreen, "__emscripten_syscall_munmap": __emscripten_syscall_munmap, "__fillFullscreenChangeEventData": __fillFullscreenChangeEventData, "__fillGamepadEventData": __fillGamepadEventData, "__fillMouseEventData": __fillMouseEventData, "__fillPointerlockChangeEventData": __fillPointerlockChangeEventData, "__fillVisibilityChangeEventData": __fillVisibilityChangeEventData, "__findCanvasEventTarget": __findCanvasEventTarget, "__findEventTarget": __findEventTarget, "__get_canvas_element_size": __get_canvas_element_size, "__glGenObject": __glGenObject, "__isLeapYear": __isLeapYear, "__memory_base": 1024, "__registerFocusEventCallback": __registerFocusEventCallback, "__registerFullscreenChangeEventCallback": __registerFullscreenChangeEventCallback, "__registerGamepadEventCallback": __registerGamepadEventCallback, "__registerKeyEventCallback": __registerKeyEventCallback, "__registerMouseEventCallback": __registerMouseEventCallback, "__registerPointerlockChangeEventCallback": __registerPointerlockChangeEventCallback, "__registerRestoreOldStyle": __registerRestoreOldStyle, "__registerTouchEventCallback": __registerTouchEventCallback, "__registerUiEventCallback": __registerUiEventCallback, "__registerVisibilityChangeEventCallback": __registerVisibilityChangeEventCallback, "__registerWheelEventCallback": __registerWheelEventCallback, "__requestPointerLock": __requestPointerLock, "__setLetterbox": __setLetterbox, "__set_canvas_element_size": __set_canvas_element_size, "__table_base": 0, "_abort": _abort, "_atexit": _atexit, "_clock_gettime": _clock_gettime, "_dlclose": _dlclose, "_dlerror": _dlerror, "_dlopen": _dlopen, "_dlsym": _dlsym, "_eglBindAPI": _eglBindAPI, "_eglChooseConfig": _eglChooseConfig, "_eglCreateContext": _eglCreateContext, "_eglCreateWindowSurface": _eglCreateWindowSurface, "_eglDestroyContext": _eglDestroyContext, "_eglDestroySurface": _eglDestroySurface, "_eglGetConfigAttrib": _eglGetConfigAttrib, "_eglGetDisplay": _eglGetDisplay, "_eglGetError": _eglGetError, "_eglGetProcAddress": _eglGetProcAddress, "_eglInitialize": _eglInitialize, "_eglMakeCurrent": _eglMakeCurrent, "_eglQueryString": _eglQueryString, "_eglSwapBuffers": _eglSwapBuffers, "_eglSwapInterval": _eglSwapInterval, "_eglTerminate": _eglTerminate, "_eglWaitClient": _eglWaitClient, "_eglWaitGL": _eglWaitGL, "_eglWaitNative": _eglWaitNative, "_emscripten_asm_const_i": _emscripten_asm_const_i, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "_emscripten_asm_const_iii": _emscripten_asm_const_iii, "_emscripten_asm_const_iiii": _emscripten_asm_const_iiii, "_emscripten_asm_const_iiiii": _emscripten_asm_const_iiiii, "_emscripten_asm_const_iiiiii": _emscripten_asm_const_iiiiii, "_emscripten_exit_fullscreen": _emscripten_exit_fullscreen, "_emscripten_exit_pointerlock": _emscripten_exit_pointerlock, "_emscripten_get_canvas_element_size": _emscripten_get_canvas_element_size, "_emscripten_get_device_pixel_ratio": _emscripten_get_device_pixel_ratio, "_emscripten_get_element_css_size": _emscripten_get_element_css_size, "_emscripten_get_gamepad_status": _emscripten_get_gamepad_status, "_emscripten_get_heap_size": _emscripten_get_heap_size, "_emscripten_get_now": _emscripten_get_now, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "_emscripten_get_num_gamepads": _emscripten_get_num_gamepads, "_emscripten_glActiveTexture": _emscripten_glActiveTexture, "_emscripten_glAttachShader": _emscripten_glAttachShader, "_emscripten_glBeginQueryEXT": _emscripten_glBeginQueryEXT, "_emscripten_glBindAttribLocation": _emscripten_glBindAttribLocation, "_emscripten_glBindBuffer": _emscripten_glBindBuffer, "_emscripten_glBindFramebuffer": _emscripten_glBindFramebuffer, "_emscripten_glBindRenderbuffer": _emscripten_glBindRenderbuffer, "_emscripten_glBindTexture": _emscripten_glBindTexture, "_emscripten_glBindVertexArrayOES": _emscripten_glBindVertexArrayOES, "_emscripten_glBlendColor": _emscripten_glBlendColor, "_emscripten_glBlendEquation": _emscripten_glBlendEquation, "_emscripten_glBlendEquationSeparate": _emscripten_glBlendEquationSeparate, "_emscripten_glBlendFunc": _emscripten_glBlendFunc, "_emscripten_glBlendFuncSeparate": _emscripten_glBlendFuncSeparate, "_emscripten_glBufferData": _emscripten_glBufferData, "_emscripten_glBufferSubData": _emscripten_glBufferSubData, "_emscripten_glCheckFramebufferStatus": _emscripten_glCheckFramebufferStatus, "_emscripten_glClear": _emscripten_glClear, "_emscripten_glClearColor": _emscripten_glClearColor, "_emscripten_glClearDepthf": _emscripten_glClearDepthf, "_emscripten_glClearStencil": _emscripten_glClearStencil, "_emscripten_glColorMask": _emscripten_glColorMask, "_emscripten_glCompileShader": _emscripten_glCompileShader, "_emscripten_glCompressedTexImage2D": _emscripten_glCompressedTexImage2D, "_emscripten_glCompressedTexSubImage2D": _emscripten_glCompressedTexSubImage2D, "_emscripten_glCopyTexImage2D": _emscripten_glCopyTexImage2D, "_emscripten_glCopyTexSubImage2D": _emscripten_glCopyTexSubImage2D, "_emscripten_glCreateProgram": _emscripten_glCreateProgram, "_emscripten_glCreateShader": _emscripten_glCreateShader, "_emscripten_glCullFace": _emscripten_glCullFace, "_emscripten_glDeleteBuffers": _emscripten_glDeleteBuffers, "_emscripten_glDeleteFramebuffers": _emscripten_glDeleteFramebuffers, "_emscripten_glDeleteProgram": _emscripten_glDeleteProgram, "_emscripten_glDeleteQueriesEXT": _emscripten_glDeleteQueriesEXT, "_emscripten_glDeleteRenderbuffers": _emscripten_glDeleteRenderbuffers, "_emscripten_glDeleteShader": _emscripten_glDeleteShader, "_emscripten_glDeleteTextures": _emscripten_glDeleteTextures, "_emscripten_glDeleteVertexArraysOES": _emscripten_glDeleteVertexArraysOES, "_emscripten_glDepthFunc": _emscripten_glDepthFunc, "_emscripten_glDepthMask": _emscripten_glDepthMask, "_emscripten_glDepthRangef": _emscripten_glDepthRangef, "_emscripten_glDetachShader": _emscripten_glDetachShader, "_emscripten_glDisable": _emscripten_glDisable, "_emscripten_glDisableVertexAttribArray": _emscripten_glDisableVertexAttribArray, "_emscripten_glDrawArrays": _emscripten_glDrawArrays, "_emscripten_glDrawArraysInstancedANGLE": _emscripten_glDrawArraysInstancedANGLE, "_emscripten_glDrawBuffersWEBGL": _emscripten_glDrawBuffersWEBGL, "_emscripten_glDrawElements": _emscripten_glDrawElements, "_emscripten_glDrawElementsInstancedANGLE": _emscripten_glDrawElementsInstancedANGLE, "_emscripten_glEnable": _emscripten_glEnable, "_emscripten_glEnableVertexAttribArray": _emscripten_glEnableVertexAttribArray, "_emscripten_glEndQueryEXT": _emscripten_glEndQueryEXT, "_emscripten_glFinish": _emscripten_glFinish, "_emscripten_glFlush": _emscripten_glFlush, "_emscripten_glFramebufferRenderbuffer": _emscripten_glFramebufferRenderbuffer, "_emscripten_glFramebufferTexture2D": _emscripten_glFramebufferTexture2D, "_emscripten_glFrontFace": _emscripten_glFrontFace, "_emscripten_glGenBuffers": _emscripten_glGenBuffers, "_emscripten_glGenFramebuffers": _emscripten_glGenFramebuffers, "_emscripten_glGenQueriesEXT": _emscripten_glGenQueriesEXT, "_emscripten_glGenRenderbuffers": _emscripten_glGenRenderbuffers, "_emscripten_glGenTextures": _emscripten_glGenTextures, "_emscripten_glGenVertexArraysOES": _emscripten_glGenVertexArraysOES, "_emscripten_glGenerateMipmap": _emscripten_glGenerateMipmap, "_emscripten_glGetActiveAttrib": _emscripten_glGetActiveAttrib, "_emscripten_glGetActiveUniform": _emscripten_glGetActiveUniform, "_emscripten_glGetAttachedShaders": _emscripten_glGetAttachedShaders, "_emscripten_glGetAttribLocation": _emscripten_glGetAttribLocation, "_emscripten_glGetBooleanv": _emscripten_glGetBooleanv, "_emscripten_glGetBufferParameteriv": _emscripten_glGetBufferParameteriv, "_emscripten_glGetError": _emscripten_glGetError, "_emscripten_glGetFloatv": _emscripten_glGetFloatv, "_emscripten_glGetFramebufferAttachmentParameteriv": _emscripten_glGetFramebufferAttachmentParameteriv, "_emscripten_glGetIntegerv": _emscripten_glGetIntegerv, "_emscripten_glGetProgramInfoLog": _emscripten_glGetProgramInfoLog, "_emscripten_glGetProgramiv": _emscripten_glGetProgramiv, "_emscripten_glGetQueryObjecti64vEXT": _emscripten_glGetQueryObjecti64vEXT, "_emscripten_glGetQueryObjectivEXT": _emscripten_glGetQueryObjectivEXT, "_emscripten_glGetQueryObjectui64vEXT": _emscripten_glGetQueryObjectui64vEXT, "_emscripten_glGetQueryObjectuivEXT": _emscripten_glGetQueryObjectuivEXT, "_emscripten_glGetQueryivEXT": _emscripten_glGetQueryivEXT, "_emscripten_glGetRenderbufferParameteriv": _emscripten_glGetRenderbufferParameteriv, "_emscripten_glGetShaderInfoLog": _emscripten_glGetShaderInfoLog, "_emscripten_glGetShaderPrecisionFormat": _emscripten_glGetShaderPrecisionFormat, "_emscripten_glGetShaderSource": _emscripten_glGetShaderSource, "_emscripten_glGetShaderiv": _emscripten_glGetShaderiv, "_emscripten_glGetString": _emscripten_glGetString, "_emscripten_glGetTexParameterfv": _emscripten_glGetTexParameterfv, "_emscripten_glGetTexParameteriv": _emscripten_glGetTexParameteriv, "_emscripten_glGetUniformLocation": _emscripten_glGetUniformLocation, "_emscripten_glGetUniformfv": _emscripten_glGetUniformfv, "_emscripten_glGetUniformiv": _emscripten_glGetUniformiv, "_emscripten_glGetVertexAttribPointerv": _emscripten_glGetVertexAttribPointerv, "_emscripten_glGetVertexAttribfv": _emscripten_glGetVertexAttribfv, "_emscripten_glGetVertexAttribiv": _emscripten_glGetVertexAttribiv, "_emscripten_glHint": _emscripten_glHint, "_emscripten_glIsBuffer": _emscripten_glIsBuffer, "_emscripten_glIsEnabled": _emscripten_glIsEnabled, "_emscripten_glIsFramebuffer": _emscripten_glIsFramebuffer, "_emscripten_glIsProgram": _emscripten_glIsProgram, "_emscripten_glIsQueryEXT": _emscripten_glIsQueryEXT, "_emscripten_glIsRenderbuffer": _emscripten_glIsRenderbuffer, "_emscripten_glIsShader": _emscripten_glIsShader, "_emscripten_glIsTexture": _emscripten_glIsTexture, "_emscripten_glIsVertexArrayOES": _emscripten_glIsVertexArrayOES, "_emscripten_glLineWidth": _emscripten_glLineWidth, "_emscripten_glLinkProgram": _emscripten_glLinkProgram, "_emscripten_glPixelStorei": _emscripten_glPixelStorei, "_emscripten_glPolygonOffset": _emscripten_glPolygonOffset, "_emscripten_glQueryCounterEXT": _emscripten_glQueryCounterEXT, "_emscripten_glReadPixels": _emscripten_glReadPixels, "_emscripten_glReleaseShaderCompiler": _emscripten_glReleaseShaderCompiler, "_emscripten_glRenderbufferStorage": _emscripten_glRenderbufferStorage, "_emscripten_glSampleCoverage": _emscripten_glSampleCoverage, "_emscripten_glScissor": _emscripten_glScissor, "_emscripten_glShaderBinary": _emscripten_glShaderBinary, "_emscripten_glShaderSource": _emscripten_glShaderSource, "_emscripten_glStencilFunc": _emscripten_glStencilFunc, "_emscripten_glStencilFuncSeparate": _emscripten_glStencilFuncSeparate, "_emscripten_glStencilMask": _emscripten_glStencilMask, "_emscripten_glStencilMaskSeparate": _emscripten_glStencilMaskSeparate, "_emscripten_glStencilOp": _emscripten_glStencilOp, "_emscripten_glStencilOpSeparate": _emscripten_glStencilOpSeparate, "_emscripten_glTexImage2D": _emscripten_glTexImage2D, "_emscripten_glTexParameterf": _emscripten_glTexParameterf, "_emscripten_glTexParameterfv": _emscripten_glTexParameterfv, "_emscripten_glTexParameteri": _emscripten_glTexParameteri, "_emscripten_glTexParameteriv": _emscripten_glTexParameteriv, "_emscripten_glTexSubImage2D": _emscripten_glTexSubImage2D, "_emscripten_glUniform1f": _emscripten_glUniform1f, "_emscripten_glUniform1fv": _emscripten_glUniform1fv, "_emscripten_glUniform1i": _emscripten_glUniform1i, "_emscripten_glUniform1iv": _emscripten_glUniform1iv, "_emscripten_glUniform2f": _emscripten_glUniform2f, "_emscripten_glUniform2fv": _emscripten_glUniform2fv, "_emscripten_glUniform2i": _emscripten_glUniform2i, "_emscripten_glUniform2iv": _emscripten_glUniform2iv, "_emscripten_glUniform3f": _emscripten_glUniform3f, "_emscripten_glUniform3fv": _emscripten_glUniform3fv, "_emscripten_glUniform3i": _emscripten_glUniform3i, "_emscripten_glUniform3iv": _emscripten_glUniform3iv, "_emscripten_glUniform4f": _emscripten_glUniform4f, "_emscripten_glUniform4fv": _emscripten_glUniform4fv, "_emscripten_glUniform4i": _emscripten_glUniform4i, "_emscripten_glUniform4iv": _emscripten_glUniform4iv, "_emscripten_glUniformMatrix2fv": _emscripten_glUniformMatrix2fv, "_emscripten_glUniformMatrix3fv": _emscripten_glUniformMatrix3fv, "_emscripten_glUniformMatrix4fv": _emscripten_glUniformMatrix4fv, "_emscripten_glUseProgram": _emscripten_glUseProgram, "_emscripten_glValidateProgram": _emscripten_glValidateProgram, "_emscripten_glVertexAttrib1f": _emscripten_glVertexAttrib1f, "_emscripten_glVertexAttrib1fv": _emscripten_glVertexAttrib1fv, "_emscripten_glVertexAttrib2f": _emscripten_glVertexAttrib2f, "_emscripten_glVertexAttrib2fv": _emscripten_glVertexAttrib2fv, "_emscripten_glVertexAttrib3f": _emscripten_glVertexAttrib3f, "_emscripten_glVertexAttrib3fv": _emscripten_glVertexAttrib3fv, "_emscripten_glVertexAttrib4f": _emscripten_glVertexAttrib4f, "_emscripten_glVertexAttrib4fv": _emscripten_glVertexAttrib4fv, "_emscripten_glVertexAttribDivisorANGLE": _emscripten_glVertexAttribDivisorANGLE, "_emscripten_glVertexAttribPointer": _emscripten_glVertexAttribPointer, "_emscripten_glViewport": _emscripten_glViewport, "_emscripten_longjmp": _emscripten_longjmp, "_emscripten_memcpy_big": _emscripten_memcpy_big, "_emscripten_request_fullscreen_strategy": _emscripten_request_fullscreen_strategy, "_emscripten_request_pointerlock": _emscripten_request_pointerlock, "_emscripten_resize_heap": _emscripten_resize_heap, "_emscripten_sample_gamepad_data": _emscripten_sample_gamepad_data, "_emscripten_set_blur_callback_on_thread": _emscripten_set_blur_callback_on_thread, "_emscripten_set_canvas_element_size": _emscripten_set_canvas_element_size, "_emscripten_set_element_css_size": _emscripten_set_element_css_size, "_emscripten_set_focus_callback_on_thread": _emscripten_set_focus_callback_on_thread, "_emscripten_set_fullscreenchange_callback_on_thread": _emscripten_set_fullscreenchange_callback_on_thread, "_emscripten_set_gamepadconnected_callback_on_thread": _emscripten_set_gamepadconnected_callback_on_thread, "_emscripten_set_gamepaddisconnected_callback_on_thread": _emscripten_set_gamepaddisconnected_callback_on_thread, "_emscripten_set_keydown_callback_on_thread": _emscripten_set_keydown_callback_on_thread, "_emscripten_set_keypress_callback_on_thread": _emscripten_set_keypress_callback_on_thread, "_emscripten_set_keyup_callback_on_thread": _emscripten_set_keyup_callback_on_thread, "_emscripten_set_main_loop": _emscripten_set_main_loop, "_emscripten_set_main_loop_arg": _emscripten_set_main_loop_arg, "_emscripten_set_main_loop_timing": _emscripten_set_main_loop_timing, "_emscripten_set_mousedown_callback_on_thread": _emscripten_set_mousedown_callback_on_thread, "_emscripten_set_mouseenter_callback_on_thread": _emscripten_set_mouseenter_callback_on_thread, "_emscripten_set_mouseleave_callback_on_thread": _emscripten_set_mouseleave_callback_on_thread, "_emscripten_set_mousemove_callback_on_thread": _emscripten_set_mousemove_callback_on_thread, "_emscripten_set_mouseup_callback_on_thread": _emscripten_set_mouseup_callback_on_thread, "_emscripten_set_pointerlockchange_callback_on_thread": _emscripten_set_pointerlockchange_callback_on_thread, "_emscripten_set_resize_callback_on_thread": _emscripten_set_resize_callback_on_thread, "_emscripten_set_touchcancel_callback_on_thread": _emscripten_set_touchcancel_callback_on_thread, "_emscripten_set_touchend_callback_on_thread": _emscripten_set_touchend_callback_on_thread, "_emscripten_set_touchmove_callback_on_thread": _emscripten_set_touchmove_callback_on_thread, "_emscripten_set_touchstart_callback_on_thread": _emscripten_set_touchstart_callback_on_thread, "_emscripten_set_visibilitychange_callback_on_thread": _emscripten_set_visibilitychange_callback_on_thread, "_emscripten_set_wheel_callback_on_thread": _emscripten_set_wheel_callback_on_thread, "_fd_close": _fd_close, "_fd_read": _fd_read, "_fd_seek": _fd_seek, "_fd_write": _fd_write, "_getenv": _getenv, "_gettimeofday": _gettimeofday, "_llvm_stackrestore": _llvm_stackrestore, "_llvm_stacksave": _llvm_stacksave, "_llvm_trap": _llvm_trap, "_longjmp": _longjmp, "_nanosleep": _nanosleep, "_sigaction": _sigaction, "_signal": _signal, "_strftime": _strftime, "_strftime_l": _strftime_l, "_time": _time, "_usleep": _usleep, "abort": abort, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "demangle": demangle, "demangleAll": demangleAll, "emscriptenWebGLGet": emscriptenWebGLGet, "emscriptenWebGLGetTexPixelData": emscriptenWebGLGetTexPixelData, "emscriptenWebGLGetUniform": emscriptenWebGLGetUniform, "emscriptenWebGLGetVertexAttrib": emscriptenWebGLGetVertexAttrib, "emscripten_realloc_buffer": emscripten_realloc_buffer, "getTempRet0": getTempRet0, "invoke_iii": invoke_iii, "invoke_iiii": invoke_iiii, "invoke_iiiii": invoke_iiiii, "invoke_vii": invoke_vii, "invoke_viiii": invoke_viiii, "jsStackTrace": jsStackTrace, "memory": wasmMemory, "setTempRet0": setTempRet0, "stackTrace": stackTrace, "stringToNewUTF8": stringToNewUTF8, "table": wasmTable, "tempDoublePtr": tempDoublePtr };
+// EMSCRIPTEN_START_ASM
+var asm =Module["asm"]// EMSCRIPTEN_END_ASM
+(asmGlobalArg, asmLibraryArg, buffer);
+
+Module["asm"] = asm;
+var __ZSt18uncaught_exceptionv = Module["__ZSt18uncaught_exceptionv"] = function() {
+  return Module["asm"]["__ZSt18uncaught_exceptionv"].apply(null, arguments)
+};
+
+var ___cxa_can_catch = Module["___cxa_can_catch"] = function() {
+  return Module["asm"]["___cxa_can_catch"].apply(null, arguments)
+};
+
+var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = function() {
+  return Module["asm"]["___cxa_is_pointer_type"].apply(null, arguments)
+};
+
+var ___emscripten_environ_constructor = Module["___emscripten_environ_constructor"] = function() {
+  return Module["asm"]["___emscripten_environ_constructor"].apply(null, arguments)
+};
+
+var ___errno_location = Module["___errno_location"] = function() {
+  return Module["asm"]["___errno_location"].apply(null, arguments)
+};
+
+var __get_environ = Module["__get_environ"] = function() {
+  return Module["asm"]["__get_environ"].apply(null, arguments)
+};
+
+var _emscripten_GetProcAddress = Module["_emscripten_GetProcAddress"] = function() {
+  return Module["asm"]["_emscripten_GetProcAddress"].apply(null, arguments)
+};
+
+var _emscripten_get_sbrk_ptr = Module["_emscripten_get_sbrk_ptr"] = function() {
+  return Module["asm"]["_emscripten_get_sbrk_ptr"].apply(null, arguments)
+};
+
+var _emscripten_replace_memory = Module["_emscripten_replace_memory"] = function() {
+  return Module["asm"]["_emscripten_replace_memory"].apply(null, arguments)
+};
+
+var _free = Module["_free"] = function() {
+  return Module["asm"]["_free"].apply(null, arguments)
+};
+
+var _llvm_bswap_i16 = Module["_llvm_bswap_i16"] = function() {
+  return Module["asm"]["_llvm_bswap_i16"].apply(null, arguments)
+};
+
+var _llvm_bswap_i32 = Module["_llvm_bswap_i32"] = function() {
+  return Module["asm"]["_llvm_bswap_i32"].apply(null, arguments)
+};
+
+var _main = Module["_main"] = function() {
+  return Module["asm"]["_main"].apply(null, arguments)
+};
+
+var _malloc = Module["_malloc"] = function() {
+  return Module["asm"]["_malloc"].apply(null, arguments)
+};
+
+var _memcpy = Module["_memcpy"] = function() {
+  return Module["asm"]["_memcpy"].apply(null, arguments)
+};
+
+var _memmove = Module["_memmove"] = function() {
+  return Module["asm"]["_memmove"].apply(null, arguments)
+};
+
+var _memset = Module["_memset"] = function() {
+  return Module["asm"]["_memset"].apply(null, arguments)
+};
+
+var _realloc = Module["_realloc"] = function() {
+  return Module["asm"]["_realloc"].apply(null, arguments)
+};
+
+var _saveSetjmp = Module["_saveSetjmp"] = function() {
+  return Module["asm"]["_saveSetjmp"].apply(null, arguments)
+};
+
+var _setThrew = Module["_setThrew"] = function() {
+  return Module["asm"]["_setThrew"].apply(null, arguments)
+};
+
+var _strstr = Module["_strstr"] = function() {
+  return Module["asm"]["_strstr"].apply(null, arguments)
+};
+
+var _testSetjmp = Module["_testSetjmp"] = function() {
+  return Module["asm"]["_testSetjmp"].apply(null, arguments)
+};
+
+var establishStackSpace = Module["establishStackSpace"] = function() {
+  return Module["asm"]["establishStackSpace"].apply(null, arguments)
+};
+
+var stackAlloc = Module["stackAlloc"] = function() {
+  return Module["asm"]["stackAlloc"].apply(null, arguments)
+};
+
+var stackRestore = Module["stackRestore"] = function() {
+  return Module["asm"]["stackRestore"].apply(null, arguments)
+};
+
+var stackSave = Module["stackSave"] = function() {
+  return Module["asm"]["stackSave"].apply(null, arguments)
+};
+
+var dynCall_i = Module["dynCall_i"] = function() {
+  return Module["asm"]["dynCall_i"].apply(null, arguments)
+};
+
+var dynCall_ii = Module["dynCall_ii"] = function() {
+  return Module["asm"]["dynCall_ii"].apply(null, arguments)
+};
+
+var dynCall_iidiiii = Module["dynCall_iidiiii"] = function() {
+  return Module["asm"]["dynCall_iidiiii"].apply(null, arguments)
+};
+
+var dynCall_iii = Module["dynCall_iii"] = function() {
+  return Module["asm"]["dynCall_iii"].apply(null, arguments)
+};
+
+var dynCall_iiii = Module["dynCall_iiii"] = function() {
+  return Module["asm"]["dynCall_iiii"].apply(null, arguments)
+};
+
+var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
+  return Module["asm"]["dynCall_iiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiid = Module["dynCall_iiiiid"] = function() {
+  return Module["asm"]["dynCall_iiiiid"].apply(null, arguments)
+};
+
+var dynCall_iiiiidii = Module["dynCall_iiiiidii"] = function() {
+  return Module["asm"]["dynCall_iiiiidii"].apply(null, arguments)
+};
+
+var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
+  return Module["asm"]["dynCall_iiiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiiid = Module["dynCall_iiiiiid"] = function() {
+  return Module["asm"]["dynCall_iiiiiid"].apply(null, arguments)
+};
+
+var dynCall_iiiiiii = Module["dynCall_iiiiiii"] = function() {
+  return Module["asm"]["dynCall_iiiiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = function() {
+  return Module["asm"]["dynCall_iiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = function() {
+  return Module["asm"]["dynCall_iiiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = function() {
+  return Module["asm"]["dynCall_iiiiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_iiiiij = Module["dynCall_iiiiij"] = function() {
+  return Module["asm"]["dynCall_iiiiij"].apply(null, arguments)
+};
+
+var dynCall_ji = Module["dynCall_ji"] = function() {
+  return Module["asm"]["dynCall_ji"].apply(null, arguments)
+};
+
+var dynCall_jiji = Module["dynCall_jiji"] = function() {
+  return Module["asm"]["dynCall_jiji"].apply(null, arguments)
+};
+
+var dynCall_v = Module["dynCall_v"] = function() {
+  return Module["asm"]["dynCall_v"].apply(null, arguments)
+};
+
+var dynCall_vf = Module["dynCall_vf"] = function() {
+  return Module["asm"]["dynCall_vf"].apply(null, arguments)
+};
+
+var dynCall_vff = Module["dynCall_vff"] = function() {
+  return Module["asm"]["dynCall_vff"].apply(null, arguments)
+};
+
+var dynCall_vffff = Module["dynCall_vffff"] = function() {
+  return Module["asm"]["dynCall_vffff"].apply(null, arguments)
+};
+
+var dynCall_vfi = Module["dynCall_vfi"] = function() {
+  return Module["asm"]["dynCall_vfi"].apply(null, arguments)
+};
+
+var dynCall_vi = Module["dynCall_vi"] = function() {
+  return Module["asm"]["dynCall_vi"].apply(null, arguments)
+};
+
+var dynCall_vif = Module["dynCall_vif"] = function() {
+  return Module["asm"]["dynCall_vif"].apply(null, arguments)
+};
+
+var dynCall_viff = Module["dynCall_viff"] = function() {
+  return Module["asm"]["dynCall_viff"].apply(null, arguments)
+};
+
+var dynCall_vifff = Module["dynCall_vifff"] = function() {
+  return Module["asm"]["dynCall_vifff"].apply(null, arguments)
+};
+
+var dynCall_viffff = Module["dynCall_viffff"] = function() {
+  return Module["asm"]["dynCall_viffff"].apply(null, arguments)
+};
+
+var dynCall_vii = Module["dynCall_vii"] = function() {
+  return Module["asm"]["dynCall_vii"].apply(null, arguments)
+};
+
+var dynCall_viif = Module["dynCall_viif"] = function() {
+  return Module["asm"]["dynCall_viif"].apply(null, arguments)
+};
+
+var dynCall_viii = Module["dynCall_viii"] = function() {
+  return Module["asm"]["dynCall_viii"].apply(null, arguments)
+};
+
+var dynCall_viiii = Module["dynCall_viiii"] = function() {
+  return Module["asm"]["dynCall_viiii"].apply(null, arguments)
+};
+
+var dynCall_viiiii = Module["dynCall_viiiii"] = function() {
+  return Module["asm"]["dynCall_viiiii"].apply(null, arguments)
+};
+
+var dynCall_viiiiii = Module["dynCall_viiiiii"] = function() {
+  return Module["asm"]["dynCall_viiiiii"].apply(null, arguments)
+};
+
+var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = function() {
+  return Module["asm"]["dynCall_viiiiiii"].apply(null, arguments)
+};
+
+var dynCall_viiiiiiii = Module["dynCall_viiiiiiii"] = function() {
+  return Module["asm"]["dynCall_viiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = function() {
+  return Module["asm"]["dynCall_viiiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = function() {
+  return Module["asm"]["dynCall_viiiiiiiiiii"].apply(null, arguments)
+};
+
+var dynCall_viijii = Module["dynCall_viijii"] = function() {
+  return Module["asm"]["dynCall_viijii"].apply(null, arguments)
+};
+;
 
 
 
@@ -9535,7 +10225,6 @@ function ExitStatus(status) {
 
 var calledMain = false;
 
-
 dependenciesFulfilled = function runCaller() {
   // If run has never been called, and we should call run (INVOKE_RUN is true, and Module.noInitialRun is not false)
   if (!calledRun) run();
@@ -9543,8 +10232,6 @@ dependenciesFulfilled = function runCaller() {
 };
 
 function callMain(args) {
-
-  var entryFunction = Module['_main'];
 
 
   args = args || [];
@@ -9561,7 +10248,7 @@ function callMain(args) {
   try {
 
 
-    var ret = entryFunction(argc, argv);
+    var ret = Module['_main'](argc, argv);
 
 
     // if we're not running an evented main loop, it's time to exit
