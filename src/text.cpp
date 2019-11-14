@@ -37,6 +37,8 @@ int TextCache::RenderText(string text, int x, int y, int size, SDL_Color color, 
             d_rect.x += size + offset;
         }
     }
+
+    return 1;
 }
 
 TextCache::~TextCache(){

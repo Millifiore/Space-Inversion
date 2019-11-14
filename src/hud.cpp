@@ -1,8 +1,8 @@
 #include "hud.h"
 #include "string.h"
 
-Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCache * text_cache){
-    this->text_cache = text_cache;
+Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCache * t_cache){
+    text_cache = t_cache;
     this->player = player;
     this->framebuffer = framebuffer;
     this->renderer = framebuffer->renderer;
