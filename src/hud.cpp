@@ -1,8 +1,8 @@
 #include "hud.h"
 #include "string.h"
 
-Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCache * t_cache){
-    text_cache = t_cache;
+Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCache * text_cache){
+    this->text_cache = text_cache;
     this->player = player;
     this->framebuffer = framebuffer;
     this->renderer = framebuffer->renderer;
@@ -12,6 +12,10 @@ Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCa
 
 void Hud::AddScore(int score){
     this->score+=score;
+}
+
+void Hud::SetScore(int score){
+    this->score = score;
 }
 
 void Hud::UpdateLivesAndScore(){

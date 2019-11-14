@@ -21,12 +21,11 @@ class Hud{
 
 
         Hud(SpriteCache *,Framebuffer *, Player *, TextCache *);
-
+        ~Hud();
         
         void AddScore(int);
-        ~Hud();
+        void SetScore(int);
 
-        void Process();
         void Render();
         void UpdateLivesAndScore();
 };

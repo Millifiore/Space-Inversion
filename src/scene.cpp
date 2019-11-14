@@ -116,7 +116,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
 
     }
 
-    hud->score = enemies_dead * 200;
+    hud->SetScore(enemies_dead * 200);
 
     for (int i = 0; i < enemies.size(); i++){
         // Process the enemy as soon as it comes up.
@@ -194,7 +194,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
         //check if the player collided with any of the enemies
         if (player->TouchingEnemy(&enemies[i]->d_rect)){
             if (enemies[i]->state != "DYING"){
-                //TODO: Raplace this with player->Hurt() in the future.
+                //TODO: Replace this with player->Hurt() in the future.
                 player->lives -= 1;
             }
             enemies[i]->state = "DYING";
