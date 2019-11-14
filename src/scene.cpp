@@ -207,6 +207,10 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
             }
             enemies[i]->state = "DYING";
         }
+        //reset enemies to the top if they go off screen
+        if(enemies[i]-> y_pos >= 600){
+            enemies[i]->SetPos(enemies[i]->x_pos,0);
+        }
         enemies[i]->Process(clock, height);
     }
 
