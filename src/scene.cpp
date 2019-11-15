@@ -107,10 +107,15 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     if (enemies.size()){
         random_index = rand() % enemies.size();
     }
-    enemies_dead = 0;
 
+    enemies_dead = 0;
     for (int i = 0; i <enemies.size();i++){
-        if (enemies[i]->dead){
+        /*
+        "DYING" state is captured quicker than dead boolean or dead state
+        (as enemy plays dying animation before the dead boolean is set),
+        allowing the score to be set immediately upon the enemy dying
+        */ 
+        if (enemies[i]->state == "DYING" || enemies[i]->state == "DEAD"){
             enemies_dead++;
         }
 
@@ -119,8 +124,8 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     hud->SetScore(enemies_dead * 200);
 
     for (int i = 0; i < enemies.size(); i++){
+        
         // Process the enemy as soon as it comes up.
-
         if(!enemies[i]->dead){
             double speed_multiplier = double(enemies_dead)/double((enemies.size()-1))*12;
             enemies[i]->speed = int(speed_multiplier) + enemies[i]->default_speed;
