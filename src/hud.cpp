@@ -7,7 +7,7 @@ Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCa
     this->framebuffer = framebuffer;
     this->renderer = framebuffer->renderer;
 
-    this->life_sprite = new Sprite(cache,{},{19,690,30,50},"resources/life.bmp");
+    this->life_sprite = new Sprite(cache,{},{19,690,50,50},"resources/life.bmp");
 }
 
 void Hud::AddScore(int score){
@@ -25,12 +25,12 @@ void Hud::UpdateLivesAndScore(){
 
 void Hud::Render(){
     framebuffer->SetActiveBuffer("HUD");
-    SDL_SetRenderDrawColor(renderer,0,0,0,255);
+    SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
     SDL_RenderClear(renderer);
     this->UpdateLivesAndScore();
 
-    text_cache->RenderText(score_string, 19, 20, 40, {0, 128, 128, 255});
-    text_cache->RenderText(lives_string, 60, 700, 40, {255, 255, 255, 255});
+    text_cache->RenderText(score_string, 19, 20, 30, {0, 128, 128, 255});
+    text_cache->RenderText(lives_string, 60, 700, 30, {255, 255, 255, 255});
     life_sprite->Render();
 
     framebuffer->UnsetBuffers();

@@ -73,7 +73,7 @@ void SpaceInversion::Process(){
     // Clock tick
     clock.Tick();
 
-    // render scale
+    // Render scale
     SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
 
     // Keyboard and Mouse
@@ -86,6 +86,11 @@ void SpaceInversion::Process(){
 
     //Event Loop
     while (SDL_PollEvent(&event)){ 
+        if (event.type == SDL_WINDOWEVENT_RESIZED){
+            WIDTH = event.window.data1;
+            HEIGHT = event.window.data2;
+        }
+
         if (event.type == SDL_QUIT){
             running = false;
             break;

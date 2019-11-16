@@ -109,7 +109,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
     }
 
     enemies_dead = 0;
-    for (int i = 0; i <enemies.size();i++){
+    for (int i = 0; i < enemies.size();i++){
         /*
         "DYING" state is captured quicker than dead boolean or dead state
         (as enemy plays dying animation before the dead boolean is set),
@@ -118,7 +118,6 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
         if (enemies[i]->state == "DYING" || enemies[i]->state == "DEAD"){
             enemies_dead++;
         }
-
     }
 
     hud->SetScore(enemies_dead * 200);
@@ -239,7 +238,7 @@ void LevelScene::RenderScene(){
 
     //Rendering
     framebuffer->SetActiveBuffer("GAME");
-    SDL_SetRenderDrawColor(renderer, 29, 41, 81, 255);
+    SDL_SetRenderDrawColor(renderer, 9, 21, 61, 255);
     SDL_RenderClear(renderer);
 
     for (auto star: stars_l1){
