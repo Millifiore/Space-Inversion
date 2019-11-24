@@ -25,7 +25,6 @@ SpriteCache::~SpriteCache(){
 
 
 
-
 Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f){
     texture = cache->LoadTexture(filepath);
     s_rect = s;
@@ -70,7 +69,6 @@ void Sprite::Render(){
 void Sprite::Reset(){}
 
 Sprite::~Sprite(){}
-
 
 
 

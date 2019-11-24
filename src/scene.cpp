@@ -171,21 +171,18 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
 
         // check if the enemy collided with any of the players bullets.
         if (player->TouchingBullet(&enemies[i]->d_rect)){
-            int index = 0;
             for (auto bullet: player->bullets){
                 if (enemies[i]->state != "DYING"){
                     if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
-                        player->erased.push_back(index);
+                        bullet->hit = true;
                     }
                 }   
-                index++;
             }
             enemies[i]->state = "DYING";  
         }
 
         // check if the player collided with any of the enemy bullets.
         if (enemies[i]->TouchingBullet(&player->d_rect)){
-            int index = 0;
             for (auto bullet: enemies[i]->bullets){
                 if (bullet->IsTouchingRect(&player->d_rect)){
                     /*
@@ -197,9 +194,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                         player->lives -= 1;
                     }
                     bullet->hit = true;
-                    enemies[i]->erased.push_back(index);
                 }
-                index++;
             }
         }
 

@@ -5,6 +5,7 @@
 #include "text.h"
 #include "framebuffer.h"
 #include "hud.h"
+
 class LevelScene {
 private:
     vector<Bullet *> stars_l1;
@@ -29,6 +30,7 @@ public:
     
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);
+    void CreateHUD(Player * player);
     void Process(Clock * clock, KeyboardManager * keyboard, int width, int height);
     void ManageEnemies(Clock * clock, int width, int height);
     void RenderScene();

@@ -69,9 +69,8 @@ void Enemy::Process(Clock * clock, int height){
     // move bullets in the list/vector down screen.
     int i = 0;
     for (auto bullet: bullets){
-        
         bullet->y_pos += ((bullet_speed * 100) * clock->delta_time_s);
-        if (bullet->y_pos >= height){
+        if (bullet->y_pos >= height || bullet->hit){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
             }

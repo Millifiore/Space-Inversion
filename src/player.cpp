@@ -33,7 +33,7 @@ void Player::Process(Clock * clock){
     for (auto bullet: bullets){
         
         bullet->y_pos -= ((bullet_speed * 100) * clock->delta_time_s);
-        if (bullet->y_pos <= 0){
+        if (bullet->y_pos <= 0 || bullet->y_pos >= 700 || bullet->hit){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
             }
@@ -41,7 +41,7 @@ void Player::Process(Clock * clock){
         i++;
     }
 
-    // erase bullets if they are off screen.
+    // erase bullets if they are off screen or if they hit something.
     for (auto index: erased){
         delete bullets[index];
         bullets.erase(bullets.begin()+index);

@@ -12,7 +12,7 @@ class Hud{
         int highscore;
         string score_string;
         string lives_string;
-        vector<Sprite *> lives;
+        vector<Sprite *> life_sprites;
         Framebuffer * framebuffer;
         int enemy_size = -1;
         Sprite * life_sprite;

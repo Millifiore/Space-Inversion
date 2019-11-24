@@ -11,6 +11,7 @@
 #include <memory>
 #include <map>
 #include <algorithm>
+#include <math.h>
 #include <ctime>
 #include <cstdlib>
 
