@@ -6,6 +6,7 @@
 #include "framebuffer.h"
 #include "controller.h"
 #include "hud.h"
+#include "bullets.h"
 
 class LevelScene {
 private:
