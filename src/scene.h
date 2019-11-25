@@ -4,6 +4,7 @@
 #include "player.h"
 #include "text.h"
 #include "framebuffer.h"
+#include "controller.h"
 #include "hud.h"
 
 class LevelScene {
@@ -31,8 +32,8 @@ public:
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);
     void CreateHUD(Player * player);
-    void Process(Clock * clock, KeyboardManager * keyboard, int width, int height);
-    void ManageEnemies(Clock * clock, int width, int height);
+    void Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, int width, int height);
+    void ManageEnemies(Clock * clock, ControllerManager * controllers, int width, int height);
     void RenderScene();
 
     ~LevelScene();

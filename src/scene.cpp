@@ -18,7 +18,7 @@ void LevelScene::AddPlayer(Player * p){
     hud->player = p;
 }
 
-void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, int height){
+void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers,  int width, int height){
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
 
@@ -42,18 +42,20 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, i
     if (running){
         
         // Managing movement for player
-        if (keyboard->KeyIsPressed(SDL_SCANCODE_A)){
+        if (keyboard->KeyIsPressed(SDL_SCANCODE_A) || controllers->GetControllerButtonPressed(0, "LEFT")){
             player->Move("left");
         }
-        else if (keyboard->KeyIsPressed(SDL_SCANCODE_D)) {
+        else if (keyboard->KeyIsPressed(SDL_SCANCODE_D) || controllers->GetControllerButtonPressed(0, "RIGHT")) {
             player->Move("right");
         }
         else{
             player->Move("none");
         }
 
-        if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE)) {
-            player->Attack();
+        if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
+            if (player->Attack()){
+                controllers->SetControllerRumble(0, 20, 0, .3);
+            } 
         }
 
         if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
@@ -74,7 +76,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, i
 
         // Process player and enemies.
         player->Process(clock);
-        ManageEnemies(clock, width, height);
+        ManageEnemies(clock, controllers, width, height);
 
         // Move the stars.
         for (auto star: stars_l1){
@@ -96,7 +98,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, int width, i
 
 // This method handles all of the specific interactions between enemies (of different types), and the player, as well
 // as that's important for interactions.
-void LevelScene::ManageEnemies(Clock * clock, int width, int height){
+void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, int width, int height){
     if (enemy_state == "PHASE_DOWN"){
         countdown += clock->delta_time_s;
     }
@@ -170,13 +172,16 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
         }
 
         // check if the enemy collided with any of the players bullets.
+        int index = 0;
         if (player->TouchingBullet(&enemies[i]->d_rect)){
             for (auto bullet: player->bullets){
                 if (enemies[i]->state != "DYING"){
                     if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
                         bullet->hit = true;
+                        player->erased.push_back(index);
                     }
-                }   
+                } 
+                index++;  
             }
             enemies[i]->state = "DYING";  
         }
@@ -192,6 +197,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
                     */
                     if (!bullet->hit){
                         player->lives -= 1;
+                        
                     }
                     bullet->hit = true;
                 }
@@ -203,6 +209,7 @@ void LevelScene::ManageEnemies(Clock * clock, int width, int height){
             if (enemies[i]->state != "DYING"){
                 //TODO: Replace this with player->Hurt() in the future.
                 player->lives -= 1;
+                controllers->SetControllerRumble(0, 0, 30, .3);
             }
             enemies[i]->state = "DYING";
         }

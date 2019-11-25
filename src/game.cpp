@@ -37,7 +37,8 @@ int SpaceInversion::Start(int argc, char** argv){
 
     // Initialize objects
     mouse = MouseManager();
-    keyboard = KeyboardManager();
+    keyboard = new KeyboardManager();
+    controllers = new ControllerManager();
     framebuffer = new Framebuffer(window, renderer);
     text = new TextCache(renderer);
     cache = new SpriteCache(renderer);
@@ -77,10 +78,10 @@ void SpaceInversion::Process(){
     SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
 
     // Keyboard and Mouse
-    keyboard.Process();
+    keyboard->Process();
     mouse.Process();
 
-    if (keyboard.KeyIsPressed(SDL_SCANCODE_ESCAPE)){
+    if (keyboard->KeyIsPressed(SDL_SCANCODE_ESCAPE)){
         running = false;
     } 
 
@@ -91,6 +92,8 @@ void SpaceInversion::Process(){
             HEIGHT = event.window.data2;
         }
 
+        controllers->ProcessControllerEvents(&event);
+
         if (event.type == SDL_QUIT){
             running = false;
             break;
@@ -98,8 +101,9 @@ void SpaceInversion::Process(){
     }
 
     // General Game loop stuff goes here 
-    
-    if (keyboard.KeyWasPressed(SDL_SCANCODE_F)){
+    controllers->ProcessControllerButtonState();
+
+    if (keyboard->KeyWasPressed(SDL_SCANCODE_F)){
         if (flip == SDL_FLIP_NONE){
             flip = SDL_FLIP_VERTICAL;
         }
@@ -108,7 +112,7 @@ void SpaceInversion::Process(){
         }
     }
 
-    scene->Process(&clock, &keyboard, GAME_WIDTH, GAME_HEIGHT);
+    scene->Process(&clock, keyboard, controllers, GAME_WIDTH, GAME_HEIGHT);
 
 }
 
@@ -131,6 +135,8 @@ SpaceInversion::~SpaceInversion(){
     delete cache;
     delete text;
     delete framebuffer;
+    delete controllers;
+    delete keyboard;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }

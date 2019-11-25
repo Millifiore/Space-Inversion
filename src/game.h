@@ -21,7 +21,8 @@ private:
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
     // Private objects
-    KeyboardManager keyboard;
+    KeyboardManager * keyboard;
+    ControllerManager * controllers;
     Clock clock;
     SpriteCache * cache;
     LevelScene * scene;

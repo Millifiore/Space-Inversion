@@ -28,14 +28,30 @@ Controller::Controller(int i){
 
     instance = SDL_GameControllerOpen(i);
     instance_id = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(instance));
+
+    // set the current state of all buttons to be zero upon creation.
+    for (auto button: button_map){
+        current_button_state[button.first] = 0;
+    }
 }
 
 Controller::~Controller(){
     SDL_GameControllerClose(instance);
 }
 
-bool Controller::GetButton(string button){
-    return SDL_GameControllerGetButton(instance, button_map[button]);
+void Controller::ProcessButtons(){
+    previous_button_state = current_button_state;
+    for (auto button: button_map){
+        current_button_state[button.first] = SDL_GameControllerGetButton(instance, button.second);
+    }
+}
+
+bool Controller::GetButtonPressed(string button){
+    return current_button_state[button];
+}
+
+bool Controller::GetButtonWasPressed(string button){
+    return !previous_button_state[button] && current_button_state[button];
 }
 
 vector<double> Controller::GetAnalogStick(string stick){
@@ -48,21 +64,66 @@ double Controller::GetTrigger(string trigger){
     return SDL_GameControllerGetAxis(instance, trigger_map[trigger]) / 32767; 
 }
 
+void Controller::SetRumble(double left_motor, double right_motor, double seconds){
+    SDL_GameControllerRumble(instance, (left_motor/100) * 65535, (right_motor/100) * 65535, (seconds) * 1000);
+}
 
 
-ControllerManager::ControllerManager(){}
+ControllerManager::ControllerManager(){
+    cout << SDL_NumJoysticks() << endl;
+    for(int i = 0; i < SDL_NumJoysticks(); i++){
+        if (i >= 4){break;}
+        controllers.push_back(new Controller(i));
+        number_of_controllers += 1;
+    }
+}
+
+ControllerManager::~ControllerManager(){
+    for (int i = 0; i < number_of_controllers; i++){
+        delete controllers[i];
+    }
+}
 
 void ControllerManager::ProcessControllerEvents(SDL_Event * event){
     if (event->type == SDL_CONTROLLERDEVICEADDED){
         controllers.push_back(new Controller(event->cdevice.which));
+        number_of_controllers += 1;
     }
     
-    if (event->type == SDL_CONTROLLERDEVICEREMOVED) {
-        for (auto controller: controllers){
-            if (controller->instance_id == event->cdevice.which){
-                delete controller;
+    else if (event->type == SDL_CONTROLLERDEVICEREMOVED) {
+        for (int i = 0; i < number_of_controllers; i++){
+            if (controllers[i]->instance_id == event->cdevice.which){
+                delete controllers[i];
+                controllers.erase(controllers.begin()+i);
+                number_of_controllers -= 1;
                 break;
             }
         }
+    }
+}
+
+void ControllerManager::ProcessControllerButtonState(){
+    for (auto controller: controllers){
+        controller->ProcessButtons();
+    }
+}
+
+bool ControllerManager::GetControllerButtonPressed(int i, string button){
+    if ((0 <= i) && (i <= number_of_controllers-1)){
+        return controllers[i]->GetButtonPressed(button);
+    }
+    return false;
+}
+
+bool ControllerManager::GetControllerButtonWasPressed(int i, string button){
+    if ((0 <= i) && (i <= number_of_controllers-1)){
+        return controllers[i]->GetButtonWasPressed(button);
+    }
+    return false;
+}
+
+void ControllerManager::SetControllerRumble(int i, double left_motor, double right_motor, double seconds){
+    if ((0 <= i) && (i <= number_of_controllers-1)){
+        return controllers[i]->SetRumble(left_motor, right_motor, seconds);
     }
 }

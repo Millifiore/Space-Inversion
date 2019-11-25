@@ -200,7 +200,7 @@ Module['FS_createPath']('/resources', 'levels', true, true);
   }
 
  }
- loadPackage({"files": [{"start": 0, "audio": 0, "end": 16522, "filename": "/resources/Shield Buff.bmp"}, {"start": 16522, "audio": 0, "end": 56660, "filename": "/resources/player.bmp"}, {"start": 56660, "audio": 0, "end": 57822, "filename": "/resources/Star2.bmp"}, {"start": 57822, "audio": 0, "end": 58984, "filename": "/resources/Star1.bmp"}, {"start": 58984, "audio": 0, "end": 60146, "filename": "/resources/Star0.bmp"}, {"start": 60146, "audio": 0, "end": 76668, "filename": "/resources/Paused.bmp"}, {"start": 76668, "audio": 0, "end": 191494, "filename": "/resources/Start Button.bmp"}, {"start": 191494, "audio": 0, "end": 231632, "filename": "/resources/villain1.bmp"}, {"start": 231632, "audio": 0, "end": 280922, "filename": "/resources/explosion.bmp"}, {"start": 280922, "audio": 0, "end": 281346, "filename": "/resources/villian2.png"}, {"start": 281346, "audio": 0, "end": 297868, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 297868, "audio": 0, "end": 314390, "filename": "/resources/life.bmp"}, {"start": 314390, "audio": 0, "end": 330912, "filename": "/resources/title.bmp"}, {"start": 330912, "audio": 0, "end": 378516, "filename": "/resources/font/joystix.ttf"}, {"start": 378516, "audio": 0, "end": 378857, "filename": "/resources/levels/level.mx"}], "remote_package_size": 378857, "package_uuid": "cda45d98-917e-4d96-b418-7b4c20fa6f6f"});
+ loadPackage({"files": [{"start": 0, "audio": 0, "end": 16522, "filename": "/resources/Shield Buff.bmp"}, {"start": 16522, "audio": 0, "end": 56660, "filename": "/resources/player.bmp"}, {"start": 56660, "audio": 0, "end": 57822, "filename": "/resources/Star2.bmp"}, {"start": 57822, "audio": 0, "end": 58984, "filename": "/resources/Star1.bmp"}, {"start": 58984, "audio": 0, "end": 60146, "filename": "/resources/Star0.bmp"}, {"start": 60146, "audio": 0, "end": 76668, "filename": "/resources/Paused.bmp"}, {"start": 76668, "audio": 0, "end": 191494, "filename": "/resources/Start Button.bmp"}, {"start": 191494, "audio": 0, "end": 231632, "filename": "/resources/villain1.bmp"}, {"start": 231632, "audio": 0, "end": 280922, "filename": "/resources/explosion.bmp"}, {"start": 280922, "audio": 0, "end": 281346, "filename": "/resources/villian2.png"}, {"start": 281346, "audio": 0, "end": 297868, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 297868, "audio": 0, "end": 314390, "filename": "/resources/life.bmp"}, {"start": 314390, "audio": 0, "end": 330912, "filename": "/resources/title.bmp"}, {"start": 330912, "audio": 0, "end": 378516, "filename": "/resources/font/joystix.ttf"}, {"start": 378516, "audio": 0, "end": 378857, "filename": "/resources/levels/level.mx"}], "remote_package_size": 378857, "package_uuid": "0fe7927b-bcdf-4945-a48e-b2bc2e7c3416"});
 
 })();
 
@@ -768,8 +768,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 2056,
-  'maximum': 2056,
+  'initial': 2060,
+  'maximum': 2060,
   'element': 'anyfunc'
 });
 
@@ -1369,11 +1369,11 @@ function updateGlobalBufferAndViews(buf) {
 
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 178624,
+    STACK_BASE = 181920,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5421504,
-    DYNAMIC_BASE = 5421504,
-    DYNAMICTOP_PTR = 178416;
+    STACK_MAX = 5424800,
+    DYNAMIC_BASE = 5424800,
+    DYNAMICTOP_PTR = 181712;
 
 
 
@@ -1829,8 +1829,8 @@ function _emscripten_asm_const_iiii(code, a0, a1, a2) {
 
 
 
-// STATICTOP = STATIC_BASE + 177600;
-/* global initializers */  __ATINIT__.push({ func: function() { ___emscripten_environ_constructor() } });
+// STATICTOP = STATIC_BASE + 180896;
+/* global initializers */  __ATINIT__.push({ func: function() { globalCtors() } });
 
 
 
@@ -1840,7 +1840,7 @@ function _emscripten_asm_const_iiii(code, a0, a1, a2) {
 
 
 /* no memory initializer */
-var tempDoublePtr = 178608
+var tempDoublePtr = 181904
 
 function copyTempFloat(ptr) { // functions, because inlining this code increases code size too much
   HEAP8[tempDoublePtr] = HEAP8[ptr];
@@ -9860,10 +9860,6 @@ var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = function() {
   return Module["asm"]["___cxa_is_pointer_type"].apply(null, arguments)
 };
 
-var ___emscripten_environ_constructor = Module["___emscripten_environ_constructor"] = function() {
-  return Module["asm"]["___emscripten_environ_constructor"].apply(null, arguments)
-};
-
 var ___errno_location = Module["___errno_location"] = function() {
   return Module["asm"]["___errno_location"].apply(null, arguments)
 };
@@ -9938,6 +9934,10 @@ var _testSetjmp = Module["_testSetjmp"] = function() {
 
 var establishStackSpace = Module["establishStackSpace"] = function() {
   return Module["asm"]["establishStackSpace"].apply(null, arguments)
+};
+
+var globalCtors = Module["globalCtors"] = function() {
+  return Module["asm"]["globalCtors"].apply(null, arguments)
 };
 
 var stackAlloc = Module["stackAlloc"] = function() {

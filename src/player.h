@@ -28,7 +28,7 @@ public:
 
     void Process(Clock * clock);
     void Move(string d);
-    void Attack();
+    bool Attack();
     bool TouchingBullet(SDL_Rect * rect);
     bool TouchingEnemy(SDL_Rect * rect);
 

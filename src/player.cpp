@@ -31,9 +31,8 @@ void Player::Process(Clock * clock){
     // move bullets in the list/vector up screen.
     int i = 0;
     for (auto bullet: bullets){
-        
         bullet->y_pos -= ((bullet_speed * 100) * clock->delta_time_s);
-        if (bullet->y_pos <= 0 || bullet->y_pos >= 700 || bullet->hit){
+        if (bullet->y_pos <= 0 || bullet->y_pos >= 700){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
             }
@@ -75,7 +74,7 @@ void Player::Move(string d){
     
 }
 
-void Player::Attack(){
+bool Player::Attack(){
     // we check the size of the bullet array to make sure that only 3 bullets are on screen at once.
     if (state == "DEFAULT"){
         if ((bullets.size() < 3) && !attack_cooldown){
@@ -84,8 +83,10 @@ void Player::Attack(){
                                     (d_rect.y + (d_rect.w/2)) - 10, 10, 10, SDL_Color({0, 255, 0, 255}))
             );
             attack_cooldown = true;
+            return true;
         }
-    }   
+    }
+    return false;   
 }
 
 bool Player::TouchingBullet(SDL_Rect * rect){
