@@ -57,10 +57,10 @@ LevelScene * CreateScene(SpriteCache * cache, Player * player, string filepath){
                             scene->AddPlayer(player);
                         }
                         else if (obj_name == "villain1"){
-                            scene->AddEnemy(new Enemy(cache, x, y, w, h, obj_filepath, "villain1"));
+                            scene->AddEnemy(new Enemy(cache, x, y, w, h, obj_filepath, "villain1"),player);
                         }
                         else if (obj_name == "villain2"){
-                            scene->AddEnemy(new Enemy(cache, x, y, w, h, obj_filepath, "villain2"));
+                            scene->AddEnemy(new Enemy(cache, x, y, w, h, obj_filepath, "villain2"),player);
                         }
                     }
                 }

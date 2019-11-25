@@ -1,8 +1,11 @@
 #include "enemy.h"
+#include "math.h"
+#include "player.h"
 
-Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t){
+Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player){
     renderer = cache->renderer;
     type = t;
+    this->player = player;
 
     x_pos = x;
     y_pos = y;
@@ -69,8 +72,9 @@ void Enemy::Process(Clock * clock, int height){
     // move bullets in the list/vector down screen.
     int i = 0;
     for (auto bullet: bullets){
-        bullet->y_pos += ((bullet_speed * 100) * clock->delta_time_s);
-        if (bullet->y_pos >= height || bullet->hit){
+        
+        bullet->Process(clock);
+        if (bullet->y_pos >= height){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
                 erased.push_back(i);
             }
@@ -127,11 +131,13 @@ void Enemy::Reset(){
 }
 
 void Enemy::Attack(){
+    float angle_to_player = -atan2((player->y_pos-y_pos),(player->x_pos-x_pos));
+
     if (state == "DEFAULT"){
         if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
-                new Bullet(renderer, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) + 10, 10, 10, SDL_Color({255, 0, 0, 255}))
+                new Projectile(renderer, x_pos,
+                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10,angle_to_player,SDL_Color({0, 255, 0, 255}),20)
             );
             attack_cooldown = true;
         }
@@ -140,7 +146,7 @@ void Enemy::Attack(){
 
 bool Enemy::TouchingBullet(SDL_Rect * rect){
     for (auto bullet: bullets){
-        if (SDL_HasIntersection(&bullet->bullet, rect)){
+        if (SDL_HasIntersection(&bullet->hitbox, rect)){
             return true;
         }
     }

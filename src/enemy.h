@@ -1,7 +1,8 @@
 #pragma once
 #include "headers.h"
 #include "sprites.h"
-#include "bullets.h"
+#include "projectile.h"
+#include "player.h"
 
 class Enemy{
 private:
@@ -24,10 +25,11 @@ public:
     int max_bullets;
     bool attack_cooldown;
     double cooldown_timer;
-    vector<Bullet *> bullets = {};
+    vector<Projectile *> bullets = {};
     bool dead = false;
+    Player * player;
 
-    Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t);
+    Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player);
 
     void Process(Clock * clock, int height);
     void Move(string d);

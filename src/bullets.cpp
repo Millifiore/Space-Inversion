@@ -13,7 +13,7 @@ Bullet::Bullet(SDL_Renderer * r, int x, int y, int w, int h, SDL_Color c){
 
 void Bullet::Render(){
     bullet.x = (x_pos - int(bullet.w / 2)) ;
-    bullet.y = (y_pos - int(bullet.h / 2));
+    bullet.y = (y_pos - int(bullet.h / 2));  
 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &bullet);

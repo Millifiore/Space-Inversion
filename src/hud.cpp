@@ -29,8 +29,8 @@ void Hud::Render(){
     SDL_RenderClear(renderer);
     this->UpdateLivesAndScore();
 
-    text_cache->RenderText(score_string, 19, 20, 30, {255, 255, 255, 255}, 0);
-    text_cache->RenderText(lives_string, 60, 700, 30, {255, 255, 255, 255}, 3);
+    text_cache->RenderText(score_string, 19, 20, 30, {0, 128, 128, 255});
+    text_cache->RenderText(lives_string, 60, 700, 30, {0, 128, 128, 255});
     life_sprite->Render();
 
     framebuffer->UnsetBuffers();

@@ -2,6 +2,7 @@
 #include "headers.h"
 #include "bullets.h"
 #include "sprites.h"
+#include "projectile.h"
 
 class Player{
 private:
@@ -23,7 +24,8 @@ public:
     int speed = 18;
     bool attack_cooldown;
     double cooldown_timer;
-    vector<Bullet *> bullets = {};
+    bool attacking = false;
+    vector<Projectile *> bullets = {};
     Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
     void Process(Clock * clock);
