@@ -131,13 +131,13 @@ void Enemy::Reset(){
 }
 
 void Enemy::Attack(){
-    float angle_to_player = -atan2((player->y_pos-y_pos),(player->x_pos-x_pos));
+    float angle_to_player = (-atan2((player->y_pos-y_pos),(player->x_pos-x_pos))) * (180 /PI);
 
     if (state == "DEFAULT"){
         if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
                 new Projectile(renderer, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10,angle_to_player,SDL_Color({0, 255, 0, 255}),20)
+                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10, angle_to_player, {255, 0, 0, 255}, 5)
             );
             attack_cooldown = true;
         }

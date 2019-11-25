@@ -188,6 +188,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
         }
 
         // check if the player collided with any of the enemy bullets.
+        int bullet_index = 0;
         if (enemies[i]->TouchingBullet(&player->d_rect)){
             for (auto bullet: enemies[i]->bullets){
                 if (bullet->IsTouchingRect(&player->d_rect)){
@@ -198,6 +199,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
                     */
                     if (!bullet->hit){
                         player->lives -= 1;
+                        controllers->SetControllerRumble(0, 0, 30, .3);
                         
                         if(*flip == SDL_FLIP_NONE){
                             *flip = SDL_FLIP_VERTICAL;
@@ -206,7 +208,9 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
                         }
                     }
                     bullet->hit = true;
+                    enemies[i]->erased.push_back(bullet_index);
                 }
+                bullet_index++;
             }
         }
 

@@ -1,14 +1,16 @@
 #include "projectile.h"
 #include "math.h"
 
-Projectile::Projectile(SDL_Renderer * r,int x, int y, int w, int h, float a, SDL_Color c, int bullet_speed){
+Projectile::Projectile(SDL_Renderer * r,int x, int y, int w, int h, float a, SDL_Color color, int speed){
     renderer = r;
     x_pos = x;
     y_pos = y;
     width = w;
     height = h;
-    angle = a;
-    this->bullet_speed = bullet_speed;
+    angle = a * (PI / 180);
+
+    this->speed = speed;
+    this->color = color;
 
     hitbox.x = x_pos;
     hitbox.y = y_pos;
@@ -17,8 +19,8 @@ Projectile::Projectile(SDL_Renderer * r,int x, int y, int w, int h, float a, SDL
 }
 
 void Projectile::Process(Clock * clock){
-    x_pos += (cos(angle)*((bullet_speed * 10)) * clock->delta_time_s);
-    y_pos += (-sin(angle)*((bullet_speed * 10)) * clock->delta_time_s);
+    x_pos += (cos(angle)*(speed * 100)) * clock->delta_time_s;
+    y_pos += (-sin(angle)*(speed * 100)) * clock->delta_time_s;
 }
 
 

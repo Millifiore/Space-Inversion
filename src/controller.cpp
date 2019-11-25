@@ -84,21 +84,29 @@ ControllerManager::~ControllerManager(){
     }
 }
 
+void ControllerManager::Add(SDL_Event * event){
+    controllers.push_back(new Controller(event->cdevice.which));
+    number_of_controllers += 1;
+}
+
+void ControllerManager::Remove(SDL_Event * event){
+    for (int i = 0; i < number_of_controllers; i++){
+        if (controllers[i]->instance_id == event->cdevice.which){
+            delete controllers[i];
+            controllers.erase(controllers.begin()+i);
+            number_of_controllers -= 1;
+            break;
+        }
+    }
+}
+
 void ControllerManager::ProcessControllerEvents(SDL_Event * event){
     if (event->type == SDL_CONTROLLERDEVICEADDED){
-        controllers.push_back(new Controller(event->cdevice.which));
-        number_of_controllers += 1;
+        Add(event);
     }
     
-    else if (event->type == SDL_CONTROLLERDEVICEREMOVED) {
-        for (int i = 0; i < number_of_controllers; i++){
-            if (controllers[i]->instance_id == event->cdevice.which){
-                delete controllers[i];
-                controllers.erase(controllers.begin()+i);
-                number_of_controllers -= 1;
-                break;
-            }
-        }
+    if (event->type == SDL_CONTROLLERDEVICEREMOVED) {
+        Remove(event);
     }
 }
 

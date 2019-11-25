@@ -82,7 +82,7 @@ bool Player::Attack(){
         if ((bullets.size() < 3) && !attack_cooldown){
             bullets.push_back(
                 new Projectile(renderer, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10,1.5708,SDL_Color({0, 255, 0, 255}),20)
+                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10, 90, {0, 255, 0, 255}, 5)
             );
             attack_cooldown = true;
             return true;

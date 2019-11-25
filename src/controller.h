@@ -35,6 +35,8 @@ class ControllerManager {
         ~ControllerManager();
 
         void ProcessControllerEvents(SDL_Event *);
+        void Add(SDL_Event *);
+        void Remove(SDL_Event *);
         void ProcessControllerButtonState();
         bool GetControllerButtonPressed(int, string);
         bool GetControllerButtonWasPressed(int, string);
