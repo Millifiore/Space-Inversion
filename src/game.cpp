@@ -45,7 +45,7 @@ int SpaceInversion::Start(int argc, char** argv){
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
 
     text->SetFont("joystix.ttf");
-    scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level.mx");
+    scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level.mx",&flip);
     framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
     framebuffer->CreateBuffer("HUD",GAME_WIDTH,HEIGHT);
     // Start running the app

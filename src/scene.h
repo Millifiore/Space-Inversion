@@ -24,11 +24,12 @@ private:
     SDL_Renderer * renderer;
     Framebuffer * framebuffer;
     Hud * hud;
+    SDL_RendererFlip * flip;
 public:
     bool starting;
     bool running;
     bool finished;
-    LevelScene(SDL_Renderer * renderer,Framebuffer * Framebuffer,SpriteCache * ,TextCache *);
+    LevelScene(SDL_Renderer * renderer,Framebuffer * Framebuffer,SpriteCache * ,TextCache *,SDL_RendererFlip * flip);
     
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);

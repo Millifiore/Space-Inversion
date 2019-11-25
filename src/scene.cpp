@@ -1,12 +1,13 @@
 #include "scene.h"
 
-LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache){
+LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache,SDL_RendererFlip * flip){
     this->framebuffer = framebuffer;
     this->hud = new Hud(sprite_cache,framebuffer,player,text_cache);
     starting = true;
     running = false;
     finished = false;
     renderer = r;
+    this->flip = flip;
 }
 
 void LevelScene::AddEnemy(Enemy * enemy){
@@ -198,6 +199,11 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
                     if (!bullet->hit){
                         player->lives -= 1;
                         
+                        if(*flip == SDL_FLIP_NONE){
+                            *flip = SDL_FLIP_VERTICAL;
+                        } else {
+                            *flip = SDL_FLIP_NONE;
+                        }
                     }
                     bullet->hit = true;
                 }
