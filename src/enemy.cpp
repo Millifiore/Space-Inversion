@@ -31,7 +31,8 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
     state = "DEFAULT";
     default_speed = 8;
     speed = default_speed;
-    bullet_speed = 4;
+    projectile_speed = 4;
+    cooldown_time = .3;
 
 }
 
@@ -92,7 +93,7 @@ void Enemy::Process(Clock * clock, int height){
     // this is done so that an enemy can only add a bullet in certain intervals.
     if (attack_cooldown){
         cooldown_timer += clock->delta_time_s;
-        if (cooldown_timer >= .3){
+        if (cooldown_timer >= cooldown_time){
             cooldown_timer = 0;
             attack_cooldown = false;
         }
@@ -131,13 +132,17 @@ void Enemy::Reset(){
 }
 
 void Enemy::Attack(){
+    /*
+    (TODO) Use this logic specifically for the villain 2 subclass when it is utilized.
+           villain 1 should only shoot bullets in a downward location towards the player.
+    */
     float angle_to_player = (-atan2((player->y_pos-y_pos),(player->x_pos-x_pos))) * (180 /PI);
 
     if (state == "DEFAULT"){
         if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
                 new Projectile(renderer, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10, angle_to_player, {255, 0, 0, 255}, 5)
+                                    (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
             );
             attack_cooldown = true;
         }

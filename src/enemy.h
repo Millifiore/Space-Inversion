@@ -5,7 +5,7 @@
 #include "player.h"
 
 class Enemy{
-private:
+protected:
     map<string, Sprite *> sprites;
     int width, height;
     bool moving;
@@ -19,25 +19,26 @@ public:
     string state;
     SDL_Rect d_rect = {};
     double x_pos, y_pos;
-    int bullet_speed;
+    int projectile_speed;
     int default_speed;
     int speed;
     int max_bullets;
     bool attack_cooldown;
     double cooldown_timer;
+    double cooldown_time;
     vector<Projectile *> bullets = {};
     bool dead = false;
     Player * player;
 
     Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player);
 
-    void Process(Clock * clock, int height);
-    void Move(string d);
+    virtual void Process(Clock * clock, int height);
+    virtual void Move(string d);
     void SetPos(int x, int y);
     void Reset();
-    void Attack();
+    virtual void Attack();
     bool TouchingBullet(SDL_Rect * rect);
 
-    void Render();
+    virtual void Render();
     ~Enemy();
 };
