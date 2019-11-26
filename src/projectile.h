@@ -3,7 +3,7 @@
 #define PI 3.1415926
 
 class Projectile{
-    private:
+    protected:
         SDL_Renderer * renderer;
         int width, height;
         SDL_Color color;
@@ -17,8 +17,8 @@ class Projectile{
 
         Projectile(SDL_Renderer *,int x, int y, int w, int h, float angle, SDL_Color, int speed);
         ~Projectile();
-        void Process(Clock *);
-        void Render();
+        virtual void Process(Clock *);
+        virtual void Render();
         bool IsTouchingRect(SDL_Rect *);
         
 };
