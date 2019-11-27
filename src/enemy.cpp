@@ -131,7 +131,7 @@ void Enemy::Reset(){
     }
 }
 
-void Enemy::Attack(){
+bool Enemy::Attack(){
     /*
     (TODO) Use this logic specifically for the villain 2 subclass when it is utilized.
            villain 1 should only shoot bullets in a downward location towards the player.
@@ -145,8 +145,10 @@ void Enemy::Attack(){
                                     (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
             );
             attack_cooldown = true;
+            return true;
         }
-    } 
+    }
+    return false; 
 }
 
 bool Enemy::TouchingBullet(SDL_Rect * rect){

@@ -172,8 +172,9 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
         if (!enemies[i]->dead){
             if (shoot_timer >= 2){
                 if (i == random_index){
-                    enemies[i]->Attack();      
-                    jukebox->PlaySoundEffect("blast");  
+                    if (enemies[i]->Attack()){
+                        jukebox->PlaySoundEffect("blast");
+                    }       
                 }
             }
         }

@@ -36,7 +36,7 @@ public:
     virtual void Move(string d);
     void SetPos(int x, int y);
     void Reset();
-    virtual void Attack();
+    virtual bool Attack();
     bool TouchingBullet(SDL_Rect * rect);
 
     virtual void Render();
