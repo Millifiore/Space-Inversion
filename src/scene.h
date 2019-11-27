@@ -1,5 +1,6 @@
 #pragma once
 #include "headers.h"
+#include "jukebox.h"
 #include "enemy.h"
 #include "player.h"
 #include "text.h"
@@ -34,8 +35,8 @@ public:
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);
     void CreateHUD(Player * player);
-    void Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, int width, int height);
-    void ManageEnemies(Clock * clock, ControllerManager * controllers, int width, int height);
+    void Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox, int width, int height);
+    void ManageEnemies(Clock * clock, ControllerManager * controllers, Jukebox * jukebox, int width, int height);
     void RenderScene();
 
     ~LevelScene();

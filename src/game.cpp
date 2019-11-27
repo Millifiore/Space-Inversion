@@ -7,7 +7,10 @@ int SpaceInversion::Start(int argc, char** argv){
         // ...
     // Initialize SDL2
     SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER);
+    Mix_Init(MIX_INIT_MOD);
     TTF_Init();
+    
+    atexit(Mix_Quit);
     atexit(TTF_Quit);
     atexit(SDL_Quit);
 
@@ -36,6 +39,7 @@ int SpaceInversion::Start(int argc, char** argv){
     clock = Clock();
 
     // Initialize objects
+    jukebox = new Jukebox();
     mouse = MouseManager();
     keyboard = new KeyboardManager();
     controllers = new ControllerManager();
@@ -112,7 +116,7 @@ void SpaceInversion::Process(){
         }
     }
 
-    scene->Process(&clock, keyboard, controllers, GAME_WIDTH, GAME_HEIGHT);
+    scene->Process(&clock, keyboard, controllers, jukebox, GAME_WIDTH, GAME_HEIGHT);
 
 }
 

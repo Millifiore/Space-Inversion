@@ -23,6 +23,7 @@ private:
     // Private objects
     KeyboardManager * keyboard;
     ControllerManager * controllers;
+    Jukebox * jukebox;
     Clock clock;
     SpriteCache * cache;
     LevelScene * scene;

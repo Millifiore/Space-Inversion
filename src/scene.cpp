@@ -19,7 +19,7 @@ void LevelScene::AddPlayer(Player * p){
     hud->player = p;
 }
 
-void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers,  int width, int height){
+void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox,  int width, int height){
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
 
@@ -35,7 +35,8 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
             int random_y = rand() % (height-5) + 10;
             stars_l2.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
         }
-    
+
+        jukebox->PlayMusic("stage_music");
         running = true;
         starting = false;
     }
@@ -55,6 +56,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
 
         if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
             if (player->Attack()){
+                jukebox->PlaySoundEffect("blast");
                 controllers->SetControllerRumble(0, 20, 0, .3);
             } 
         }
@@ -62,6 +64,9 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
         if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
             for (auto enemy: enemies){
                 enemy->Reset();
+                jukebox->StopMusic();
+                jukebox->StopSoundEffects();
+                jukebox->PlayMusic("stage_music");
             }
         }
 
@@ -77,7 +82,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
 
         // Process player and enemies.
         player->Process(clock);
-        ManageEnemies(clock, controllers, width, height);
+        ManageEnemies(clock, controllers, jukebox, width, height);
 
         // Move the stars.
         for (auto star: stars_l1){
@@ -99,7 +104,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
 
 // This method handles all of the specific interactions between enemies (of different types), and the player, as well
 // as that's important for interactions.
-void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, int width, int height){
+void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, Jukebox * jukebox, int width, int height){
     if (enemy_state == "PHASE_DOWN"){
         countdown += clock->delta_time_s;
     }
@@ -167,7 +172,8 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
         if (!enemies[i]->dead){
             if (shoot_timer >= 2){
                 if (i == random_index){
-                    enemies[i]->Attack();         
+                    enemies[i]->Attack();      
+                    jukebox->PlaySoundEffect("blast");  
                 }
             }
         }
@@ -179,12 +185,13 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
                 if (enemies[i]->state != "DYING"){
                     if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
                         bullet->hit = true;
-                        player->erased.push_back(index);
+                        player->erased.push_back(index); 
                     }
+                    jukebox->PlaySoundEffect("dying");
                 } 
                 index++;  
             }
-            enemies[i]->state = "DYING";  
+            enemies[i]->state = "DYING";   
         }
 
         // check if the player collided with any of the enemy bullets.
@@ -220,9 +227,11 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, i
                 //TODO: Replace this with player->Hurt() in the future.
                 player->lives -= 1;
                 controllers->SetControllerRumble(0, 0, 30, .3);
+                jukebox->PlaySoundEffect("dying");
             }
             enemies[i]->state = "DYING";
         }
+
         //reset enemies to the top if they go off screen
         if(enemies[i]-> y_pos >= 600){
             enemies[i]->SetPos(enemies[i]->x_pos,0);
