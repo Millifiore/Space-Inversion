@@ -42,3 +42,17 @@ public:
     virtual void Render();
     ~Enemy();
 };
+
+class Villian1: public Enemy{
+    public:
+        bool Attack();
+        Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player);
+
+};
+
+
+class Villian2: public Enemy{
+    public:
+        bool Attack();
+        Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player);
+};

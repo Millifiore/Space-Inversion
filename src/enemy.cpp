@@ -19,16 +19,9 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
     d_rect.w = w;
     d_rect.h = h;
 
-    SDL_Rect s_rect;
-    if (type == "villain1"){
-        s_rect = {30, 24, 40, 40};
-    }
-    else if (type == "villain2"){
-        s_rect = {20, 20, 50, 50};
-    }
-    sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, src);
-    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
-    state = "DEFAULT";
+    sprites["DEFAULT"] = nullptr;
+    sprites["DYING"] = nullptr;
+    state = "";
     default_speed = 8;
     speed = default_speed;
     projectile_speed = 4;
@@ -136,7 +129,7 @@ bool Enemy::Attack(){
     (TODO) Use this logic specifically for the villain 2 subclass when it is utilized.
            villain 1 should only shoot bullets in a downward location towards the player.
     */
-    float angle_to_player = (-atan2((player->y_pos-y_pos),(player->x_pos-x_pos))) * (180 /PI);
+    float angle_to_player = 270;
 
     if (state == "DEFAULT"){
         if ((!bullets.size()) && !attack_cooldown){
@@ -194,4 +187,66 @@ Enemy::~Enemy(){
         delete bullets[i];
         bullets.erase(bullets.begin() + i);
     }
+}
+
+Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player): Enemy(cache,x,y,w,h,src,t,player){
+    SDL_Rect s_rect;
+    s_rect = {30, 24, 40, 40};
+    
+    sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, "resources/villain1.bmp");
+    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
+    state = "DEFAULT";
+    default_speed = 8;
+    speed = default_speed;
+    projectile_speed = 4;
+    cooldown_time = .3;
+
+}
+
+bool Villian1::Attack(){
+
+    float angle_to_player = 270;
+
+    if (state == "DEFAULT"){
+        if ((!bullets.size()) && !attack_cooldown){
+            bullets.push_back(
+                new Projectile(renderer, x_pos,
+                                    (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
+            );
+            attack_cooldown = true;
+            return true;
+        }
+    }
+    return false; 
+}
+
+Villian2::Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player): Enemy(cache,x,y,w,h,src,t,player){
+    SDL_Rect s_rect;
+    s_rect = {0, 0, 43, 30};
+    
+    sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, "resources/villain2.bmp");
+    sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
+    state = "DEFAULT";
+    default_speed = 8;
+    speed = default_speed;
+    projectile_speed = 4;
+    cooldown_time = .3;
+
+}
+
+bool Villian2::Attack(){
+
+    float angle_to_player = (-atan2((player->y_pos-y_pos),(player->x_pos-x_pos))) * (180 /PI);
+
+    if (state == "DEFAULT"){
+        if ((!bullets.size()) && !attack_cooldown){
+            bullets.push_back(
+                new Projectile(renderer, x_pos,
+                                    (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
+            );
+            attack_cooldown = true;
+            return true;
+        }
+    }
+    return false; 
 }
