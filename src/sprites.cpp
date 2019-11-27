@@ -93,7 +93,8 @@ void AnimatedSprite::Animate(Clock * clock){
 
         if (current_frame > number_of_frames) {
             finished = true;
-            s_rect.x += (-1 * ((number_of_frames - 1) * frame_offset));
+            s_rect.x = starting_s_x;
+            s_rect.y = starting_s_y;
             current_frame = 1;
             time_passed = 0;
         }

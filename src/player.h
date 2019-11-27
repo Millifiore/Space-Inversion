@@ -21,8 +21,10 @@ public:
     int lives = 3;
     int bullet_speed = 4;
     int speed = 18;
-    bool attack_cooldown;
-    double cooldown_timer;
+    bool attack_cooldown = 0;
+    double respawn_timer = 0;
+    double cooldown_timer = 0;
+    double respawning_time = 2;
     bool attacking = false;
     vector<Projectile *> bullets = {};
     Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip = SDL_FLIP_NONE);
@@ -30,6 +32,7 @@ public:
     void Process(Clock * clock);
     void Move(string d);
     bool Attack();
+    void Hurt();
     bool TouchingBullet(SDL_Rect * rect);
     bool TouchingEnemy(SDL_Rect * rect);
 

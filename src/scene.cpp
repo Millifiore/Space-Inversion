@@ -133,50 +133,91 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
     for (int i = 0; i < enemies.size(); i++){
         
         // Process the enemy as soon as it comes up.
-        if(!enemies[i]->dead){
+        if (player->state != "DYING" && player->state != "RESPAWNING"){
+
+            // select a random ship to shoot at the player.
+            if (!enemies[i]->dead){
+                if (shoot_timer >= 2){
+                    if (i == random_index){
+                        if (enemies[i]->Attack()){
+                            jukebox->PlaySoundEffect("blast");
+                        }       
+                    }
+                }
+            }
+
+            if(!enemies[i]->dead){
             double speed_multiplier = double(enemies_dead)/double((enemies.size()-1))*12;
             enemies[i]->speed = int(speed_multiplier) + enemies[i]->default_speed;
-        }
+            }
 
-        if (!enemies[i]->dead){
-            if (enemy_state == "PHASE_LEFT"){
-                enemies[i]->Move("left");
-                if (enemies[i]->d_rect.x <= 0){
-                    last_state = enemy_state;
-                    enemy_state = "PHASE_DOWN";
-                } 
-            }
-            else if (enemy_state == "PHASE_RIGHT"){
-                enemies[i]->Move("right");
-                if (enemies[i]->d_rect.x >= width - enemies[i]->d_rect.w){
-                    last_state = enemy_state;
-                    enemy_state = "PHASE_DOWN";
+            if (!enemies[i]->dead){
+                if (enemy_state == "PHASE_LEFT"){
+                    enemies[i]->Move("left");
+                    if (enemies[i]->d_rect.x <= 0){
+                        last_state = enemy_state;
+                        enemy_state = "PHASE_DOWN";
+                    } 
                 }
-            }
-            if (enemy_state == "PHASE_DOWN"){
-                enemies[i]->Move("down");
-                if (countdown >= .2){
-                    if (last_state == "PHASE_LEFT"){
-                        enemy_state = "PHASE_RIGHT";
-                        countdown = 0.0;
-                    }
-                    else{
-                        enemy_state = "PHASE_LEFT";
-                        countdown = 0.0;
+                else if (enemy_state == "PHASE_RIGHT"){
+                    enemies[i]->Move("right");
+                    if (enemies[i]->d_rect.x >= width - enemies[i]->d_rect.w){
+                        last_state = enemy_state;
+                        enemy_state = "PHASE_DOWN";
                     }
                 }
-            }     
-        }
+                if (enemy_state == "PHASE_DOWN"){
+                    enemies[i]->Move("down");
+                    if (countdown >= .2){
+                        if (last_state == "PHASE_LEFT"){
+                            enemy_state = "PHASE_RIGHT";
+                            countdown = 0.0;
+                        }
+                        else{
+                            enemy_state = "PHASE_LEFT";
+                            countdown = 0.0;
+                        }
+                    }
+                }     
+            }
+            //check if the player collided with any of the enemies
+            if (player->TouchingEnemy(&enemies[i]->d_rect)){
+                if (enemies[i]->state != "DYING"){
+                    player->Hurt();
+                    controllers->SetControllerRumble(0, 0, 30, .3);
+                    jukebox->PlaySoundEffect("dying");
+                }
+                enemies[i]->state = "DYING";
+            }
 
-        // select a random ship to shoot at the player.
-        if (!enemies[i]->dead){
-            if (shoot_timer >= 2){
-                if (i == random_index){
-                    if (enemies[i]->Attack()){
-                        jukebox->PlaySoundEffect("blast");
-                    }       
+            // check if the player collided with any of the enemy bullets.
+            int bullet_index = 0;
+            if (enemies[i]->TouchingBullet(&player->d_rect)){
+                for (auto bullet: enemies[i]->bullets){
+                    if (bullet->IsTouchingRect(&player->d_rect)){
+                        /*
+                            TODO: only use this logic for basic pawn bullets. 
+                            differentiate when "projectile" class is created and used
+                            instead.
+                        */
+                        if (!bullet->hit){
+                            player->Hurt();
+                            controllers->SetControllerRumble(0, 0, 30, .3);
+                            jukebox->PlaySoundEffect("dying");
+                            
+                            if (*flip == SDL_FLIP_NONE){
+                                *flip = SDL_FLIP_VERTICAL;
+                            } else {
+                                *flip = SDL_FLIP_NONE;
+                            }
+                        }
+                        bullet->hit = true;
+                        enemies[i]->erased.push_back(bullet_index);
+                    }
+                    bullet_index++;
                 }
             }
+
         }
 
         // check if the enemy collided with any of the players bullets.
@@ -195,46 +236,8 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             enemies[i]->state = "DYING";   
         }
 
-        // check if the player collided with any of the enemy bullets.
-        int bullet_index = 0;
-        if (enemies[i]->TouchingBullet(&player->d_rect)){
-            for (auto bullet: enemies[i]->bullets){
-                if (bullet->IsTouchingRect(&player->d_rect)){
-                    /*
-                        TODO: only use this logic for basic pawn bullets. 
-                        differentiate when "projectile" class is created and used
-                        instead.
-                    */
-                    if (!bullet->hit){
-                        player->lives -= 1;
-                        controllers->SetControllerRumble(0, 0, 30, .3);
-                        
-                        if(*flip == SDL_FLIP_NONE){
-                            *flip = SDL_FLIP_VERTICAL;
-                        } else {
-                            *flip = SDL_FLIP_NONE;
-                        }
-                    }
-                    bullet->hit = true;
-                    enemies[i]->erased.push_back(bullet_index);
-                }
-                bullet_index++;
-            }
-        }
-
-        //check if the player collided with any of the enemies
-        if (player->TouchingEnemy(&enemies[i]->d_rect)){
-            if (enemies[i]->state != "DYING"){
-                //TODO: Replace this with player->Hurt() in the future.
-                player->lives -= 1;
-                controllers->SetControllerRumble(0, 0, 30, .3);
-                jukebox->PlaySoundEffect("dying");
-            }
-            enemies[i]->state = "DYING";
-        }
-
         //reset enemies to the top if they go off screen
-        if(enemies[i]-> y_pos >= 600){
+        if (enemies[i]-> y_pos >= 600){
             enemies[i]->SetPos(enemies[i]->x_pos,0);
         }
         enemies[i]->Process(clock, height);
