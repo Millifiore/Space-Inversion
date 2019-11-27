@@ -131,10 +131,12 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
     hud->SetScore(enemies_dead * 200);
 
     for (int i = 0; i < enemies.size(); i++){
-        
-        // Process the enemy as soon as it comes up.
-        if ((player->state != "DYING") || (player->state != "RESPAWNING")) {
 
+        //"player is dying" is used to check if the player is dying, so that events respond accordingly.
+        bool player_is_dying = (player->state == "DYING") || (player->state == "RESPAWNING");
+
+        // Process the enemy as soon as it comes up.
+        if (!player_is_dying) {
             // select a random ship to shoot at the player.
             if (!enemies[i]->dead){
                 if (shoot_timer >= 2){
@@ -219,8 +221,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             }
 
         }
-        
-        if ((player->state == "DYING") || (player->state == "RESPAWNING")) {
+        else {
             enemies[i]->Move("none");
         }
 
