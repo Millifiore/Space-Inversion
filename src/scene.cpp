@@ -133,7 +133,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
     for (int i = 0; i < enemies.size(); i++){
         
         // Process the enemy as soon as it comes up.
-        if (player->state != "DYING" && player->state != "RESPAWNING"){
+        if ((player->state != "DYING") || (player->state != "RESPAWNING")) {
 
             // select a random ship to shoot at the player.
             if (!enemies[i]->dead){
@@ -146,7 +146,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                 }
             }
 
-            if(!enemies[i]->dead){
+            if (!enemies[i]->dead){
             double speed_multiplier = double(enemies_dead)/double((enemies.size()-1))*12;
             enemies[i]->speed = int(speed_multiplier) + enemies[i]->default_speed;
             }
@@ -204,7 +204,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                             player->Hurt();
                             controllers->SetControllerRumble(0, 0, 30, .3);
                             jukebox->PlaySoundEffect("dying");
-                            
+
                             if (*flip == SDL_FLIP_NONE){
                                 *flip = SDL_FLIP_VERTICAL;
                             } else {
@@ -218,6 +218,10 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                 }
             }
 
+        }
+        
+        if ((player->state == "DYING") || (player->state == "RESPAWNING")) {
+            enemies[i]->Move("none");
         }
 
         // check if the enemy collided with any of the players bullets.

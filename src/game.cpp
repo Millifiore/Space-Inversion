@@ -7,9 +7,9 @@ int SpaceInversion::Start(int argc, char** argv){
         // ...
     // Initialize SDL2
     SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER);
-    Mix_Init(MIX_INIT_MOD);
+    Mix_Init(MIX_INIT_MOD|MIX_INIT_MP3);
     TTF_Init();
-    
+
     atexit(Mix_Quit);
     atexit(TTF_Quit);
     atexit(SDL_Quit);
