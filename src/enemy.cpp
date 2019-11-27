@@ -95,6 +95,10 @@ void Enemy::Process(Clock * clock, int height){
     erased.clear();
 }
 
+bool Enemy::canShoot(){
+    return y_pos < player->y_pos;
+}
+
 void Enemy::Move(string d){
     if (d == "none")
         moving = false;
@@ -208,7 +212,7 @@ bool Villian1::Attack(){
     float angle_to_player = 270;
 
     if (state == "DEFAULT"){
-        if ((!bullets.size()) && !attack_cooldown){
+        if ((!bullets.size()) && !attack_cooldown && canShoot()){
             bullets.push_back(
                 new Projectile(renderer, x_pos,
                                     (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
