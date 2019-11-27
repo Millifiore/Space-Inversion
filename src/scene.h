@@ -18,6 +18,7 @@ private:
     Player * player = nullptr;
     double countdown;
     double shoot_timer;
+    double shot_interval;
     string direction = "left";
     string enemy_state = "PHASE_LEFT";
     string last_state;
@@ -40,4 +41,8 @@ public:
     void RenderScene();
 
     ~LevelScene();
+};
+
+class MenuScene {
+    
 };

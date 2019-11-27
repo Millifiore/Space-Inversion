@@ -7,6 +7,7 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     running = false;
     finished = false;
     renderer = r;
+    shot_interval = .7;
     this->flip = flip;
 }
 
@@ -139,7 +140,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
         if (!player_is_dying) {
             // select a random ship to shoot at the player.
             if (!enemies[i]->dead){
-                if (shoot_timer >= 2){
+                if (shoot_timer >= shot_interval){
                     if (i == random_index){
                         if (enemies[i]->Attack()){
                             jukebox->PlaySoundEffect("blast");
@@ -247,7 +248,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
         enemies[i]->Process(clock, height);
     }
 
-    if (shoot_timer >= 2){shoot_timer = 0.0;}
+    if (shoot_timer >= shot_interval){shoot_timer = 0.0;}
 
     // finally, destroy the enemy ship if it is dead.
     // for ( auto enemy = enemies.begin(); enemy != enemies.end(); ) {
