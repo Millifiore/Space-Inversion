@@ -9,7 +9,7 @@ class Jukebox {
         int music_volume = 100;
         bool music_paused = false;
         bool effects_paused = false;
-        int sound_effect_volume = 100;
+        int sound_effect_volume = 40;
 
         Jukebox();
         ~Jukebox();

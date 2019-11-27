@@ -4,11 +4,12 @@ Jukebox::Jukebox(){
 
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048);
 
-    music["title"] = LoadMusic("title_theme.mp3");
+    music["title"] = LoadMusic("title_theme.wav");
     music["stage_music"] = LoadMusic("stage_music.wav");
 
     sound_effects["blast"] = LoadSoundEffect("blast_effect.wav");
     sound_effects["dying"] = LoadSoundEffect("explosion_effect.wav");
+    sound_effects["dying_p"] = LoadSoundEffect("player_explosion.wav");
 }
 
 Jukebox::~Jukebox(){
@@ -36,7 +37,7 @@ Mix_Chunk * Jukebox::LoadSoundEffect(string effect, string filepath){
 }
 
 bool Jukebox::PlayMusic(string music, int loop){
-    Mix_VolumeMusic((music_volume/100)*MIX_MAX_VOLUME);
+    Mix_VolumeMusic(double(music_volume/100.0)*MIX_MAX_VOLUME);
     if (!Mix_PlayingMusic()){
         if (Mix_PlayMusic(this->music[music], loop) != -1){
             return true;
@@ -46,7 +47,7 @@ bool Jukebox::PlayMusic(string music, int loop){
 }
 
 bool Jukebox::PlaySoundEffect(string effect, int loop){
-    if (Mix_VolumeChunk(sound_effects[effect], (sound_effect_volume/100)*MIX_MAX_VOLUME)){
+    if (Mix_VolumeChunk(sound_effects[effect],  double(sound_effect_volume/100.0) * MIX_MAX_VOLUME)){
         Mix_PlayChannel(-1, sound_effects[effect], loop);
         return true;
     }

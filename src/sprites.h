@@ -15,26 +15,28 @@ public:
 
 
 class Sprite {
-public:
-    SDL_Texture * texture;
-    SDL_Rect d_rect;
-    SDL_Rect s_rect;
-    SDL_Renderer * renderer;
-    SDL_RendererFlip flip;
-    int x; 
-    int y;
-    bool source_rectange = true;
-    int starting_s_x;
-    int starting_s_y;
+    protected:
+        SDL_Texture * texture;
+        SDL_Rect s_rect;
 
-    bool finished = false;
-    Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f = SDL_FLIP_NONE);
-    void SetPos(int xpos, int ypos);
-    void SetDestinationR(SDL_Rect * r);
-    virtual void Animate(Clock * clock);
-    virtual void Reset();
-    void Render();
-    ~Sprite();
+    public:
+        SDL_Rect d_rect;
+        SDL_Renderer * renderer;
+        SDL_RendererFlip flip;
+        int x; 
+        int y;
+        bool source_rectange = true;
+        int starting_s_x;
+        int starting_s_y;
+
+        bool finished = false;
+        Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f = SDL_FLIP_NONE);
+        void SetPos(int xpos, int ypos);
+        void SetDestinationR(SDL_Rect * r);
+        virtual void Animate(Clock * clock);
+        virtual void Reset();
+        void Render();
+        ~Sprite();
 };
 
 

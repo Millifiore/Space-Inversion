@@ -79,7 +79,6 @@ void Player::Process(Clock * clock){
 
     // Animate the current sprite if it has an animation 
     sprites[state]->Animate(clock);
-
     
     erased.clear();
 }
