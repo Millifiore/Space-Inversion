@@ -11,6 +11,7 @@ private:
     bool moving;
     string direction;
     SDL_Renderer * renderer;
+    SpriteCache * cache;
     bool shield;
 
 public:

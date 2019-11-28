@@ -231,8 +231,10 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             for (auto bullet: player->bullets){
                 if (enemies[i]->state != "DYING"){
                     if (bullet->IsTouchingRect(&enemies[i]->d_rect)){
-                        bullet->hit = true;
-                        player->erased.push_back(index); 
+                        if (!bullet->hit) {
+                            bullet->hit = true;
+                            player->erased.push_back(index); 
+                        }
                     }
                     jukebox->PlaySoundEffect("dying");
                 } 

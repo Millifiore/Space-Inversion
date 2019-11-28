@@ -50,7 +50,7 @@ private:
 
 public:
    
-    AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, int f_o, int n_o_f, double ut, SDL_RendererFlip f = SDL_FLIP_NONE);
+    AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, int frame_offset, int number_of_frames, double uodate_time, SDL_RendererFlip f = SDL_FLIP_NONE);
     void Animate(Clock * clock);
     void Reset();
     ~AnimatedSprite();

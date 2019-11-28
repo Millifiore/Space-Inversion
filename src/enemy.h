@@ -12,6 +12,7 @@ protected:
     string direction;
     int starting_xpos, starting_ypos;
     SDL_Renderer * renderer;
+    SpriteCache * cache; 
 
 public:
     vector<int> erased;

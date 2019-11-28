@@ -3,6 +3,7 @@
 
 Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip){
     renderer = cache->renderer;
+    this->cache = cache;
     x_pos = x;
     y_pos = y;
     width = w;
@@ -14,7 +15,7 @@ Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_
     d_rect.h = h;
 
     moving = false;
-    
+
     sprites["DEFAULT"] = new Sprite(cache, {30, 24, 37, 37}, d_rect, src);
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     sprites["RESPAWNING"] = new AnimatedSprite(cache, {30, 24, 37, 37}, d_rect, src, -37, 2, .03);
@@ -99,8 +100,8 @@ bool Player::Attack(){
     if (state == "DEFAULT"){
         if ((bullets.size() < 3) && !attack_cooldown){
             bullets.push_back(
-                new Projectile(renderer, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) - 10, 10, 10, 90, {0, 255, 0, 255}, 5)
+                new Laser(cache, x_pos,
+                                    (d_rect.y + (d_rect.w/2)) - 10, 15, 20, 90, {0, 255, 0, 255}, bullet_speed)
             );
             attack_cooldown = true;
             return true;
