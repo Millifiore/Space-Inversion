@@ -17,7 +17,7 @@ class MouseManager{
         void Process();
         bool IsClicking(SDL_Rect * rect);
         bool HasClicked(SDL_Rect * rect);
-
+        bool IsTouching(SDL_Rect * rect);
         void ResetState();
 
         void Render(SDL_Renderer * renderer);

@@ -194,7 +194,8 @@ Enemy::~Enemy(){
     }
 }
 
-Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player): Enemy(cache,x,y,w,h,src,t,player){
+Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player)
+: Enemy(cache, x, y, w, h, src, t, player) {
     SDL_Rect s_rect;
     s_rect = {30, 24, 40, 40};
     

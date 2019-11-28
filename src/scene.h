@@ -8,6 +8,7 @@
 #include "controller.h"
 #include "hud.h"
 #include "bullets.h"
+#include "buttons.h"
 
 class LevelScene {
 private:
@@ -44,5 +45,20 @@ public:
 };
 
 class MenuScene {
-    
+    private:
+        SpriteCache * cache;
+        Framebuffer * framebuffer;
+        AnimatedSprite * title;
+        map<string, Button *> buttons;
+        vector<Bullet *> stars;
+        SDL_Renderer * renderer;
+
+    public:
+        bool starting;
+        bool running;
+        bool finished;
+        MenuScene(SpriteCache *, Framebuffer * framebuffer);
+        ~MenuScene();
+        void Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, LevelScene * scene);
+        void RenderScene();
 };

@@ -302,3 +302,84 @@ LevelScene::~LevelScene(){
         delete enemies[i];
     }
 }
+
+
+MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer){
+    this->framebuffer = framebuffer;
+    this->cache = cache;
+    for (int i=0; i < 40; i++){
+            int random_x = rand() %  (1280 - 5)+ 10;
+            int random_y = rand() % (720 - 5) + 10;
+            stars.push_back(new Bullet(cache->renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
+        }
+    starting = true;
+    running = false;
+    finished = false;
+    renderer = cache->renderer;
+
+    title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .18);
+    buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .095);
+}
+
+MenuScene::~MenuScene(){
+    for (int i=0; i < stars.size(); i++){
+        delete stars[i];
+    }
+
+    for (auto const &button : buttons){
+            delete button.second;
+    }
+    buttons.clear();
+
+    delete title;
+}
+
+void MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, LevelScene * scene){
+    if (starting){
+        jukebox->PlayMusic("title");
+        running = true;
+        finished = false;
+    }
+    if (running){
+        if (buttons["start"]->MouseClicking(mouse)){
+            *state = "GAME";
+            jukebox->StopMusic();
+        }
+
+        title->Animate(clock);
+        for (auto const &button : buttons){
+            button.second->Process(clock);
+        }
+
+        // Move the stars.
+        for (auto star: stars){
+            star->y_pos += (3 * 100) * clock->delta_time_s;
+            if (star->y_pos >= 720){
+                star->y_pos = star->y_pos - 720;
+            }
+        }
+    }
+}
+
+void MenuScene::RenderScene(){
+    //Rendering
+    framebuffer->SetActiveBuffer("MENU");
+    SDL_SetRenderDrawColor(renderer, 9, 21, 61, 255);
+    SDL_RenderClear(renderer);
+
+    for (auto star: stars){
+        star->Render();
+    }
+    
+    for (auto const &button : buttons){
+            button.second->Render();
+    }
+
+    title->Render();
+
+    framebuffer->UnsetBuffers();
+}
+
+
+
+

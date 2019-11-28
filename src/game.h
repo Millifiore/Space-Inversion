@@ -18,6 +18,7 @@ private:
     int GAME_WIDTH = 800, GAME_HEIGHT = 600;
     Uint32 WINDOW_FLAGS = SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI;
     Uint32 RENDERER_FLAGS = 0;
+    string state = "MENU";
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
     // Private objects
@@ -26,9 +27,10 @@ private:
     Jukebox * jukebox;
     Clock clock;
     SpriteCache * cache;
-    LevelScene * scene;
+    MenuScene * menu;
+    LevelScene * game_scene;
     Player * p1;
-    MouseManager mouse;
+    MouseManager * mouse;
     Framebuffer * framebuffer;
     TextCache * text;
 

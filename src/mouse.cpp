@@ -26,11 +26,15 @@ void MouseManager::Process(){
 }
 
 bool MouseManager::IsClicking(SDL_Rect * rect){
-    return SDL_HasIntersection(&mouse_rect, rect) && clicking;
+    return IsTouching(rect) && clicking;
 }
 
 bool MouseManager::HasClicked(SDL_Rect * rect){
-    return SDL_HasIntersection(&mouse_rect, rect) && has_clicked;
+    return IsTouching(rect) && has_clicked;
+}
+
+bool MouseManager::IsTouching(SDL_Rect * rect){
+    return SDL_HasIntersection(&mouse_rect, rect);
 }
 
 void MouseManager::Render(SDL_Renderer * renderer){

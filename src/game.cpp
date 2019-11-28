@@ -40,7 +40,7 @@ int SpaceInversion::Start(int argc, char** argv){
 
     // Initialize objects
     jukebox = new Jukebox();
-    mouse = MouseManager();
+    mouse = new MouseManager();
     keyboard = new KeyboardManager();
     controllers = new ControllerManager();
     framebuffer = new Framebuffer(window, renderer);
@@ -49,9 +49,13 @@ int SpaceInversion::Start(int argc, char** argv){
     p1 = new Player(cache, 640, 600, 50, 50, "resources/player.bmp");
 
     text->SetFont("joystix.ttf");
-    scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level.mx", &flip);
+
+    menu = new MenuScene(cache, framebuffer);
+    game_scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level.mx", &flip);
+    framebuffer->CreateBuffer("MENU", WIDTH, HEIGHT);
     framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
-    framebuffer->CreateBuffer("HUD",GAME_WIDTH,HEIGHT);
+    framebuffer->CreateBuffer("HUD", GAME_WIDTH, HEIGHT);
+    
     // Start running the app
     running = true;
 
@@ -83,7 +87,7 @@ void SpaceInversion::Process(){
 
     // Keyboard and Mouse
     keyboard->Process();
-    mouse.Process();
+    mouse->Process();
 
     if (keyboard->KeyIsPressed(SDL_SCANCODE_ESCAPE)){
         running = false;
@@ -115,31 +119,47 @@ void SpaceInversion::Process(){
             flip = SDL_FLIP_NONE;
         }
     }
+    if (state == "MENU"){
+        menu->Process(&clock, mouse, jukebox, &state, game_scene);
+    }
+    if (state == "GAME") {
+        game_scene->Process(&clock, keyboard, controllers, jukebox, GAME_WIDTH, GAME_HEIGHT);
 
-    scene->Process(&clock, keyboard, controllers, jukebox, GAME_WIDTH, GAME_HEIGHT);
-
+    }
+    
 }
 
 void SpaceInversion::Render(){
-
-    scene->RenderScene();
+    if (state == "MENU"){
+        menu->RenderScene();
+    }
+    if (state == "GAME"){
+        game_scene->RenderScene();
+    }
+    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-
-    framebuffer->RenderBuffer("HUD",WIDTH/2, HEIGHT/2, GAME_WIDTH, HEIGHT);
-    framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
+    if (state == "MENU"){
+        framebuffer->RenderBuffer("MENU", WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
+    }
+    if (state == "GAME"){
+        framebuffer->RenderBuffer("HUD",WIDTH/2, HEIGHT/2, GAME_WIDTH, HEIGHT);
+        framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
+    }
 
     SDL_RenderPresent(renderer);
 }
 
 SpaceInversion::~SpaceInversion(){
-    delete scene;
+    delete game_scene;
+    delete menu;
     delete p1;
     delete cache;
     delete text;
     delete framebuffer;
     delete controllers;
+    delete mouse;
     delete keyboard;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
