@@ -203,7 +203,7 @@ Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, 
     state = "DEFAULT";
     default_speed = 8;
     speed = default_speed;
-    projectile_speed = 1;
+    projectile_speed = 3;
     cooldown_time = .3;
 
 }
@@ -227,7 +227,7 @@ bool Villian1::Attack(){
 
 Villian2::Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, string t, Player * player): Enemy(cache,x,y,w,h,src,t,player){
     SDL_Rect s_rect;
-    s_rect = {15, 14, 21, 21};
+    s_rect = {0, 0, 43, 30};
     
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, "resources/villain2.bmp");
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);

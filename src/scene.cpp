@@ -7,7 +7,7 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     running = false;
     finished = false;
     renderer = r;
-    shot_interval = .7;
+    shot_interval = 1;
     this->flip = flip;
 }
 

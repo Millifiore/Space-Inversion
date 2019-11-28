@@ -27,10 +27,10 @@ void Player::Process(Clock * clock){
     // if the player is moving, move either left or right.
     if (moving){
         if (direction == "left"){
-            x_pos -= ((speed * 10) * clock->delta_time_s);
+            x_pos -= ((speed * 11) * clock->delta_time_s);
         }
         if (direction == "right"){
-            x_pos += ((speed * 10) * clock->delta_time_s);
+            x_pos += ((speed * 11) * clock->delta_time_s);
         }
     }
 
