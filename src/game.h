@@ -5,7 +5,7 @@
 #include "scene.h"
 
 
-class SpaceInversion{
+class SpaceInversion {
 private:
 
     // Private SDL variables

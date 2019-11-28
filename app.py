@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # app.py - by Isa Bolling
 import flask, os
  
