@@ -34,7 +34,7 @@ void Enemy::Process(Clock * clock, int height){
     // Animate the current sprite if it has an animation 
     sprites[state]->Animate(clock);
 
-    // If dying animation finished, the sprite is dead.
+    // If dying animation finished, the enemy is dead.
     if (state == "DYING"){
         if (sprites[state]->finished){
             dead = true;
