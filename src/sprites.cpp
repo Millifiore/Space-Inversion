@@ -111,5 +111,3 @@ void AnimatedSprite::Reset(){
     finished = false;
     current_frame = 1;
 }
-
-AnimatedSprite::~AnimatedSprite(){}

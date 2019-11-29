@@ -18,7 +18,7 @@ Projectile::Projectile(SpriteCache * cache,int x, int y, int w, int h, float a, 
     hitbox.h = height;
     hitbox.w = width;
     
-    sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 25, 25},hitbox,"resources/blast.bmp",0,1,.1);
+    sprites["DEFAULT"] = new Sprite(cache, {0, 0, 25, 25}, hitbox,"resources/blast.bmp");
 }
 
 void Projectile::Process(Clock * clock){
@@ -47,20 +47,30 @@ bool Projectile::IsTouchingRect(SDL_Rect* rect){
     return false;
 }
 
-Projectile::~Projectile(){}
+Projectile::~Projectile(){
+    for (auto const sprite: sprites){
+        delete sprite.second;
+    }
+    sprites.clear();
+}
 
 Missile::Missile(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
-    : Projectile(cache,x,y,w,h,angle,color,speed){
+    : Projectile(cache, x, y, w, h, angle, color, speed){
 
-    sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 20, 20},hitbox,"resources/Missle.bmp",20,3,.1);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 20, 20}, hitbox, "resources/missle.bmp", 20, 3, .1);
 }
 
 Blaster::Blaster(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
-    : Projectile(cache,x,y,w,h,angle,color,speed){
-        sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 6, 6},hitbox,"resources/blaster.bmp",6,2,.06,SDL_FLIP_VERTICAL);
+    : Projectile(cache, x, y, w, h, angle, color, speed){
+        sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 6, 6}, hitbox, "resources/blaster.bmp", 6, 2, .06, SDL_FLIP_VERTICAL);
 }
 
 Laser::Laser(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
-    : Projectile(cache,x,y,w,h,angle,color,speed){
-    sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 6, 6},hitbox,"resources/laser.bmp",6,2,.06);
+    : Projectile(cache, x, y, w, h, angle, color, speed){
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox, "resources/laser.bmp", 6, 2, .06);
+}
+
+Laser2::Laser2(SpriteCache * cache, int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
+    : Projectile(cache, x, y, w, h, angle, color, speed){
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06);
 }

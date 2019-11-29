@@ -19,7 +19,7 @@ class Projectile{
         map<string, Sprite *> sprites;
 
         Projectile(SpriteCache *,int x, int y, int w, int h, float angle, SDL_Color, int speed);
-        ~Projectile();
+        virtual ~Projectile();
         virtual void Process(Clock *);
         virtual void Render();
         bool IsTouchingRect(SDL_Rect *);
@@ -28,21 +28,20 @@ class Projectile{
 
 class Missile : public Projectile{
     public:
-        Missile(SpriteCache *,int x, int y, int w, int h, float angle, SDL_Color, int speed);
-
-        ~Missile();
+        Missile(SpriteCache *, int x, int y, int w, int h, float angle, SDL_Color, int speed);
 };
 
 class Blaster : public Projectile{
     public:
-        Blaster(SpriteCache *,int x, int y, int w, int h, float angle, SDL_Color, int speed);
-        
-        ~Blaster();
+        Blaster(SpriteCache *, int x, int y, int w, int h, float angle, SDL_Color, int speed);
 };
 
 class Laser : public Projectile{
     public:
-        Laser(SpriteCache *,int x, int y, int w, int h, float angle, SDL_Color, int speed);
+        Laser(SpriteCache *, int x, int y, int w, int h, float angle, SDL_Color, int speed);
+};
 
-        ~Laser();
+class Laser2 : public Projectile {
+    public:
+        Laser2(SpriteCache *, int x, int y, int w, int h, float angle, SDL_Color, int speed);
 };
