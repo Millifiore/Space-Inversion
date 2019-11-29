@@ -18,7 +18,7 @@ Projectile::Projectile(SpriteCache * cache,int x, int y, int w, int h, float a, 
     hitbox.h = height;
     hitbox.w = width;
     
-    sprites["DEFAULT"] = new Sprite(cache, {0, 0, 25, 25}, hitbox,"resources/blast.bmp");
+    sprites["DEFAULT"] = new Sprite(cache, {0, 0, 25, 25}, hitbox, "resources/blast.bmp");
 }
 
 void Projectile::Process(Clock * clock){

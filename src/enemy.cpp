@@ -67,7 +67,6 @@ void Enemy::Process(Clock * clock, int height){
     // move bullets in the list/vector down screen.
     int i = 0;
     for (auto bullet: bullets){
-        
         bullet->Process(clock);
         if (bullet->y_pos >= height){
             if (find(erased.begin(), erased.end(), i) == erased.end()){
@@ -97,7 +96,7 @@ void Enemy::Process(Clock * clock, int height){
 }
 
 bool Enemy::canShoot(){
-    return y_pos < player->y_pos;
+    return y_pos < player->y_pos - 10;
 }
 
 void Enemy::Move(string d){
@@ -130,14 +129,10 @@ void Enemy::Reset(){
 }
 
 bool Enemy::Attack(){
-    /*
-    (TODO) Use this logic specifically for the villain 2 subclass when it is utilized.
-           villain 1 should only shoot bullets in a downward location towards the player.
-    */
     float angle_to_player = 270;
 
     if (state == "DEFAULT"){
-        if ((!bullets.size()) && !attack_cooldown){
+        if ((bullets.size() < max_projectiles) && !attack_cooldown){
             bullets.push_back(
                 new Projectile(cache, x_pos,
                                     (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
@@ -206,6 +201,7 @@ Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, 
     speed = default_speed;
     projectile_speed = 3;
     cooldown_time = .3;
+    max_projectiles = 2;
 
 }
 
@@ -214,7 +210,7 @@ bool Villian1::Attack(){
     float angle_to_player = 270;
 
     if (state == "DEFAULT"){
-        if ((!bullets.size()) && !attack_cooldown && canShoot()){
+        if ((bullets.size() < max_projectiles) && !attack_cooldown && canShoot()){
             bullets.push_back(
                 new Blaster(cache, x_pos,
                                     (y_pos + (d_rect.w/2)) - 20, 20, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)
@@ -242,10 +238,10 @@ Villian2::Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, 
 
 bool Villian2::Attack(){
 
-    float angle_to_player = (-atan2((player->y_pos-y_pos),(player->x_pos-x_pos))) * (180 /PI);
+    float angle_to_player = (-atan2((player->y_pos-y_pos), (player->x_pos-x_pos))) * (180 /PI);
 
     if (state == "DEFAULT"){
-        if ((!bullets.size()) && !attack_cooldown){
+        if ((bullets.size() < max_projectiles) && !attack_cooldown){
             bullets.push_back(
                 new Laser2(cache, x_pos,
                                 (y_pos + (d_rect.w/2)) - 10, 15, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)

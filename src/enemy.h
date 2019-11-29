@@ -20,10 +20,10 @@ public:
     string state;
     SDL_Rect d_rect = {};
     double x_pos, y_pos;
-    int projectile_speed = 0.0;
+    int projectile_speed = 0;
     int default_speed = 0;
     int speed = 0;
-    int max_bullets = 0;
+    int max_projectiles = 1;
     bool attack_cooldown;
     double cooldown_timer = 0.0;
     double cooldown_time = 0.0;
