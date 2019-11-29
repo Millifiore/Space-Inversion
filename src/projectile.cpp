@@ -40,11 +40,8 @@ void Projectile::Render(){
     sprites["DEFAULT"]->Render();
 }
 
-bool Projectile::IsTouchingRect(SDL_Rect* rect){
-    if (SDL_HasIntersection(&hitbox, rect)){
-        return true;
-    }
-    return false;
+bool Projectile::IsTouchingRect(SDL_Rect * rect){
+    return SDL_HasIntersection(&hitbox, rect);
 }
 
 Projectile::~Projectile(){
@@ -72,5 +69,5 @@ Laser::Laser(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Co
 Laser2::Laser2(SpriteCache * cache, int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
     angle = -(angle - double(270));
-    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06, angle, SDL_FLIP_VERTICAL);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0, 0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06, angle, SDL_FLIP_VERTICAL);
 }

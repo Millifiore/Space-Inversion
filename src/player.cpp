@@ -20,17 +20,17 @@ Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     sprites["RESPAWNING"] = new AnimatedSprite(cache, {30, 24, 37, 37}, d_rect, src, -37, 2, .03);
     state = "DEFAULT";
-
+    cooldown_time = .3;
 }
 
 void Player::Process(Clock * clock){
     // if the player is moving, move either left or right.
     if (moving){
         if (direction == "left"){
-            x_pos -= ((speed * 11) * clock->delta_time_s);
+            x_pos -= ((speed * 10) * clock->delta_time_s);
         }
         if (direction == "right"){
-            x_pos += ((speed * 11) * clock->delta_time_s);
+            x_pos += ((speed * 10) * clock->delta_time_s);
         }
     }
 
@@ -72,7 +72,7 @@ void Player::Process(Clock * clock){
     // this is done so that a player can only add a bullet in certain intervals.
     if (attack_cooldown){
         cooldown_timer += clock->delta_time_s;
-        if (cooldown_timer >= .3){
+        if (cooldown_timer >= cooldown_time){
             cooldown_timer = 0;
             attack_cooldown = false;
         }
@@ -98,10 +98,10 @@ void Player::Move(string d){
 bool Player::Attack(){
     // we check the size of the bullet array to make sure that only 3 bullets are on screen at once.
     if (state == "DEFAULT"){
-        if ((bullets.size() < 3) && !attack_cooldown){
+        if ((bullets.size() < max_projectiles) && !attack_cooldown){
             bullets.push_back(
                 new Laser(cache, x_pos,
-                                    (d_rect.y + (d_rect.w/2)) - 10, 15, 20, 90, {0, 255, 0, 255}, bullet_speed)
+                                    (d_rect.y + (d_rect.w/2)) - 10, 15, 20, 90, {0, 255, 0, 255}, projectile_speed)
             );
             attack_cooldown = true;
             return true;

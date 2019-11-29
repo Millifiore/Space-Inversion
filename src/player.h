@@ -20,12 +20,14 @@ public:
     SDL_Rect d_rect = {};
     double x_pos, y_pos;
     int lives = 3;
-    int bullet_speed = 4;
-    int speed = 18;
+    int projectile_speed = 4;
+    int speed = 19;
     bool attack_cooldown = 0;
     double respawn_timer = 0;
     double cooldown_timer = 0;
+    double cooldown_time = 0;
     double respawning_time = 2;
+    int max_projectiles = 3;
     bool attacking = false;
     vector<Projectile *> bullets = {};
     Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_RendererFlip flip = SDL_FLIP_NONE);
