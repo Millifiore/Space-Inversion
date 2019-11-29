@@ -235,7 +235,7 @@ Villian2::Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, 
     state = "DEFAULT";
     default_speed = 8;
     speed = default_speed;
-    projectile_speed = 2;
+    projectile_speed = 3;
     cooldown_time = .3;
 
 }
@@ -248,7 +248,7 @@ bool Villian2::Attack(){
         if ((!bullets.size()) && !attack_cooldown){
             bullets.push_back(
                 new Laser2(cache, x_pos,
-                                (y_pos + (d_rect.w/2)) - 20, 15, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)
+                                (y_pos + (d_rect.w/2)) - 10, 15, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)
             );
             attack_cooldown = true;
             return true;
