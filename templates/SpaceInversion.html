@@ -14,7 +14,7 @@
         var M = Module({
             canvas: (() => document.getElementById('canvas'))(),
         });
-
+        
         M.setStatus = (text) => {
           if (!M.setStatus.last) M.setStatus.last = { time: Date.now(), text: '' };
           if (text === M.setStatus.last.text) return;
@@ -30,7 +30,32 @@
 
         M.then(() => {
             document.getElementById('loading').innerHTML = '';
-            console.log('Loaded!')
+            console.log('Loaded!');
+        }); 
+
+      </script>
+      <script type='text/javascript'>
+        // An array of all contexts to resume on the page
+        const audioContexList = [];
+        (function() {
+            // A proxy object to intercept AudioContexts and 
+            // add them to the array for tracking and resuming later
+            self.AudioContext = new Proxy(self.AudioContext, {
+                construct(target, args) {
+                    const result = new target(...args);
+                    audioContexList.push(result);
+                    return result;
+                }
+            });
+        })();
+
+        // Resume the audio context when the user clicks the page. 
+        // This is done to deal with Chrome's...idiosyncracies (stupidity)
+        window.addEventListener("click", ()=>{
+          // for every audio context, resume if it was suspended.
+          audioContexList.forEach(ctx => {
+              if (ctx.state == "suspended") { ctx.resume();}
+          });
         });
       </script>
       <p><font color='white'>Press "A" and "D" to move left and right.</font></p>
