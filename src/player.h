@@ -13,16 +13,18 @@ private:
     SDL_Renderer * renderer;
     SpriteCache * cache;
     bool shield;
+    double starting_xpos = 0, starting_ypos = 0;
 
 public:
     vector<int> erased;
     string state;
     SDL_Rect d_rect = {};
-    double x_pos, y_pos;
-    int lives = 3;
+    double x_pos = 0, y_pos = 0;
+    int starting_life = 3;
+    int lives = starting_life;
     int projectile_speed = 4;
     int speed = 19;
-    bool attack_cooldown = 0;
+    bool attack_cooldown = false;
     double respawn_timer = 0;
     double cooldown_timer = 0;
     double cooldown_time = 0;
@@ -36,8 +38,10 @@ public:
     void Move(string d);
     bool Attack();
     void Hurt();
+    void SetPos(int, int);
     bool TouchingBullet(SDL_Rect * rect);
     bool TouchingEnemy(SDL_Rect * rect);
+    void Reset();
 
     void Render();
     ~Player();

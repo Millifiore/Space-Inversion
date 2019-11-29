@@ -6,6 +6,8 @@ Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_
     this->cache = cache;
     x_pos = x;
     y_pos = y;
+    starting_xpos = x;
+    starting_ypos = y;
     width = w;
     height = h;
 
@@ -110,9 +112,35 @@ bool Player::Attack(){
     return false;   
 }
 
+void Player::SetPos(int x, int y){
+    starting_xpos = x;
+    starting_ypos = y;
+    x_pos = x;
+    y_pos = y;
+}
+
 void Player::Hurt(){
     lives -= 1;
     state = "DYING";
+}
+
+void Player::Reset(){
+    for (auto sprite : sprites){
+        sprite.second->Reset();
+    }
+    state = "DEFAULT";
+    SetPos(starting_xpos, starting_ypos);
+    for (int i = 0; i < int(bullets.size()); i++){
+        if (find(erased.begin(), erased.end(), i) == erased.end()){
+            delete bullets[i];
+            bullets.erase(bullets.begin() + i);
+        }  
+    }
+    lives = starting_life;
+    respawn_timer = 0.0;
+    attack_cooldown = false;
+    respawn_timer = 0;
+    cooldown_timer = 0;
 }
 
 bool Player::TouchingBullet(SDL_Rect * rect){
@@ -125,11 +153,7 @@ bool Player::TouchingBullet(SDL_Rect * rect){
 }
 
 bool Player::TouchingEnemy(SDL_Rect * rect){
-    if(SDL_HasIntersection(&d_rect,rect)){
-        return true;
-    }
-
-    return false;
+    return SDL_HasIntersection(&d_rect, rect);
 }
 
 void Player::Render(){

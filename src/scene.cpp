@@ -1,6 +1,6 @@
 #include "scene.h"
 
-LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache,SDL_RendererFlip * flip){
+LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache, SDL_RendererFlip * flip){
     this->framebuffer = framebuffer;
     this->hud = new Hud(sprite_cache,framebuffer,player,text_cache);
     starting = true;
@@ -63,12 +63,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
         }
 
         if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
-            for (auto enemy: enemies){
-                enemy->Reset();
-                jukebox->StopMusic();
-                jukebox->StopSoundEffects();
-                jukebox->PlayMusic("stage_music");
-            }
+            Reset(jukebox);
         }
 
         // make sure the player can't move outta bounds.
@@ -265,6 +260,18 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
 
 }
 
+void LevelScene::Reset(Jukebox * jukebox){
+    *flip = SDL_FLIP_NONE;
+
+    for (auto enemy: enemies){
+        enemy->Reset();        
+    }
+
+    player->Reset();
+    jukebox->StopMusic();
+    jukebox->StopSoundEffects();
+    jukebox->PlayMusic("stage_music");
+}
 
 void LevelScene::RenderScene(){
 

@@ -41,7 +41,6 @@ LevelScene * CreateScene(SpriteCache * cache,Framebuffer * framebuffer, TextCach
                 for (auto obj_info: obj_info_list){
                     vector<string> obj_xywh = split(obj_info, '-');
                     if (obj_xywh.size() < 4){}
-
                     else {
                         int x = stoi(obj_xywh[0]);
                         int y = stoi(obj_xywh[1]);
@@ -49,8 +48,7 @@ LevelScene * CreateScene(SpriteCache * cache,Framebuffer * framebuffer, TextCach
                         int h = stoi(obj_xywh[3]);
 
                         if (obj_name == "player"){
-                            player->x_pos = x;
-                            player->y_pos = y;
+                            player->SetPos(x, y);
                             player->d_rect.w = w;
                             player->d_rect.h = h;
 
