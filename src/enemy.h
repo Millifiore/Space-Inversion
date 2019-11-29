@@ -42,7 +42,7 @@ public:
     bool TouchingBullet(SDL_Rect * rect);
 
     virtual void Render();
-    ~Enemy();
+    virtual ~Enemy();
 };
 
 class Villian1: public Enemy{

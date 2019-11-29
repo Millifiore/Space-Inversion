@@ -33,7 +33,7 @@ int TextCache::RenderText(string text, int x, int y, int size, SDL_Color color, 
             d_rect.y += size;
         }
         else {
-            int result = SDL_SetTextureColorMod(characters[current_font][c], color.r, color.g, color.b);
+            SDL_SetTextureColorMod(characters[current_font][c], color.r, color.g, color.b);
             SDL_RenderCopy(renderer, characters[current_font][c], NULL, &d_rect);
             d_rect.x += size + offset;
         }
