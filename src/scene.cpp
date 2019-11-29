@@ -318,7 +318,7 @@ MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer){
     renderer = cache->renderer;
 
     title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .16);
-    buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .095);
+    buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .06);
 
     song_ending_time = 82.9;
     animate_interval = 1.2;
