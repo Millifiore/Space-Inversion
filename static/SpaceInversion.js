@@ -203,7 +203,7 @@ Module['FS_createPath']('/resources/sounds', 'music', true, true);
   }
 
  }
- loadPackage({"files": [{"start": 0, "audio": 0, "end": 16522, "filename": "/resources/Shield Buff.bmp"}, {"start": 16522, "audio": 0, "end": 56660, "filename": "/resources/player.bmp"}, {"start": 56660, "audio": 0, "end": 57822, "filename": "/resources/Star2.bmp"}, {"start": 57822, "audio": 0, "end": 58984, "filename": "/resources/Star1.bmp"}, {"start": 58984, "audio": 0, "end": 173810, "filename": "/resources/start_button.bmp"}, {"start": 173810, "audio": 0, "end": 178748, "filename": "/resources/Missle.bmp"}, {"start": 178748, "audio": 0, "end": 179910, "filename": "/resources/Star0.bmp"}, {"start": 179910, "audio": 0, "end": 196432, "filename": "/resources/Paused.bmp"}, {"start": 196432, "audio": 0, "end": 196858, "filename": "/resources/blaster.bmp"}, {"start": 196858, "audio": 0, "end": 236996, "filename": "/resources/villain1.bmp"}, {"start": 236996, "audio": 0, "end": 237422, "filename": "/resources/laser.bmp"}, {"start": 237422, "audio": 0, "end": 286712, "filename": "/resources/explosion.bmp"}, {"start": 286712, "audio": 0, "end": 288898, "filename": "/resources/blast.bmp"}, {"start": 288898, "audio": 0, "end": 305420, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 305420, "audio": 0, "end": 321942, "filename": "/resources/life.bmp"}, {"start": 321942, "audio": 0, "end": 332080, "filename": "/resources/villain2.bmp"}, {"start": 332080, "audio": 0, "end": 446906, "filename": "/resources/title.bmp"}, {"start": 446906, "audio": 0, "end": 494510, "filename": "/resources/font/joystix.ttf"}, {"start": 494510, "audio": 0, "end": 495076, "filename": "/resources/levels/Map2.mx"}, {"start": 495076, "audio": 0, "end": 495503, "filename": "/resources/levels/level3.mx"}, {"start": 495503, "audio": 0, "end": 496069, "filename": "/resources/levels/level2.mx"}, {"start": 496069, "audio": 0, "end": 496410, "filename": "/resources/levels/level.mx"}, {"start": 496410, "audio": 1, "end": 676456, "filename": "/resources/sounds/effects/explosion_effect.wav"}, {"start": 676456, "audio": 1, "end": 856502, "filename": "/resources/sounds/effects/player_explosion.wav"}, {"start": 856502, "audio": 1, "end": 914466, "filename": "/resources/sounds/effects/blast_effect.wav"}, {"start": 914466, "audio": 1, "end": 11411568, "filename": "/resources/sounds/music/title_theme.wav"}, {"start": 11411568, "audio": 1, "end": 22225086, "filename": "/resources/sounds/music/stage_music.wav"}], "remote_package_size": 22225086, "package_uuid": "172d9b6d-c8ee-4161-ac87-9daa868b8134"});
+ loadPackage({"files": [{"start": 0, "audio": 0, "end": 16522, "filename": "/resources/Shield Buff.bmp"}, {"start": 16522, "audio": 0, "end": 56660, "filename": "/resources/player.bmp"}, {"start": 56660, "audio": 0, "end": 57822, "filename": "/resources/Star2.bmp"}, {"start": 57822, "audio": 0, "end": 58248, "filename": "/resources/laser2.bmp"}, {"start": 58248, "audio": 0, "end": 59410, "filename": "/resources/Star1.bmp"}, {"start": 59410, "audio": 0, "end": 174236, "filename": "/resources/start_button.bmp"}, {"start": 174236, "audio": 0, "end": 179174, "filename": "/resources/Missle.bmp"}, {"start": 179174, "audio": 0, "end": 180336, "filename": "/resources/Star0.bmp"}, {"start": 180336, "audio": 0, "end": 196858, "filename": "/resources/Paused.bmp"}, {"start": 196858, "audio": 0, "end": 197284, "filename": "/resources/blaster.bmp"}, {"start": 197284, "audio": 0, "end": 237422, "filename": "/resources/villain1.bmp"}, {"start": 237422, "audio": 0, "end": 237848, "filename": "/resources/laser.bmp"}, {"start": 237848, "audio": 0, "end": 287138, "filename": "/resources/explosion.bmp"}, {"start": 287138, "audio": 0, "end": 289324, "filename": "/resources/blast.bmp"}, {"start": 289324, "audio": 0, "end": 305846, "filename": "/resources/Wrench Power-Up.bmp"}, {"start": 305846, "audio": 0, "end": 322368, "filename": "/resources/life.bmp"}, {"start": 322368, "audio": 0, "end": 332506, "filename": "/resources/villain2.bmp"}, {"start": 332506, "audio": 0, "end": 447332, "filename": "/resources/title.bmp"}, {"start": 447332, "audio": 0, "end": 494936, "filename": "/resources/font/joystix.ttf"}, {"start": 494936, "audio": 0, "end": 495502, "filename": "/resources/levels/Map2.mx"}, {"start": 495502, "audio": 0, "end": 495929, "filename": "/resources/levels/level3.mx"}, {"start": 495929, "audio": 0, "end": 496495, "filename": "/resources/levels/level2.mx"}, {"start": 496495, "audio": 0, "end": 496836, "filename": "/resources/levels/level.mx"}, {"start": 496836, "audio": 1, "end": 676882, "filename": "/resources/sounds/effects/explosion_effect.wav"}, {"start": 676882, "audio": 1, "end": 856928, "filename": "/resources/sounds/effects/player_explosion.wav"}, {"start": 856928, "audio": 1, "end": 914892, "filename": "/resources/sounds/effects/blast_effect.wav"}, {"start": 914892, "audio": 1, "end": 11411994, "filename": "/resources/sounds/music/title_theme.wav"}, {"start": 11411994, "audio": 1, "end": 22225512, "filename": "/resources/sounds/music/stage_music.wav"}], "remote_package_size": 22225512, "package_uuid": "c445bec3-1406-4c95-9f51-3b101d16a483"});
 
 })();
 
@@ -771,8 +771,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 2060,
-  'maximum': 2060,
+  'initial': 2572,
+  'maximum': 2572,
   'element': 'anyfunc'
 });
 
@@ -1372,11 +1372,11 @@ function updateGlobalBufferAndViews(buf) {
 
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 186864,
+    STACK_BASE = 187008,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5429744,
-    DYNAMIC_BASE = 5429744,
-    DYNAMICTOP_PTR = 186656;
+    STACK_MAX = 5429888,
+    DYNAMIC_BASE = 5429888,
+    DYNAMICTOP_PTR = 186800;
 
 
 
@@ -1832,7 +1832,7 @@ function _emscripten_asm_const_iiii(code, a0, a1, a2) {
 
 
 
-// STATICTOP = STATIC_BASE + 185840;
+// STATICTOP = STATIC_BASE + 185984;
 /* global initializers */  __ATINIT__.push({ func: function() { globalCtors() } });
 
 
@@ -1843,7 +1843,7 @@ function _emscripten_asm_const_iiii(code, a0, a1, a2) {
 
 
 /* no memory initializer */
-var tempDoublePtr = 186848
+var tempDoublePtr = 186992
 
 function copyTempFloat(ptr) { // functions, because inlining this code increases code size too much
   HEAP8[tempDoublePtr] = HEAP8[ptr];

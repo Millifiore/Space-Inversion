@@ -10,19 +10,19 @@ def index():
     return flask.render_template("SpaceInversion.html")
 
 @app.route('/SpaceInversion.js')
-def mario_js():
+def si_js():
     return app.send_static_file('SpaceInversion.js')
 
 @app.route('/SpaceInversion.js.mem')
-def mario_mem():
+def si_mem():
     return app.send_static_file('SpaceInversion.js.mem')
 
 @app.route('/SpaceInversion.data')
-def mario_data():
+def si_data():
     return app.send_static_file('SpaceInversion.data')
 
 @app.route('/SpaceInversion.wasm')
-def mario_wasm():
+def si_wasm():
     return app.send_static_file('SpaceInversion.wasm')
 
 @app.route('/SpaceInversion.wast')
