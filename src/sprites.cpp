@@ -25,7 +25,7 @@ SpriteCache::~SpriteCache(){
 
 
 
-Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL_RendererFlip f){
+Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, double a, SDL_RendererFlip f){
     texture = cache->LoadTexture(filepath);
     s_rect = s;
     d_rect = d;
@@ -35,6 +35,7 @@ Sprite::Sprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, SDL
     starting_s_x = s_rect.x;
     starting_s_y = s_rect.y;
     renderer = cache->renderer;
+    angle = a;
     flip = f;
     x = d_rect.x;
     y = d_rect.y;
@@ -59,9 +60,9 @@ void Sprite::Render(){
     d_rect.y = (y - (d_rect.h / 2));
 
     if (source_rectange){
-        SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, NULL, nullptr, flip);
+        SDL_RenderCopyEx(renderer, texture, &s_rect, &d_rect, angle, nullptr, flip);
     }else{
-        SDL_RenderCopyEx(renderer, texture, NULL, &d_rect, NULL, nullptr, flip);
+        SDL_RenderCopyEx(renderer, texture, NULL, &d_rect, angle, nullptr, flip);
     }
     
 }
@@ -72,8 +73,8 @@ Sprite::~Sprite(){}
 
 
 
-AnimatedSprite::AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, int f_o, int n_o_f, double ut, SDL_RendererFlip f)
-: Sprite(cache, s, d, filepath, f) {
+AnimatedSprite::AnimatedSprite(SpriteCache * cache, SDL_Rect s, SDL_Rect d, string filepath, int f_o, int n_o_f, double ut, double a, SDL_RendererFlip f)
+: Sprite(cache, s, d, filepath, a, f) {
     frame_offset = f_o;
     number_of_frames = n_o_f;
     update_time = ut;

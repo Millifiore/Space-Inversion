@@ -56,21 +56,20 @@ Projectile::~Projectile(){
 
 Missile::Missile(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
-
-    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 20, 20}, hitbox, "resources/missle.bmp", 20, 3, .1);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0, 0, 20, 20}, hitbox, "resources/missle.bmp", 20, 3, .1);
 }
 
 Blaster::Blaster(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
-        sprites["DEFAULT"] = new AnimatedSprite(cache,{0,0, 6, 6}, hitbox, "resources/blaster.bmp", 6, 2, .06, SDL_FLIP_VERTICAL);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0, 0, 6, 6}, hitbox, "resources/blaster.bmp", 6, 2, .06, 0, SDL_FLIP_VERTICAL);
 }
 
 Laser::Laser(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
-    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox, "resources/laser.bmp", 6, 2, .06);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0, 0, 6, 6}, hitbox, "resources/laser.bmp", 6, 2, .06);
 }
 
 Laser2::Laser2(SpriteCache * cache, int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
-    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06, angle);
 }
