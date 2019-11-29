@@ -10,9 +10,10 @@ int SpaceInversion::Start(int argc, char** argv){
     Mix_Init(MIX_INIT_MOD);
     TTF_Init();
 
+    atexit(SDL_Quit);
     atexit(Mix_Quit);
     atexit(TTF_Quit);
-    atexit(SDL_Quit);
+   
 
     // Create window
     window = SDL_CreateWindow("Space Inversion - by Sardonicals", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -159,6 +160,7 @@ SpaceInversion::~SpaceInversion(){
     delete text;
     delete framebuffer;
     delete controllers;
+    delete jukebox;
     delete mouse;
     delete keyboard;
     SDL_DestroyRenderer(renderer);
