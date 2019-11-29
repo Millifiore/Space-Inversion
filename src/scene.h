@@ -17,9 +17,9 @@ private:
     vector<Enemy * > enemies = {};
     vector<int> erased_enemy_i = {};
     Player * player = nullptr;
-    double countdown;
-    double shoot_timer;
-    double shot_interval;
+    double countdown = 0.0;
+    double shoot_timer = 0.0;
+    double shot_interval = 0.0;
     string direction = "left";
     string enemy_state = "PHASE_LEFT";
     string last_state;

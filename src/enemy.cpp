@@ -173,8 +173,8 @@ void Enemy::Render(){
         bullet->Render();
     }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-    SDL_RenderFillRect(renderer, &d_rect);
+    //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+    //SDL_RenderFillRect(renderer, &d_rect);
 
     if (!dead){
         // Render the enemy ship if the enemy isn't dead.
