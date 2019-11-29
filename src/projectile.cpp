@@ -71,7 +71,6 @@ Laser::Laser(SpriteCache * cache,int x, int y, int w, int h, float angle, SDL_Co
 
 Laser2::Laser2(SpriteCache * cache, int x, int y, int w, int h, float angle, SDL_Color color, int speed) 
     : Projectile(cache, x, y, w, h, angle, color, speed){
-
     angle = -(angle - double(270));
-    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06, angle);
+    sprites["DEFAULT"] = new AnimatedSprite(cache, {0,0, 6, 6}, hitbox,"resources/laser2.bmp", 6, 2, .06, angle, SDL_FLIP_VERTICAL);
 }
