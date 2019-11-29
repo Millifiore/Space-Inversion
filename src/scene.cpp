@@ -317,8 +317,11 @@ MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer){
     finished = false;
     renderer = cache->renderer;
 
-    title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .18);
+    title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .16);
     buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .095);
+
+    song_ending_time = 82.9;
+    animate_interval = 1.2;
 }
 
 MenuScene::~MenuScene(){
@@ -341,12 +344,20 @@ void MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
         finished = false;
     }
     if (running){
+        seconds_passed += clock->delta_time_s;
         if (buttons["start"]->MouseClicking(mouse)){
             *state = "GAME";
             jukebox->StopMusic();
+            title->Reset();
+            seconds_passed = 0;
+            return;
         }
 
-        title->Animate(clock);
+        if (seconds_passed >= animate_interval){
+            seconds_passed = animate_interval;
+            title->Animate(clock);
+        }
+        
         for (auto const &button : buttons){
             button.second->Process(clock);
         }

@@ -52,6 +52,9 @@ class MenuScene {
         map<string, Button *> buttons;
         vector<Bullet *> stars;
         SDL_Renderer * renderer;
+        double seconds_passed = 0.0;
+        double animate_interval = 0.0;
+        double song_ending_time = 0.0;
 
     public:
         bool starting;
