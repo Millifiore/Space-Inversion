@@ -23,7 +23,7 @@ Enemy::Enemy(SpriteCache * cache, int x, int y, int w, int h, string src, string
     sprites["DEFAULT"] = nullptr;
     sprites["DYING"] = nullptr;
     state = "";
-    default_speed = 8;
+    default_speed = 7;
     speed = default_speed;
     projectile_speed = 4;
     cooldown_time = .3;
@@ -197,8 +197,6 @@ Villian1::Villian1(SpriteCache * cache, int x, int y, int w, int h, string src, 
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, "resources/villain1.bmp");
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     state = "DEFAULT";
-    default_speed = 8;
-    speed = default_speed;
     projectile_speed = 3;
     cooldown_time = .3;
     max_projectiles = 2;
@@ -229,8 +227,6 @@ Villian2::Villian2(SpriteCache * cache, int x, int y, int w, int h, string src, 
     sprites["DEFAULT"] = new Sprite(cache, s_rect, d_rect, "resources/villain2.bmp");
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     state = "DEFAULT";
-    default_speed = 8;
-    speed = default_speed;
     projectile_speed = 3;
     cooldown_time = .3;
 

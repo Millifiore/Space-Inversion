@@ -48,7 +48,7 @@ bool Jukebox::PlayMusic(string music, int loop){
 
 bool Jukebox::PlaySoundEffect(string effect, int loop){
     if (Mix_VolumeChunk(sound_effects[effect],  double(sound_effect_volume/100.0) * MIX_MAX_VOLUME)){
-        Mix_PlayChannel(-1, sound_effects[effect], loop);
+        Mix_Volume(Mix_PlayChannel(-1, sound_effects[effect], loop), double(sound_effect_volume/100.0) * MIX_MAX_VOLUME);
         return true;
     }
     return false;

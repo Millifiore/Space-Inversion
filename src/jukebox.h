@@ -6,7 +6,7 @@ class Jukebox {
         map<string, Mix_Music *> music;
         map<string, Mix_Chunk *> sound_effects;
     public:
-        int music_volume = 100;
+        int music_volume = 80;
         bool music_paused = false;
         bool effects_paused = false;
         int sound_effect_volume = 40;
