@@ -1,13 +1,17 @@
 #include "hud.h"
 #include "string.h"
 
-Hud::Hud( SpriteCache * cache,Framebuffer * framebuffer, Player * player, TextCache * text_cache){
+Hud::Hud( SpriteCache * cache, Framebuffer * framebuffer, Player * player, TextCache * text_cache){
     this->text_cache = text_cache;
     this->player = player;
     this->framebuffer = framebuffer;
     this->renderer = framebuffer->renderer;
 
-    this->life_sprite = new Sprite(cache, {}, {19,690,50,50},"resources/life.bmp");
+    this->life_sprite = new Sprite(cache, {}, {19, 690, 50, 50}, "resources/life.bmp");
+}
+
+Hud::~Hud(){
+	delete life_sprite;
 }
 
 void Hud::AddScore(int score){

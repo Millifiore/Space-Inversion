@@ -25,7 +25,6 @@ Controller::Controller(int i){
     analog_map["LEFT_STICK"] = {SDL_CONTROLLER_AXIS_LEFTX, SDL_CONTROLLER_AXIS_LEFTY};
     analog_map["RIGHT_STICK"] = {SDL_CONTROLLER_AXIS_RIGHTX, SDL_CONTROLLER_AXIS_RIGHTY};
 
-
     instance = SDL_GameControllerOpen(i);
     instance_id = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(instance));
 

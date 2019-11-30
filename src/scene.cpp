@@ -2,7 +2,7 @@
 
 LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache, SDL_RendererFlip * flip){
     this->framebuffer = framebuffer;
-    this->hud = new Hud(sprite_cache,framebuffer,player,text_cache);
+    this->hud = new Hud(sprite_cache, framebuffer, player,text_cache);
     starting = true;
     running = false;
     finished = false;
@@ -182,7 +182,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             if (player->TouchingEnemy(&enemies[i]->d_rect)){
                 if (enemies[i]->state != "DYING"){
                     player->Hurt();
-                    controllers->SetControllerRumble(0, 0, 30, .3);
+                    controllers->SetControllerRumble(0, 0, 40, .3);
                     jukebox->PlaySoundEffect("dying_p");
                 }
                 enemies[i]->state = "DYING";
@@ -200,7 +200,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                         */
                         if (!bullet->hit){
                             player->Hurt();
-                            controllers->SetControllerRumble(0, 0, 30, .3);
+                            controllers->SetControllerRumble(0, 0, 40, .3);
                             jukebox->PlaySoundEffect("dying_p");
 
                             if (*flip == SDL_FLIP_NONE){
@@ -308,6 +308,8 @@ LevelScene::~LevelScene(){
     for (int i=0; i < enemies.size(); i++){
         delete enemies[i];
     }
+
+	delete hud;
 }
 
 
