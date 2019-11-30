@@ -33,6 +33,11 @@ int SpaceInversion::Start(int argc, char** argv){
     // Initialize random seed
     srand(time(NULL));
 
+    // Load window icon
+    SDL_Surface * icon = SDL_LoadBMP("resources/icon.bmp");
+    SDL_SetWindowIcon(window, icon);
+    SDL_FreeSurface(icon);
+
     // Create event handler
     event = SDL_Event();
 
