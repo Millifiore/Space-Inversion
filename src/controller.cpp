@@ -54,17 +54,17 @@ bool Controller::GetButtonWasPressed(string button){
 }
 
 vector<double> Controller::GetAnalogStick(string stick){
-    double x = SDL_GameControllerGetAxis(instance, analog_map[stick][0]) / 32767;
-    double y = SDL_GameControllerGetAxis(instance, analog_map[stick][1]) / 32767;
+    double x = SDL_GameControllerGetAxis(instance, analog_map[stick][0]) / ((0xFFFF)/2);
+    double y = SDL_GameControllerGetAxis(instance, analog_map[stick][1]) / ((0xFFFF)/2);
     return {x, y};
 }
 
 double Controller::GetTrigger(string trigger){
-    return SDL_GameControllerGetAxis(instance, trigger_map[trigger]) / 32767; 
+    return SDL_GameControllerGetAxis(instance, trigger_map[trigger]) / ((0xFFFF)/2); 
 }
 
 void Controller::SetRumble(double left_motor, double right_motor, double seconds){
-    SDL_GameControllerRumble(instance, (left_motor/100) * 65535, (right_motor/100) * 65535, (seconds) * 1000);
+    SDL_GameControllerRumble(instance, (left_motor/100) * 0xFFFF, (right_motor/100) * 0xFFFF, (seconds) * 1000);
 }
 
 

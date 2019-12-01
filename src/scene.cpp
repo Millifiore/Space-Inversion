@@ -182,7 +182,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             if (player->TouchingEnemy(&enemies[i]->d_rect)){
                 if (enemies[i]->state != "DYING"){
                     player->Hurt();
-                    controllers->SetControllerRumble(0, 0, 40, .3);
+                    controllers->SetControllerRumble(0, 0, 60, .3);
                     jukebox->PlaySoundEffect("dying_p");
                 }
                 enemies[i]->state = "DYING";
@@ -200,7 +200,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                         */
                         if (!bullet->hit){
                             player->Hurt();
-                            controllers->SetControllerRumble(0, 0, 40, .3);
+                            controllers->SetControllerRumble(0, 0, 60, .3);
                             jukebox->PlaySoundEffect("dying_p");
 
                             if (*flip == SDL_FLIP_NONE){
