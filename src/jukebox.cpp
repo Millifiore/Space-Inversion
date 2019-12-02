@@ -2,7 +2,7 @@
 
 Jukebox::Jukebox(){
 
-    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 
     music["title"] = LoadMusic("title_theme.wav");
     music["stage_music"] = LoadMusic("stage_music.wav");

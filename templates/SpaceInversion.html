@@ -48,15 +48,20 @@
                 }
             });
         })();
+        
+        function SoundManager(){
+          // for every audio context, resume if it was suspended.
+          audioContexList.forEach(ctx => {
+              if (ctx.state == "suspended") { 
+                ctx.resume();
+                window.removeEventListener("click", SoundManager);
+              }
+          });
+        }
 
         // Resume the audio context when the user clicks the page. 
         // This is done to deal with Chrome's...idiosyncracies (stupidity)
-        window.addEventListener("click", ()=>{
-          // for every audio context, resume if it was suspended.
-          audioContexList.forEach(ctx => {
-              if (ctx.state == "suspended") { ctx.resume();}
-          });
-        });
+        window.addEventListener("click", SoundManager);
       </script>
       <p><font color='white'>Press "A" and "D" to move left and right.</font></p>
       <p><font color='white'>Press Spacebar to shoot</font></p>
