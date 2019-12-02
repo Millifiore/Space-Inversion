@@ -120,7 +120,7 @@ void Enemy::Reset(){
     dead = false;
     state = "DEFAULT";
     SetPos(starting_xpos, starting_ypos);
-    for (int i = 0; i < bullets.size(); i++){
+    for (int i = 0; i < int(bullets.size()); i++){
         if (find(erased.begin(), erased.end(), i) == erased.end()){
             delete bullets[i];
             bullets.erase(bullets.begin() + i);
@@ -132,7 +132,7 @@ bool Enemy::Attack(){
     float angle_to_player = 270;
 
     if (state == "DEFAULT"){
-        if ((bullets.size() < max_projectiles) && !attack_cooldown){
+        if ((int(bullets.size()) < max_projectiles) && !attack_cooldown){
             bullets.push_back(
                 new Projectile(cache, x_pos,
                                     (y_pos + (d_rect.w/2)) - 20, 10, 10, angle_to_player, {255, 0, 0, 255}, projectile_speed)
@@ -183,7 +183,7 @@ Enemy::~Enemy(){
         delete sprite.second;
     }
 
-    for (int i = 0; i < bullets.size(); i++){
+    for (int i = 0; i < int(bullets.size()); i++){
         delete bullets[i];
         bullets.erase(bullets.begin() + i);
     }
@@ -208,7 +208,7 @@ bool Villian1::Attack(){
     float angle_to_player = 270;
 
     if (state == "DEFAULT"){
-        if ((bullets.size() < max_projectiles) && !attack_cooldown && canShoot()){
+        if ((int(bullets.size()) < max_projectiles) && !attack_cooldown && canShoot()){
             bullets.push_back(
                 new Blaster(cache, x_pos,
                                     (y_pos + (d_rect.w/2)) - 20, 20, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)
@@ -237,7 +237,7 @@ bool Villian2::Attack(){
     float angle_to_player = (-atan2((player->y_pos-y_pos), (player->x_pos-x_pos))) * (180 /PI);
 
     if (state == "DEFAULT"){
-        if ((bullets.size() < max_projectiles) && !attack_cooldown){
+        if ((int(bullets.size()) < max_projectiles) && !attack_cooldown){
             bullets.push_back(
                 new Laser2(cache, x_pos,
                                 (y_pos + (d_rect.w/2)) - 10, 15, 20, angle_to_player, {255, 0, 0, 255}, projectile_speed)
