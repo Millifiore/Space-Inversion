@@ -1,7 +1,6 @@
 #include "headers.h"
 #include "game.h"
 
-
 //Event Filter for potentially mobile devices and consoles
 int Filter(void * userdata, SDL_Event * event){
         SpaceInversion * game = static_cast<SpaceInversion*>(userdata);

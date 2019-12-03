@@ -16,6 +16,7 @@
 #include <math.h>
 #include <ctime>
 #include <cstdlib>
+#include <filesystem>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -27,3 +28,4 @@
 #include "mouse.h"
 
 using namespace std; 
+

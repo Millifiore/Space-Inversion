@@ -10,10 +10,32 @@
             "args": [
                 "-g",
                 "-Wall",
-                "-std=c++11",
+                "-std=c++17",
                 "src/*.cpp",
                 "-o",
                 "${workspaceFolder}/bin/SpaceInversionDEBUG.x86_64",
+                "-lSDL2_mixer",
+                "-lSDL2_ttf",
+                "-lSDL2",
+            ],
+            "group": "build",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "silent"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "build (release)",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "-std=c++17",
+                "src/*.cpp",
+                "-o",
+                "${workspaceFolder}/bin/SpaceInversion.x86_64",
                 "-lSDL2_mixer",
                 "-lSDL2_ttf",
                 "-lSDL2",
