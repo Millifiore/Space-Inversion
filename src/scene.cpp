@@ -69,7 +69,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
                 player->Move("none");
             }
 
-            if (keyboard->KeyWasPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonWasPressed(0, "X")) {
+            if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
                 if (player->Attack()){
                     jukebox->PlaySoundEffect("blast");
                     controllers->SetControllerRumble(0, 20, 0, .3);
