@@ -17,8 +17,6 @@ private:
     vector<Enemy * > enemies = {};
     vector<int> erased_enemy_i = {};
     Player * player = nullptr;
-    double input_timer = 0.0;
-    double input_time = 0.0;
     double countdown = 0.0;
     double shoot_timer = 0.0;
     double shot_interval = 0.0;

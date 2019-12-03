@@ -10,7 +10,6 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     renderer = r;
     shot_interval = 1;
     this->flip = flip;
-    input_time = .1;
 }
 
 void LevelScene::AddEnemy(Enemy * enemy){
@@ -23,8 +22,6 @@ void LevelScene::AddPlayer(Player * p){
 }
 
 void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox,  int width, int height){
-    input_timer += clock->delta_time_s;
-
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
 
@@ -47,7 +44,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
     }
 
     if (running){
-        if ((keyboard->KeyIsPressed(SDL_SCANCODE_P)&& (input_timer >= input_time)) || controllers->GetControllerButtonWasPressed(0, "START")){
+        if (keyboard->KeyWasPressed(SDL_SCANCODE_P) || controllers->GetControllerButtonWasPressed(0, "START")){
             if (paused){
                 paused = false;
                 jukebox->ResumeMusic();
@@ -110,10 +107,6 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
                     star->y_pos = star->y_pos - height;
                 }
             }
-        }
-
-        if (input_timer > input_time){
-            input_timer = 0.0;
         }
     }
 }
