@@ -6,9 +6,11 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     starting = true;
     running = false;
     finished = false;
+    paused = false;
     renderer = r;
     shot_interval = 1;
     this->flip = flip;
+    input_time = .1;
 }
 
 void LevelScene::AddEnemy(Enemy * enemy){
@@ -21,6 +23,8 @@ void LevelScene::AddPlayer(Player * p){
 }
 
 void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox,  int width, int height){
+    input_timer += clock->delta_time_s;
+
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
 
@@ -43,57 +47,74 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
     }
 
     if (running){
+        if ((keyboard->KeyIsPressed(SDL_SCANCODE_P)&& (input_timer >= input_time)) || controllers->GetControllerButtonWasPressed(0, "START")){
+            if (paused){
+                paused = false;
+                jukebox->ResumeMusic();
+                jukebox->ResumeSoundEffects();
+            }
+            else {
+                paused = true;
+                jukebox->PauseMusic();
+                jukebox->PauseSoundEffects();
+            }
+        }
         
-        // Managing movement for player
-        if (keyboard->KeyIsPressed(SDL_SCANCODE_A) || controllers->GetControllerButtonPressed(0, "LEFT")){
-            player->Move("left");
-        }
-        else if (keyboard->KeyIsPressed(SDL_SCANCODE_D) || controllers->GetControllerButtonPressed(0, "RIGHT")) {
-            player->Move("right");
-        }
-        else{
-            player->Move("none");
-        }
+        if (!paused){
+            // Managing movement for player
+            if (keyboard->KeyIsPressed(SDL_SCANCODE_A) || controllers->GetControllerButtonPressed(0, "LEFT")){
+                player->Move("left");
+            }
+            else if (keyboard->KeyIsPressed(SDL_SCANCODE_D) || controllers->GetControllerButtonPressed(0, "RIGHT")) {
+                player->Move("right");
+            }
+            else{
+                player->Move("none");
+            }
 
-        if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
-            if (player->Attack()){
-                jukebox->PlaySoundEffect("blast");
-                controllers->SetControllerRumble(0, 20, 0, .3);
-            } 
-        }
+            if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
+                if (player->Attack()){
+                    jukebox->PlaySoundEffect("blast");
+                    controllers->SetControllerRumble(0, 20, 0, .3);
+                } 
+            }
 
-        if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
-            Reset(jukebox);
-        }
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
+                Reset(jukebox);
+            }
 
-        // make sure the player can't move outta bounds.
-        if (player->d_rect.x < -1){
-            player->Move("none");
-            player->x_pos += 1;
-        }
-        else if (player->d_rect.x > width - (player->d_rect.w - 1)){
-            player->Move("none");
-            player->x_pos -= 1;
-        }
+            // make sure the player can't move outta bounds.
+            if (player->d_rect.x < -1){
+                player->Move("none");
+                player->x_pos += 1;
+            }
+            else if (player->d_rect.x > width - (player->d_rect.w - 1)){
+                player->Move("none");
+                player->x_pos -= 1;
+            }
 
-        // Process player and enemies.
-        player->Process(clock);
-        ManageEnemies(clock, controllers, jukebox, width, height);
+            // Process player and enemies.
+            player->Process(clock);
+            ManageEnemies(clock, controllers, jukebox, width, height);
 
-        // Move the stars.
-        for (auto star: stars_l1){
-            star->y_pos += (3 * 100) * clock->delta_time_s;
-            if (star->y_pos >= height){
-                star->y_pos = star->y_pos - height;
+            // Move the stars.
+            for (auto star: stars_l1){
+                star->y_pos += (3 * 100) * clock->delta_time_s;
+                if (star->y_pos >= height){
+                    star->y_pos = star->y_pos - height;
+                }
+            }
+            for (auto star: stars_l2){
+                star->y_pos += (3 * 100) * clock->delta_time_s;
+                if (star->y_pos >= height){
+                    star->y_pos = star->y_pos - height;
+                }
             }
         }
-        for (auto star: stars_l2){
-            star->y_pos += (3 * 100) * clock->delta_time_s;
-            if (star->y_pos >= height){
-                star->y_pos = star->y_pos - height;
-            }
-        }
 
+        if (input_timer > input_time){
+            input_timer = 0.0;
+        }
     }
 }
 

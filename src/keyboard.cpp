@@ -2,7 +2,8 @@
 
 KeyboardManager::KeyboardManager(){
     SDL_memset(previous_keystate, 0 , sizeof(Uint8)*SDL_NUM_SCANCODES);
-    current_keystate = SDL_GetKeyboardState(NULL);
+    SDL_memset(current_keystate, 0 , sizeof(Uint8)*SDL_NUM_SCANCODES);
+    instance_keystate = SDL_GetKeyboardState(NULL);
 }
 
 void KeyboardManager::Process(){
@@ -10,8 +11,12 @@ void KeyboardManager::Process(){
         The state of the previous keys are kept to make sure that we can properly process
         if a key WAS pressed, or if it is currently BEING pressed.
     */
-    SDL_memset(previous_keystate, 0 , sizeof(Uint8)*SDL_NUM_SCANCODES);
-    SDL_memcpy(previous_keystate, current_keystate, sizeof(Uint8)*SDL_NUM_SCANCODES);
+    for (int key = 0; key < SDL_NUM_SCANCODES; key++){
+        previous_keystate[key] = current_keystate[key];
+    }
+    for(int key = 0; key < SDL_NUM_SCANCODES; key++){
+        current_keystate[key] = instance_keystate[key];
+    }
     
 }
 
