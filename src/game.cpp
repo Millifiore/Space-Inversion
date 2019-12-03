@@ -117,17 +117,20 @@ void SpaceInversion::Process(){
     // General Game loop stuff goes here 
     controllers->ProcessControllerButtonState();
 
-    if (keyboard->KeyWasPressed(SDL_SCANCODE_F)){
-        if (flip == SDL_FLIP_NONE){
-            flip = SDL_FLIP_VERTICAL;
-        }
-        else{
-            flip = SDL_FLIP_NONE;
-        }
-    }
+    // Only for debug
+    // if (keyboard->KeyWasPressed(SDL_SCANCODE_F)){
+    //     if (flip == SDL_FLIP_NONE){
+    //         flip = SDL_FLIP_VERTICAL;
+    //     }
+    //     else{
+    //         flip = SDL_FLIP_NONE;
+    //     }
+    // }
+
     if (state == "MENU"){
         menu->Process(&clock, mouse, jukebox, &state, game_scene);
     }
+    
     if (state == "GAME") {
         game_scene->Process(&clock, keyboard, controllers, jukebox, GAME_WIDTH, GAME_HEIGHT);
 

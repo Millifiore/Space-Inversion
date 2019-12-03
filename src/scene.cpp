@@ -27,14 +27,14 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
 
         // below we are creating random stars to populate the level, using different layering.
         for (int i=0; i < 9; i++){
-            int random_x = rand() % (width-5) + 10;
-            int random_y = rand() % (height-5) + 10;
+            int random_x = rand() % (width - 5) + 10;
+            int random_y = rand() % (height - 5) + 10;
             stars_l1.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
         }
 
         for (int i=0; i < 5; i++){
-            int random_x = rand() % (width-5) + 10;
-            int random_y = rand() % (height-5) + 10;
+            int random_x = rand() % (width - 5) + 10;
+            int random_y = rand() % (height - 5) + 10;
             stars_l2.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
         }
 
@@ -65,11 +65,11 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
             else if (keyboard->KeyIsPressed(SDL_SCANCODE_D) || controllers->GetControllerButtonPressed(0, "RIGHT")) {
                 player->Move("right");
             }
-            else{
+            else {
                 player->Move("none");
             }
 
-            if (keyboard->KeyIsPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonPressed(0, "X")) {
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_SPACE) || controllers->GetControllerButtonWasPressed(0, "X")) {
                 if (player->Attack()){
                     jukebox->PlaySoundEffect("blast");
                     controllers->SetControllerRumble(0, 20, 0, .3);
