@@ -16,11 +16,13 @@ Player::Player(SpriteCache * cache, int x, int y, int w, int h, string src, SDL_
     d_rect.w = w;
     d_rect.h = h;
 
+    dead = false;
     moving = false;
 
     sprites["DEFAULT"] = new Sprite(cache, {30, 24, 37, 37}, d_rect, src);
     sprites["DYING"] = new AnimatedSprite(cache, {0, 0, 64, 64}, {d_rect.x, d_rect.y, d_rect.w + 60, d_rect.h + 60}, "resources/explosion.bmp", 64, 4, .1);
     sprites["RESPAWNING"] = new AnimatedSprite(cache, {30, 24, 37, 37}, d_rect, src, -37, 2, .03);
+    sprites["DEAD"] = new Sprite(cache, {-30, 24, 37, 37}, d_rect, src);
     state = "DEFAULT";
     cooldown_time = .3;
 }
@@ -39,8 +41,19 @@ void Player::Process(Clock * clock){
     if (state == "DYING"){
         if (sprites[state]->finished){
             sprites[state]->Reset();
-            state = "RESPAWNING";
+            if (lives >= 1){
+                state = "RESPAWNING";
+            }
+            else {
+                state = "DEAD";
+                dead = true;
+            }
+            
         }
+    }
+
+    if (state == "DEAD"){
+        SetPos(starting_xpos, starting_ypos);
     }
 
     if (state == "RESPAWNING"){
@@ -87,10 +100,10 @@ void Player::Process(Clock * clock){
 }
 
 void Player::Move(string d){
-    if ((d == "none") || (state == "DYING")){
+    if ((d == "none") || (state == "DYING") || (state == "DEAD")){
         this->moving = false;
     }   
-    else{
+    else {
         moving = true;
         direction = d;
     }
@@ -141,6 +154,7 @@ void Player::Reset(){
     attack_cooldown = false;
     respawn_timer = 0;
     cooldown_timer = 0;
+    dead = false;
 }
 
 bool Player::TouchingBullet(SDL_Rect * rect){

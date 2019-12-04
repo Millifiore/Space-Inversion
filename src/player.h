@@ -19,6 +19,7 @@ public:
     vector<int> erased;
     string state;
     SDL_Rect d_rect = {};
+    bool dead = false;
     double x_pos = 0, y_pos = 0;
     int starting_life = 3;
     int lives = starting_life;
