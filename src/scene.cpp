@@ -1,9 +1,9 @@
 #include "scene.h"
 
-LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache, SDL_RendererFlip * flip){
+LevelScene::LevelScene(SDL_Renderer * r, Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache, SDL_RendererFlip * flip){
     this->framebuffer = framebuffer;
     countdown_sprite = new AnimatedSprite(sprite_cache, {-128, 0, 128, 128}, {400, 300, 200, 200}, "resources/countdown.bmp", 128, 5, .4);
-    this->hud = new Hud(sprite_cache, framebuffer, player,text_cache);
+    this->hud = new Hud(sprite_cache, framebuffer, player, text_cache);
     starting = true;
     running = false;
     finished = false;
@@ -13,6 +13,8 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     this->flip = flip;
     filling_stars = true;
     starting_countdown = false;
+    text_renderer = text_cache;
+
 }
 
 void LevelScene::AddEnemy(Enemy * enemy){
@@ -24,7 +26,7 @@ void LevelScene::AddPlayer(Player * p){
     hud->player = p;
 }
 
-void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox,  int width, int height){
+void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager * mouse, ControllerManager * controllers, Jukebox * jukebox, string * state,  int width, int height){
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
         
@@ -65,6 +67,35 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
     }
 
     if (running){
+
+        if (player->lives <= 0){
+            options = true;
+        }
+        
+        if (options){
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_Q)){
+                *state = "MENU";
+                jukebox->StopMusic();
+                jukebox->StopSoundEffects();
+                jukebox->PlayMusic("title_theme");
+            }
+
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_R)){
+                Reset(jukebox);
+            }
+        }
+
+        else if (enemies_dead == int(enemies.size())){
+            winner = true;
+            time_left += clock->delta_time_s;
+            if (time_left >= 5){
+                *state = "MENU";
+                jukebox->StopMusic();
+                jukebox->StopSoundEffects();
+                jukebox->PlayMusic("title_theme");
+            }
+        }
+
         if (keyboard->KeyWasPressed(SDL_SCANCODE_P) || controllers->GetControllerButtonWasPressed(0, "START")){
             if (paused){
                 paused = false;
@@ -95,10 +126,6 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerMa
                     jukebox->PlaySoundEffect("blast");
                     controllers->SetControllerRumble(0, 20, 0, .3);
                 } 
-            }
-
-            if (keyboard->KeyWasPressed(SDL_SCANCODE_R)) {
-                Reset(jukebox);
             }
 
             // make sure the player can't move outta bounds.
@@ -310,6 +337,7 @@ void LevelScene::Reset(Jukebox * jukebox){
     jukebox->StopSoundEffects();
     starting = true;
     running = false;
+    options = false;
     starting_countdown = false;
 }
 
@@ -337,8 +365,20 @@ void LevelScene::RenderScene(){
         countdown_sprite->Render();
     }
 
-    framebuffer->UnsetBuffers();
+    if (winner){
+        text_renderer->RenderText("YOU WON!", 150, 250, 50, {255, 255, 255, 255}, 2);
+    }
 
+    if (options){
+        if (*flip == SDL_FLIP_VERTICAL){
+            *flip = SDL_FLIP_NONE;
+        }
+        text_renderer->RenderText("YOU LOST!", 140, 150, 50, {255, 255, 255, 255}, 2);
+        text_renderer->RenderText("Press 'Q' to quit.\n Press 'R' to restart.", 60, 300, 30, {255, 255, 255, 255}, 2);
+    }
+
+    framebuffer->UnsetBuffers();
+    
     hud->Render();
 }
 
@@ -357,7 +397,7 @@ LevelScene::~LevelScene(){
 }
 
 
-MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer){
+MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer, TextCache * text, SDL_RendererFlip * flip, Player *){
     this->framebuffer = framebuffer;
     this->cache = cache;
     for (int i=0; i < 40; i++){
@@ -369,6 +409,9 @@ MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer){
     running = false;
     finished = false;
     renderer = cache->renderer;
+    text_cache = text;
+    this->flip = flip;
+    this->player = player;
 
     title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .16);
     buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .06);
@@ -390,7 +433,7 @@ MenuScene::~MenuScene(){
     delete title;
 }
 
-void MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, LevelScene * scene){
+bool MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, string * path){
     if (starting){
         jukebox->PlayMusic("title");
         running = true;
@@ -400,10 +443,11 @@ void MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
         seconds_passed += clock->delta_time_s;
         if (buttons["start"]->MouseClicking(mouse)){
             *state = "GAME";
+            *path = "resources/levels/level2.mx";
             jukebox->StopMusic();
             title->Reset();
             seconds_passed = 0;
-            return;
+            return 1;
         }
 
         if (seconds_passed >= animate_interval){
@@ -423,6 +467,7 @@ void MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
             }
         }
     }
+    return 0;
 }
 
 void MenuScene::RenderScene(){

@@ -56,8 +56,8 @@ int SpaceInversion::Start(int argc, char** argv){
 
     text->SetFont("joystix.ttf");
 
-    menu = new MenuScene(cache, framebuffer);
-    game_scene = CreateScene(cache, framebuffer,text ,p1, "resources/levels/level2.mx", &flip);
+    menu = new MenuScene(cache, framebuffer, text, &flip, p1);
+    game_scene = nullptr;
     framebuffer->CreateBuffer("MENU", WIDTH, HEIGHT);
     framebuffer->CreateBuffer("GAME", GAME_WIDTH, GAME_HEIGHT);
     framebuffer->CreateBuffer("HUD", GAME_WIDTH, HEIGHT);
@@ -128,11 +128,14 @@ void SpaceInversion::Process(){
     // }
 
     if (state == "MENU"){
-        menu->Process(&clock, mouse, jukebox, &state, game_scene);
+        if (menu->Process(&clock, mouse, jukebox, &state, &scene_path)){
+            delete game_scene;
+            game_scene = CreateScene(cache, framebuffer, text, p1, scene_path, &flip);
+        }
     }
     
     if (state == "GAME") {
-        game_scene->Process(&clock, keyboard, controllers, jukebox, GAME_WIDTH, GAME_HEIGHT);
+        game_scene->Process(&clock, keyboard, mouse, controllers, jukebox, &state, GAME_WIDTH, GAME_HEIGHT);
 
     }
     

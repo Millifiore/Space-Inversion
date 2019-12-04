@@ -20,6 +20,7 @@ private:
     Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC ;
     string state = "MENU";
     SDL_RendererFlip flip = SDL_FLIP_NONE;
+    string scene_path = "";
 
     // Private objects
     KeyboardManager * keyboard;

@@ -17,6 +17,7 @@ private:
     vector<Enemy * > enemies = {};
     vector<int> erased_enemy_i = {};
     Player * player = nullptr;
+    double time_left = 0.0;
     double countdown = 0.0;
     double shoot_timer = 0.0;
     double shot_interval = 0.0;
@@ -27,10 +28,13 @@ private:
     AnimatedSprite * countdown_sprite;
     SDL_Renderer * renderer;
     Framebuffer * framebuffer;
+    TextCache * text_renderer;
     Hud * hud;
     SDL_RendererFlip * flip;
     bool filling_stars = true;
     bool starting_countdown = false;
+    bool options = false;
+    bool winner = false;
 public:
     bool starting;
     bool running;
@@ -42,7 +46,7 @@ public:
     void AddPlayer(Player * player);
     void CreateHUD(Player * player);
     void Reset(Jukebox * jukebox);
-    void Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox, int width, int height);
+    void Process(Clock * clock, KeyboardManager * keyboard, MouseManager * mouse, ControllerManager * controllers, Jukebox * jukebox, string *state, int width, int height);
     void ManageEnemies(Clock * clock, ControllerManager * controllers, Jukebox * jukebox, int width, int height);
     void RenderScene();
 
@@ -51,12 +55,15 @@ public:
 
 class MenuScene {
     private:
+        Player * player;
+        SDL_RendererFlip * flip;
         SpriteCache * cache;
         Framebuffer * framebuffer;
         AnimatedSprite * title;
         map<string, Button *> buttons;
         vector<Bullet *> stars;
         SDL_Renderer * renderer;
+        TextCache * text_cache;
         double seconds_passed = 0.0;
         double animate_interval = 0.0;
         double song_ending_time = 0.0;
@@ -65,8 +72,8 @@ class MenuScene {
         bool starting;
         bool running;
         bool finished;
-        MenuScene(SpriteCache *, Framebuffer * framebuffer);
+        MenuScene(SpriteCache *, Framebuffer * framebuffer, TextCache *, SDL_RendererFlip *, Player *);
         ~MenuScene();
-        void Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, LevelScene * scene);
+        bool Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, string * state, string * scene_path);
         void RenderScene();
 };

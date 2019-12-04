@@ -48,6 +48,7 @@ LevelScene * CreateScene(SpriteCache * cache,Framebuffer * framebuffer, TextCach
                         int h = stoi(obj_xywh[3]);
 
                         if (obj_name == "player"){
+                            player->Reset();
                             player->SetPos(x, y);
                             player->d_rect.w = w;
                             player->d_rect.h = h;
