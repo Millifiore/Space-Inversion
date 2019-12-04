@@ -79,14 +79,14 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
                 jukebox->PlaySoundEffect("inversion");
             }
 
-            if (keyboard->KeyWasPressed(SDL_SCANCODE_Q)){
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_Q) || controllers->GetControllerButtonWasPressed(0, "X")){
                 *state = "MENU";
                 jukebox->StopMusic();
                 jukebox->StopSoundEffects();
                 jukebox->PlayMusic("title_theme");
             }
 
-            if (keyboard->KeyWasPressed(SDL_SCANCODE_R)){
+            if (keyboard->KeyWasPressed(SDL_SCANCODE_R) || controllers->GetControllerButtonWasPressed(0, "A")){
                 Reset(jukebox);
             }
         }
