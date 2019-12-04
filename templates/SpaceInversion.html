@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style type="text/css">
+      @font-face {
+        font-family: "joystix";
+        src: url("/static/joystix.ttf");
+      }
+      
+      #text{
+        background-color: #09153d;
+        font-family: "joystix";
+        height:75px;
+        text-align: center;
+      }
+      
+      footer{
+        background-color: #09153d;
+        font-family: "joystix";
+        height:75px;
+        text-align: center;
+        margin-top: 150px;
+      }
+      
+      #game_window{
+        margin-top:-20px;
+      }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
     <title>Space Inversion!</title>
   </head>
-  <body background="/static/background.jpeg" style="text-align: center">
-    <h1> <font color='white'>Space Inversion!</font></h1>
-    <div style="display: inline-block">
+  <body background="/static/background.jpg" style="text-align: center">
+    <div id="text"><h1> <font color='white'>Space Inversion!</font></h1></div>
+    <div style="display: inline-block" id='game_window'>
       <p id='loading'><font color='white'>Loading...</font></p>
       <canvas id= "canvas" style='border:1px solid; background-color:black' width="800" height="448"></canvas>
       <script type="application/javascript" src="/static/SpaceInversion.js"></script>
@@ -63,9 +89,10 @@
         // This is done to deal with Chrome's...idiosyncracies (stupidity)
         window.addEventListener("click", SoundManager);
       </script>
-      <p><font color='white'>Press "A" and "D" to move left and right.</font></p>
-      <p><font color='white'>Press Spacebar to shoot</font></p>
-
     </div>
   </body>
+  
+  <footer>
+    <p style="margin-bottom:20px"><font color='white'>Press "A" and "D" to move left and right. <br/> Press Spacebar to shoot</font></p>
+  </footer>
 </html>
