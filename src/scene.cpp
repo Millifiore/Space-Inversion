@@ -143,8 +143,9 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
     for (int i = 0; i < enemies.size(); i++){
 
         //"player is dying" is used to check if the player is dying, so that events respond accordingly.
+        //"player is dead" is used to check if the player died.
         bool player_is_dying = (player->state == "DYING") || (player->state == "RESPAWNING");
-
+        
         // Process the enemy as soon as it comes up.
         if (!player_is_dying) {
             // select a random ship to shoot at the player.
@@ -193,7 +194,7 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                 }     
             }
             //check if the player collided with any of the enemies
-            if (player->TouchingEnemy(&enemies[i]->d_rect)){
+            if (player->TouchingEnemy(&enemies[i]->d_rect) && !player->dead){
                 if (enemies[i]->state != "DYING"){
                     player->Hurt();
                     controllers->SetControllerRumble(0, 0, 60, .3);
@@ -203,32 +204,34 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
             }
 
             // check if the player collided with any of the enemy bullets.
-            int bullet_index = 0;
-            if (enemies[i]->TouchingBullet(&player->d_rect)){
-                for (auto bullet: enemies[i]->bullets){
-                    if (bullet->IsTouchingRect(&player->d_rect)){
-                        /*
-                            TODO: only use this logic for basic pawn bullets. 
-                            differentiate when "projectile" class is created and used
-                            instead.
-                        */
-                        if (!bullet->hit){
-                            player->Hurt();
-                            controllers->SetControllerRumble(0, 0, 60, .3);
-                            jukebox->PlaySoundEffect("dying_p");
+            if (!player->dead){
+                int bullet_index = 0;
+                if (enemies[i]->TouchingBullet(&player->d_rect)){
+                    for (auto bullet: enemies[i]->bullets){
+                        if (bullet->IsTouchingRect(&player->d_rect)){
+                            /*
+                                TODO: only use this logic for basic pawn bullets. 
+                                differentiate when "projectile" class is created and used
+                                instead.
+                            */
+                            if (!bullet->hit){
+                                player->Hurt();
+                                controllers->SetControllerRumble(0, 0, 60, .3);
+                                jukebox->PlaySoundEffect("dying_p");
 
-                            if (*flip == SDL_FLIP_NONE){
-                                *flip = SDL_FLIP_VERTICAL;
-                            } else {
-                                *flip = SDL_FLIP_NONE;
+                                if (*flip == SDL_FLIP_NONE){
+                                    *flip = SDL_FLIP_VERTICAL;
+                                } else {
+                                    *flip = SDL_FLIP_NONE;
+                                }
                             }
+                            bullet->hit = true;
+                            enemies[i]->erased.push_back(bullet_index);
                         }
-                        bullet->hit = true;
-                        enemies[i]->erased.push_back(bullet_index);
+                        bullet_index++;
                     }
-                    bullet_index++;
                 }
-            }
+            }  
         }
         else {
             enemies[i]->Move("none");
