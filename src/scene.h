@@ -24,10 +24,13 @@ private:
     string enemy_state = "PHASE_LEFT";
     string last_state;
     int enemies_dead = 0;
+    AnimatedSprite * countdown_sprite;
     SDL_Renderer * renderer;
     Framebuffer * framebuffer;
     Hud * hud;
     SDL_RendererFlip * flip;
+    bool filling_stars = true;
+    bool starting_countdown = false;
 public:
     bool starting;
     bool running;

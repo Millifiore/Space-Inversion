@@ -10,6 +10,9 @@ Jukebox::Jukebox(){
     sound_effects["blast"] = LoadSoundEffect("blast_effect.wav");
     sound_effects["dying"] = LoadSoundEffect("explosion_effect.wav");
     sound_effects["dying_p"] = LoadSoundEffect("player_explosion.wav");
+    sound_effects["inversion"] = LoadSoundEffect("inversion.wav");
+    sound_effects["countdown"] = LoadSoundEffect("countdown.wav");
+    sound_effects["go"] = LoadSoundEffect("go.wav");
 }
 
 Jukebox::~Jukebox(){

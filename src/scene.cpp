@@ -2,6 +2,7 @@
 
 LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache * sprite_cache, TextCache * text_cache, SDL_RendererFlip * flip){
     this->framebuffer = framebuffer;
+    countdown_sprite = new AnimatedSprite(sprite_cache, {-128, 0, 128, 128}, {400, 300, 200, 200}, "resources/countdown.bmp", 128, 5, .4);
     this->hud = new Hud(sprite_cache, framebuffer, player,text_cache);
     starting = true;
     running = false;
@@ -10,6 +11,8 @@ LevelScene::LevelScene(SDL_Renderer * r,Framebuffer * framebuffer, SpriteCache *
     renderer = r;
     shot_interval = 1;
     this->flip = flip;
+    filling_stars = true;
+    starting_countdown = false;
 }
 
 void LevelScene::AddEnemy(Enemy * enemy){
@@ -24,23 +27,41 @@ void LevelScene::AddPlayer(Player * p){
 void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, ControllerManager * controllers, Jukebox * jukebox,  int width, int height){
     if (starting){
         // This is here in case we need to set individual player state based on stuff.
-
+        
         // below we are creating random stars to populate the level, using different layering.
-        for (int i=0; i < 9; i++){
-            int random_x = rand() % (width - 5) + 10;
-            int random_y = rand() % (height - 5) + 10;
-            stars_l1.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
+        if (filling_stars){
+            for (int i=0; i < 9; i++){
+                int random_x = rand() % (width - 5) + 10;
+                int random_y = rand() % (height - 5) + 10;
+                stars_l1.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
+            }
+
+            for (int i=0; i < 5; i++){
+                int random_x = rand() % (width - 5) + 10;
+                int random_y = rand() % (height - 5) + 10;
+                stars_l2.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
+            }
+            filling_stars = false;
+        }
+        countdown += clock->delta_time_s;
+        countdown_sprite->Animate(clock);
+
+        if (countdown_sprite->finished){
+            jukebox->PlaySoundEffect("go");
+            jukebox->PlayMusic("stage_music");
+            countdown_sprite->Reset();
+            running = true;
+            starting = false;
+            countdown = 0.0;
         }
 
-        for (int i=0; i < 5; i++){
-            int random_x = rand() % (width - 5) + 10;
-            int random_y = rand() % (height - 5) + 10;
-            stars_l2.push_back(new Bullet(renderer, random_x, random_y, 5, 5, {255, 255, 255, 255}));
-        }
-
-        jukebox->PlayMusic("stage_music");
-        running = true;
-        starting = false;
+        else if (countdown >= .4){
+            if (starting_countdown){
+               jukebox->PlaySoundEffect("countdown"); 
+            }
+            starting_countdown = true;
+            countdown = 0.0;
+        }  
     }
 
     if (running){
@@ -218,12 +239,12 @@ void LevelScene::ManageEnemies(Clock * clock, ControllerManager * controllers, J
                                 player->Hurt();
                                 controllers->SetControllerRumble(0, 0, 60, .3);
                                 jukebox->PlaySoundEffect("dying_p");
-
                                 if (*flip == SDL_FLIP_NONE){
                                     *flip = SDL_FLIP_VERTICAL;
                                 } else {
                                     *flip = SDL_FLIP_NONE;
                                 }
+                                jukebox->PlaySoundEffect("inversion");
                             }
                             bullet->hit = true;
                             enemies[i]->erased.push_back(bullet_index);
@@ -287,7 +308,9 @@ void LevelScene::Reset(Jukebox * jukebox){
     player->Reset();
     jukebox->StopMusic();
     jukebox->StopSoundEffects();
-    jukebox->PlayMusic("stage_music");
+    starting = true;
+    running = false;
+    starting_countdown = false;
 }
 
 void LevelScene::RenderScene(){
@@ -310,6 +333,10 @@ void LevelScene::RenderScene(){
         star->Render();
     }
 
+    if (starting){
+        countdown_sprite->Render();
+    }
+
     framebuffer->UnsetBuffers();
 
     hud->Render();
@@ -325,7 +352,7 @@ LevelScene::~LevelScene(){
     for (int i=0; i < enemies.size(); i++){
         delete enemies[i];
     }
-
+    delete countdown_sprite;
 	delete hud;
 }
 
