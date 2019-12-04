@@ -75,7 +75,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
         if (options){
 
             if (*flip == SDL_FLIP_VERTICAL){
-                *flip == SDL_FLIP_NONE;
+                *flip = SDL_FLIP_NONE;
                 jukebox->PlaySoundEffect("inversion");
             }
 
@@ -96,7 +96,7 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
             time_left += clock->delta_time_s;
 
             if (*flip == SDL_FLIP_VERTICAL){
-                *flip == SDL_FLIP_NONE;
+                *flip = SDL_FLIP_NONE;
                 jukebox->PlaySoundEffect("inversion");
             }
 
@@ -461,7 +461,7 @@ bool MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
     if (running){
         seconds_passed += clock->delta_time_s;
 
-        if (buttons["start"]->MouseClicking(mouse) and !select_options){
+        if (buttons["start"]->MouseClicking(mouse) && !select_options){
             select_options = true;
         }
 
