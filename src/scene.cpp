@@ -73,6 +73,12 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
         }
         
         if (options){
+
+            if (*flip == SDL_FLIP_VERTICAL){
+                *flip == SDL_FLIP_NONE;
+                jukebox->PlaySoundEffect("inversion");
+            }
+
             if (keyboard->KeyWasPressed(SDL_SCANCODE_Q)){
                 *state = "MENU";
                 jukebox->StopMusic();
@@ -88,6 +94,12 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
         else if (enemies_dead == int(enemies.size())){
             winner = true;
             time_left += clock->delta_time_s;
+
+            if (*flip == SDL_FLIP_VERTICAL){
+                *flip == SDL_FLIP_NONE;
+                jukebox->PlaySoundEffect("inversion");
+            }
+
             if (time_left >= 5){
                 *state = "MENU";
                 jukebox->StopMusic();
@@ -366,15 +378,15 @@ void LevelScene::RenderScene(){
     }
 
     if (winner){
-        text_renderer->RenderText("YOU WON!", 150, 250, 50, {255, 255, 255, 255}, 2);
+        text_renderer->RenderText("YOU WON!", 200, 250, 50, {255, 255, 255, 255}, 2);
     }
 
     if (options){
         if (*flip == SDL_FLIP_VERTICAL){
             *flip = SDL_FLIP_NONE;
         }
-        text_renderer->RenderText("YOU LOST!", 140, 150, 50, {255, 255, 255, 255}, 2);
-        text_renderer->RenderText("Press 'Q' to quit.\n Press 'R' to restart.", 60, 300, 30, {255, 255, 255, 255}, 2);
+        text_renderer->RenderText("THE ARMADA WON!", 30, 150, 50, {255, 255, 255, 255}, 2);
+        text_renderer->RenderText("Press 'Q' to quit. (X on controller)\n Press 'R' to restart. (A on controller)", 10, 300, 18, {255, 255, 255, 255}, 2);
     }
 
     framebuffer->UnsetBuffers();
@@ -414,8 +426,11 @@ MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer, TextCache *
     this->player = player;
 
     title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .16);
-    buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 600, 150, 100, {0, 0, 64, 64}, 7, 64, .06);
+    buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 540, 150, 100, {0, 0, 64, 64}, 7, 64, .06);
 
+    level_options["level1"] = new SpriteButton(cache, "resources/level1.bmp",490, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
+    level_options["level2"] = new SpriteButton(cache, "resources/level2.bmp",640, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
+    level_options["level3"] = new SpriteButton(cache, "resources/level3.bmp",790, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
     song_ending_time = 82.9;
     animate_interval = 1.2;
 }
@@ -430,6 +445,10 @@ MenuScene::~MenuScene(){
     }
     buttons.clear();
 
+    for (auto const &options: level_options){
+        delete options.second;
+    }
+    level_options.clear();
     delete title;
 }
 
@@ -441,13 +460,39 @@ bool MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
     }
     if (running){
         seconds_passed += clock->delta_time_s;
-        if (buttons["start"]->MouseClicking(mouse)){
-            *state = "GAME";
-            *path = "resources/levels/level2.mx";
-            jukebox->StopMusic();
-            title->Reset();
-            seconds_passed = 0;
-            return 1;
+
+        if (buttons["start"]->MouseClicking(mouse) and !select_options){
+            select_options = true;
+        }
+
+        if (select_options){
+            if (level_options["level1"]->MouseClicking(mouse)){
+                *state = "GAME";
+                *path = "resources/levels/level.mx";
+                jukebox->StopMusic();
+                title->Reset();
+                select_options = false;
+                seconds_passed = 0;
+                return 1;
+            }
+            if (level_options["level2"]->MouseClicking(mouse)){
+                *state = "GAME";
+                *path = "resources/levels/level2.mx";
+                jukebox->StopMusic();
+                title->Reset();
+                select_options = false;
+                seconds_passed = 0;
+                return 1;
+            }
+            if (level_options["level3"]->MouseClicking(mouse)){
+                *state = "GAME";
+                *path = "resources/levels/level3.mx";
+                jukebox->StopMusic();
+                title->Reset();
+                select_options = false;
+                seconds_passed = 0;
+                return 1;
+            }
         }
 
         if (seconds_passed >= animate_interval){
@@ -457,6 +502,12 @@ bool MenuScene::Process(Clock * clock, MouseManager * mouse, Jukebox * jukebox, 
         
         for (auto const &button : buttons){
             button.second->Process(clock);
+        }
+
+        if (select_options){
+            for (auto const &option: level_options){
+                option.second->Process(clock);
+            }
         }
 
         // Move the stars.
@@ -485,6 +536,12 @@ void MenuScene::RenderScene(){
     }
 
     title->Render();
+
+    if (select_options){
+        for (auto const &option : level_options){
+            option.second->Render();
+        }
+    }
 
     framebuffer->UnsetBuffers();
 }

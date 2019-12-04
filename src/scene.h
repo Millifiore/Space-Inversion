@@ -61,12 +61,14 @@ class MenuScene {
         Framebuffer * framebuffer;
         AnimatedSprite * title;
         map<string, Button *> buttons;
+        map<string, Button *> level_options;
         vector<Bullet *> stars;
         SDL_Renderer * renderer;
         TextCache * text_cache;
         double seconds_passed = 0.0;
         double animate_interval = 0.0;
         double song_ending_time = 0.0;
+        bool select_options = false;
 
     public:
         bool starting;
