@@ -1,2 +1,3 @@
-# project-3-space_inversion
-This is Space Inversion! 
+# Space Inversion
+This is Space Inversion! a fan made remake of space invaders, with a twist!
+
