@@ -21,19 +21,23 @@
         text-align: center;
         margin-top: 150px;
       }
-      
-      #game_window{
+      #canvas {
         margin-top:-20px;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
       }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
     <title>Space Inversion!</title>
   </head>
-  <body background="/static/background.jpg" style="text-align: center">
+  <body background="/static/background.jpg" style="text-align: center;">
     <div id="text"><h1> <font color='white'>Space Inversion!</font></h1></div>
     <div style="display: inline-block" id='game_window'>
       <p id='loading'><font color='white'>Loading...</font></p>
-      <canvas id= "canvas" style='border:1px solid; background-color:black' width="1152" height="648"></canvas>
+      <canvas id= "canvas" style='border:2px solid; background-color:black' width="1152" height="648"></canvas>
       <script type="application/javascript" src="/static/SpaceInversion.js"></script>
       <script type="application/javascript">
 
@@ -91,8 +95,7 @@
       </script>
     </div>
   </body>
-  
   <footer>
-    <p style="margin-bottom:20px"><font color='white'>Press "A" and "D" to move left and right. <br/> Press Spacebar to shoot</font> <br/> <font color="white">To download, go to </font> <a href = "https://github.com/msu-fa19-cosc458/project-3-space_inversion/releases">github.com/msu-fa19-cosc458/project-3-space_inversion/releases</a> </p>
+    <p style="margin-bottom:10px"><font color='white'>Press "A" and "D" to move left and right. <br/> Press Spacebar to shoot</font> <br/> <font color="white">To download, go to </font> <a href = "https://github.com/msu-fa19-cosc458/project-3-space_inversion/releases">github.com/msu-fa19-cosc458/project-3-space_inversion/releases</a> </p>
   </footer>
 </html>

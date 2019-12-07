@@ -34,7 +34,7 @@ int main(int argc, char ** argv){
 
     SDL_SetEventFilter(Filter, (void*)&game);
     #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(RunAppLoop, (void*)&game, 0, 1);
+    emscripten_set_main_loop_arg(RunAppLoop, (void*)&game, 60, 1);
     #else 
     game.Loop();
     #endif

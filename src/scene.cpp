@@ -409,7 +409,7 @@ LevelScene::~LevelScene(){
 }
 
 
-MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer, TextCache * text, SDL_RendererFlip * flip, Player *){
+MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer, TextCache * text, SDL_RendererFlip * flip, Player * player){
     this->framebuffer = framebuffer;
     this->cache = cache;
     for (int i=0; i < 40; i++){
