@@ -89,10 +89,7 @@ void SpaceInversion::Process(){
     clock.Tick();
 
     // Render scale
-    if (resized){
-        SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
-        resized = false;
-    }
+    SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
     
     // Keyboard and Mouse
     keyboard->Process();
@@ -107,7 +104,6 @@ void SpaceInversion::Process(){
         if (event.type == SDL_WINDOWEVENT_RESIZED){
             WIDTH = event.window.data1;
             HEIGHT = event.window.data2;
-            resized = true;
         }
 
         controllers->ProcessControllerEvents(&event);
