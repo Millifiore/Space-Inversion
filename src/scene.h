@@ -40,7 +40,7 @@ public:
     bool running;
     bool finished;
     bool paused;
-    LevelScene(SDL_Renderer * renderer,Framebuffer * Framebuffer,SpriteCache * ,TextCache *,SDL_RendererFlip * flip);
+    LevelScene(SDL_Renderer * renderer, Framebuffer * Framebuffer, SpriteCache * , TextCache *,SDL_RendererFlip * flip);
     
     void AddEnemy(Enemy * enemy);
     void AddPlayer(Player * player);

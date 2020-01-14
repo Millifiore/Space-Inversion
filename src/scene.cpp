@@ -428,9 +428,9 @@ MenuScene::MenuScene(SpriteCache * cache, Framebuffer * framebuffer, TextCache *
     title = new AnimatedSprite(cache, {0, 0, 64, 64}, {640, 270, 700, 380}, "resources/title.bmp", 64, 7, .16);
     buttons["start"] = new SpriteButton(cache, "resources/start_button.bmp", 640, 540, 150, 100, {0, 0, 64, 64}, 7, 64, .06);
 
-    level_options["level1"] = new SpriteButton(cache, "resources/level1.bmp",490, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
-    level_options["level2"] = new SpriteButton(cache, "resources/level2.bmp",640, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
-    level_options["level3"] = new SpriteButton(cache, "resources/level3.bmp",790, 640, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
+    level_options["level1"] = new SpriteButton(cache, "resources/level1.bmp", 470, 660, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
+    level_options["level2"] = new SpriteButton(cache, "resources/level2.bmp", 640, 660, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
+    level_options["level3"] = new SpriteButton(cache, "resources/level3.bmp", 810, 660, 150, 100, {0, 0, 64, 64}, 2, -64, .03);
     song_ending_time = 82.9;
     animate_interval = 1.2;
 }

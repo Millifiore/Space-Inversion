@@ -10,7 +10,7 @@ MouseManager::MouseManager(){
 }
 
 void MouseManager::Process(){
-    // clicking check to see if the mouse is currently in the process of clicking something.
+    // clicking checks to see if the mouse is currently in the process of clicking something.
     // SDL_GetMouseState also sets the x position and y position of the mouse rect.
     clicking = SDL_GetMouseState(&x_pos, &y_pos) & SDL_BUTTON(1);
 

@@ -40,6 +40,8 @@ void SpriteButton::Process(Clock * clock){
     else {
         state = "DEFAULT";
     }
+    sprites[state]->SetPos(x_pos, y_pos);
+    area = sprites[state]->d_rect;
     sprites[state]->Animate(clock);
 }
 
@@ -49,11 +51,5 @@ bool SpriteButton::MouseTouching(MouseManager * mouse){
 }
 
 void SpriteButton::Render(){
-    area.x = (x_pos - int(area.w / 2));
-    area.y = (y_pos - int(area.w / 2));
-    area.w = sprites[state]->d_rect.w;
-    area.h = sprites[state]->d_rect.h;
-
-    sprites[state]->SetPos(x_pos, y_pos);
     sprites[state]->Render();
 }
