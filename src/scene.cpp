@@ -12,7 +12,6 @@ LevelScene::LevelScene(SDL_Renderer * r, Framebuffer * framebuffer, SpriteCache 
     shot_interval = 1;
     this->flip = flip;
     filling_stars = true;
-    starting_countdown = false;
     text_renderer = text_cache;
 
 }
@@ -45,25 +44,31 @@ void LevelScene::Process(Clock * clock, KeyboardManager * keyboard, MouseManager
             }
             filling_stars = false;
         }
+
         countdown += clock->delta_time_s;
+
+        if (countdown >= .4){
+            countdown_n -= 1;
+            if (countdown_n > 0){
+                jukebox->PlaySoundEffect("countdown"); 
+            }
+            else if (countdown_n == 0){
+                jukebox->PlaySoundEffect("go");
+            }
+            countdown = 0.0;
+        }  
+
         countdown_sprite->Animate(clock);
 
         if (countdown_sprite->finished){
-            jukebox->PlaySoundEffect("go");
             jukebox->PlayMusic("stage_music");
             countdown_sprite->Reset();
             running = true;
+            countdown_n = 4;
             starting = false;
             countdown = 0.0;
         }
 
-        else if (countdown >= .4){
-            if (starting_countdown){
-               jukebox->PlaySoundEffect("countdown"); 
-            }
-            starting_countdown = true;
-            countdown = 0.0;
-        }  
     }
 
     if (running){
@@ -350,7 +355,7 @@ void LevelScene::Reset(Jukebox * jukebox){
     starting = true;
     running = false;
     options = false;
-    starting_countdown = false;
+    countdown_n = 4;
 }
 
 void LevelScene::RenderScene(){

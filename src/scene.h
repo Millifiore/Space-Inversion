@@ -19,6 +19,7 @@ private:
     Player * player = nullptr;
     double time_left = 0.0;
     double countdown = 0.0;
+    int countdown_n = 4;
     double shoot_timer = 0.0;
     double shot_interval = 0.0;
     string direction = "left";
@@ -32,7 +33,6 @@ private:
     Hud * hud;
     SDL_RendererFlip * flip;
     bool filling_stars = true;
-    bool starting_countdown = false;
     bool options = false;
     bool winner = false;
 public:
