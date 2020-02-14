@@ -17,7 +17,7 @@ private:
     int WIDTH = 1280, HEIGHT = 720;
     int GAME_WIDTH = 800, GAME_HEIGHT = 600;
     Uint32 WINDOW_FLAGS = SDL_WINDOW_ALLOW_HIGHDPI;
-    Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC ;
+    Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC;
     string state = "MENU";
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     string scene_path = "";
@@ -37,7 +37,7 @@ private:
 
     // Private functions
     void Process();
-    void Render();
+    
 
 public:
     // Variables
@@ -49,6 +49,7 @@ public:
     int Start(int argc, char ** argv);
     void Loop();
     void End();
+    void Render();
 
     ~SpaceInversion();
 };

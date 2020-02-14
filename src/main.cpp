@@ -3,8 +3,17 @@
 
 //Event Filter for potentially mobile devices and consoles
 int Filter(void * userdata, SDL_Event * event){
-        SpaceInversion * game = static_cast<SpaceInversion*>(userdata);
+    SpaceInversion * game = static_cast<SpaceInversion*>(userdata);
     switch (event->type) {
+        case SDL_WINDOWEVENT:
+            {
+                // This adresses the weird way that Microsoft decides to resize the window.
+                if (event->window.event == SDL_WINDOWEVENT_RESIZED){
+                    game->Render();
+                }
+            }
+            return 1;
+
         case SDL_APP_WILLENTERBACKGROUND:
             game->running = false;
             return 0;

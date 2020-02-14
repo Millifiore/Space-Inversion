@@ -64,7 +64,6 @@ int SpaceInversion::Start(int argc, char** argv){
     
     // Start running the app
     running = true;
-
     return 1;
 }
 
@@ -76,7 +75,6 @@ void SpaceInversion::Loop(){
 
         Process();
         Render();
-
         SDL_Delay(5);
 
     #ifndef __EMSCRIPTEN__
@@ -87,9 +85,6 @@ void SpaceInversion::Loop(){
 void SpaceInversion::Process(){
     // Clock tick
     clock.Tick();
-
-    // Render scale
-    SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
     
     // Keyboard and Mouse
     keyboard->Process();
@@ -99,12 +94,8 @@ void SpaceInversion::Process(){
         running = false;
     } 
 
-    //Event Loop
+    // Event Loop
     while (SDL_PollEvent(&event)){ 
-        if (event.type == SDL_WINDOWEVENT_RESIZED){
-            WIDTH = event.window.data1;
-            HEIGHT = event.window.data2;
-        }
 
         controllers->ProcessControllerEvents(&event);
 
@@ -114,7 +105,7 @@ void SpaceInversion::Process(){
         }
     }
 
-    // General Game loop stuff goes here 
+    // General game loop stuff goes here 
     controllers->ProcessControllerButtonState();
 
     // Only for debug
@@ -142,25 +133,32 @@ void SpaceInversion::Process(){
 }
 
 void SpaceInversion::Render(){
-    if (state == "MENU"){
-        menu->RenderScene();
-    }
-    if (state == "GAME"){
-        game_scene->RenderScene();
+    if (running){
+        // Render scale
+        SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
+
+        if (state == "MENU"){
+            menu->RenderScene();
+        }
+        if (state == "GAME"){
+            game_scene->RenderScene();
+        }
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (state == "MENU"){
+            framebuffer->RenderBuffer("MENU", WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
+        }
+        if (state == "GAME"){
+            framebuffer->RenderBuffer("HUD",WIDTH/2, HEIGHT/2, GAME_WIDTH, HEIGHT);
+            framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
+        }
+
+        SDL_RenderPresent(renderer);
     }
     
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    if (state == "MENU"){
-        framebuffer->RenderBuffer("MENU", WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
-    }
-    if (state == "GAME"){
-        framebuffer->RenderBuffer("HUD",WIDTH/2, HEIGHT/2, GAME_WIDTH, HEIGHT);
-        framebuffer->RenderBuffer("GAME", WIDTH/2, HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, flip);
-    }
-
-    SDL_RenderPresent(renderer);
+    
 }
 
 SpaceInversion::~SpaceInversion(){
