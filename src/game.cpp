@@ -98,7 +98,7 @@ void SpaceInversion::Process(){
     while (SDL_PollEvent(&event)){ 
 
         controllers->ProcessControllerEvents(&event);
-
+        
         if (event.type == SDL_QUIT){
             running = false;
             break;
@@ -157,8 +157,6 @@ void SpaceInversion::Render(){
 
         SDL_RenderPresent(renderer);
     }
-    
-    
 }
 
 SpaceInversion::~SpaceInversion(){

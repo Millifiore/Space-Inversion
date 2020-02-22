@@ -7,9 +7,19 @@ int Filter(void * userdata, SDL_Event * event){
     switch (event->type) {
         case SDL_WINDOWEVENT:
             {
-                // This adresses the weird way that Microsoft decides to resize the window.
-                if (event->window.event == SDL_WINDOWEVENT_RESIZED){
-                    game->Render();
+                switch(event->window.event){
+                    case SDL_WINDOWEVENT_RESIZED:
+                    {
+                        game->Render();
+                    }
+                    return 1;
+
+                    case SDL_WINDOWEVENT_CLOSE: 
+                    {
+                        event->type = SDL_QUIT;
+                        SDL_PushEvent(event);
+                    }
+                    return 0;
                 }
             }
             return 1;

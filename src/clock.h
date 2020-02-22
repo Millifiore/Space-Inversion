@@ -10,6 +10,6 @@ class Clock{
         ~Clock();
        
     private:
-        Uint64 last_time;
-        Uint64 current_time;
+        uint32_t last_time;
+        uint32_t current_time;
 };
