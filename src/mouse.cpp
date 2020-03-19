@@ -9,10 +9,19 @@ MouseManager::MouseManager(){
     mouse_rect = {0, 0, 20, 20};
 }
 
+void MouseManager::GetPositionEvent(SDL_Event * event){
+    // This is used instead, as SDL_GetMouseState doesn't change the x_pos and y_pos in relation
+    // to the mouse.
+    if (event->type == SDL_MOUSEMOTION){
+        x_pos = event->motion.x;
+        y_pos = event->motion.y;
+    }
+}
+
 void MouseManager::Process(){
     // clicking checks to see if the mouse is currently in the process of clicking something.
     // SDL_GetMouseState also sets the x position and y position of the mouse rect.
-    clicking = SDL_GetMouseState(&x_pos, &y_pos) & SDL_BUTTON(1);
+    clicking = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(1);
 
     // has clicked checks to see if the mouse has clicked, but is not currently clicking something.
     has_clicked = clicked && !clicking;

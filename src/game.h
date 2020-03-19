@@ -16,7 +16,7 @@ private:
     // Private general variables
     int WIDTH = 1280, HEIGHT = 720;
     int GAME_WIDTH = 800, GAME_HEIGHT = 600;
-    Uint32 WINDOW_FLAGS = SDL_WINDOW_ALLOW_HIGHDPI;
+    Uint32 WINDOW_FLAGS = SDL_WINDOW_SHOWN;
     Uint32 RENDERER_FLAGS = SDL_RENDERER_PRESENTVSYNC;
     string state = "MENU";
     SDL_RendererFlip flip = SDL_FLIP_NONE;
@@ -43,6 +43,7 @@ public:
     // Variables
     int running;
     bool resized = false;
+    int current_width = WIDTH, current_height = HEIGHT;
     // Functions
     SpaceInversion();
 

@@ -85,20 +85,18 @@ void SpaceInversion::Loop(){
 void SpaceInversion::Process(){
     // Clock tick
     clock.Tick();
-    
+
     // Keyboard and Mouse
     keyboard->Process();
     mouse->Process();
-
     if (keyboard->KeyIsPressed(SDL_SCANCODE_ESCAPE)){
         running = false;
     } 
 
     // Event Loop
     while (SDL_PollEvent(&event)){ 
-
+        mouse->GetPositionEvent(&event);
         controllers->ProcessControllerEvents(&event);
-        
         if (event.type == SDL_QUIT){
             running = false;
             break;

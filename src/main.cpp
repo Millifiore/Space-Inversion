@@ -8,6 +8,13 @@ int Filter(void * userdata, SDL_Event * event){
         case SDL_WINDOWEVENT:
             {
                 switch(event->window.event){
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    {
+                        game->current_width = event->window.data1;
+                        game->current_height = event->window.data2;
+                    }
+                    return 1;
+
                     case SDL_WINDOWEVENT_RESIZED:
                     {
                         game->Render();

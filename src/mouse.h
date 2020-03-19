@@ -15,6 +15,7 @@ class MouseManager{
         // functions
         MouseManager();
         void Process();
+        void GetPositionEvent(SDL_Event *);
         bool IsClicking(SDL_Rect * rect);
         bool HasClicked(SDL_Rect * rect);
         bool IsTouching(SDL_Rect * rect);
